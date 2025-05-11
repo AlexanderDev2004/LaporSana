@@ -8,12 +8,6 @@ untuk penyelesaian masalah yang ada di kampus.
 <table>
   <tr>
     <td align="center">
-      <a href="https://github.com/AlexanderDev2004/LaporSana">
-        <br />
-        <sub><b>LaporSana</b></sub>
-      </a>
-    </td>
-    <td align="center">
       <a href="https://github.com/AlexanderDev2004">
         <br />
         <sub><b>Alexander</b></sub>
