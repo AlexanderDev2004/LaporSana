@@ -28,7 +28,7 @@ Route::get('logout', [AuthController::class, 'logout'])->middleware('auth')->nam
 // Rute untuk Admin (role 1)
 Route::middleware(['auth', 'authorize:1'])->group(function () {
     Route::get('/admin/dashboard', function () {
-        return view('admin.index');
+        return view('admin.dashboard');
     })->name('admin.dashboard');
 });
 

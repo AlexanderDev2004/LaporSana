@@ -7,6 +7,7 @@ use App\Models\User;
 use App\Models\UserModel;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Session;
 
 class AuthController extends Controller
 {
@@ -18,6 +19,8 @@ class AuthController extends Controller
         return view('auth.login');
     }
 
+
+
     public function postlogin(Request $request)
     {
         $credentials = $request->validate([
@@ -28,37 +31,32 @@ class AuthController extends Controller
         $user = UserModel::where('username', $credentials['username'])->first();
 
         if (!$user || !Hash::check($credentials['password'], $user->password)) {
-            return response()->json([
-                'status' => false,
-                'message' => 'Username atau password salah'
-            ], 401);
-        }
-
-        $role = $user->roles_id;
-        $redirects = [
-            1 => ['url' => '/admin/dashboard', 'role' => 'Admin'],
-            2 => ['url' => '/mahasiswa/dashboard', 'role' => 'Mahasiswa'],
-            3 => ['url' => '/dosen/dashboard', 'role' => 'Dosen'],
-            4 => ['url' => '/tendik/dashboard', 'role' => 'Tendik'],
-            5 => ['url' => '/sarana/dashboard', 'role' => 'Sarana Prasarana'],
-            6 => ['url' => '/teknis/dashboard', 'role' => 'Teknis'],
-        ];
-
-        if (!array_key_exists($role, $redirects)) {
-            return response()->json([
-                'status' => false,
-                'message' => 'Role tidak valid'
-            ], 403);
+            return back()->withErrors(['msg' => 'Username atau password salah']);
         }
 
         Auth::login($user);
-        return response()->json([
-            'status' => true,
-            'message' => 'Login Berhasil sebagai ' . $redirects[$role]['role'],
-            'redirect' => url($redirects[$role]['url']),
-            'avatar' => $user->avatar
-        ]);
+
+        // Ambil role dan arahkan ke dashboard masing-masing
+        $role = $user->roles_id;
+        switch ($role) {
+            case 1:
+                return redirect('/admin/dashboard');
+            case 2:
+                return redirect('/mahasiswa/dashboard');
+            case 3:
+                return redirect('/dosen/dashboard');
+            case 4:
+                return redirect('/tendik/dashboard');
+            case 5:
+                return redirect('/sarana/dashboard');
+            case 6:
+                return redirect('/teknis/dashboard');
+            default:
+                Auth::logout();
+                return back()->withErrors(['msg' => 'Role tidak dikenali']);
+        }
     }
+
     public function logout(Request $request)
     {
         Auth::logout();
