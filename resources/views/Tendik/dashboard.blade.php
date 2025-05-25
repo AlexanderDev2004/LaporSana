@@ -3,4 +3,4 @@
     Logout
 </a>
 
-<h1>Testing ADMIN</h1>
+<h1>Testing Tendik</h1>
