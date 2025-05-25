@@ -27,6 +27,7 @@ class AuthorizeUser
         return $next($request);
     }
 
-    abort(403, 'Kamu tidak punya akses ke halaman ini');
+    return response()->view('403', [], 403);
 }
 }
+
