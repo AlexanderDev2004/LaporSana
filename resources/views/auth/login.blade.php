@@ -1,15 +1,14 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" class="dark">
 
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="csrf-token" content="{{ csrf_token() }}">
     <title>Login Pengguna - LaporSana</title>
-    <!-- Google Font: Source Sans Pro -->
+    <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="{{ asset('adminlte/plugins/fontawesome-free/css/all.min.css') }}">
     <link rel="stylesheet" href="{{ asset('adminlte/plugins/sweetalert2-theme-bootstrap-4/bootstrap-4.min.css') }}">
-    <link rel="stylesheet" href="{{ asset('adminlte/dist/css/adminlte.min.css') }}">
     <style>
         .loading-spinner {
             display: none;
@@ -22,47 +21,41 @@
     </style>
 </head>
 
-<body class="hold-transition login-page">
-    <div class="login-box">
-        <div class="card card-outline card-primary">
-            <div class="card-header text-center">
-                <a href="{{ url('/') }}" class="h1"><b>Lapor</b>Sana</a>
+<body class="min-h-screen flex items-center justify-center bg-gray-900 dark:bg-gray-900">
+    <div class="w-full max-w-md">
+        <div class="bg-gray-800 rounded-lg shadow-lg p-8">
+            <div class="text-center mb-6">
+                <a href="{{ url('/') }}" class="text-3xl font-bold text-white"><b>Lapor</b><span class="text-blue-400">Sana</span></a>
             </div>
-            <div class="card-body">
-                <p class="login-box-msg">Sign in to start your session</p>
+            <div>
+                <p class="text-gray-300 text-center mb-6">Sign in to start your session</p>
                 <form action="{{ route('postlogin') }}" method="POST" id="form-login" autocomplete="off">
                     @csrf
-                    <div class="input-group mb-3">
-                        <input type="text" id="username" name="username" class="form-control" placeholder="Username" required>
-                        <div class="input-group-append">
-                            <div class="input-group-text">
-                                <span class="fas fa-user"></span>
-                            </div>
+                    <div class="mb-4">
+                        <label for="username" class="block text-gray-300 mb-1">Username</label>
+                        <div class="relative">
+                            <input type="text" id="username" name="username" class="form-input w-full px-4 py-2 rounded bg-gray-700 text-white border border-gray-600 focus:border-blue-500 focus:ring-blue-500" placeholder="Username" required>
+                            <span class="absolute right-3 top-2.5 text-gray-400"><i class="fas fa-user"></i></span>
                         </div>
-                        <small id="error-username" class="error-text text-danger"></small>
+                        <small id="error-username" class="error-text text-red-400"></small>
                     </div>
-                    <div class="input-group mb-3">
-                        <input type="password" id="password" name="password" class="form-control" placeholder="Password" required>
-                        <div class="input-group-append">
-                            <div class="input-group-text">
-                                <span class="fas fa-lock"></span>
-                            </div>
+                    <div class="mb-4">
+                        <label for="password" class="block text-gray-300 mb-1">Password</label>
+                        <div class="relative">
+                            <input type="password" id="password" name="password" class="form-input w-full px-4 py-2 rounded bg-gray-700 text-white border border-gray-600 focus:border-blue-500 focus:ring-blue-500" placeholder="Password" required>
+                            <span class="absolute right-3 top-2.5 text-gray-400"><i class="fas fa-lock"></i></span>
                         </div>
-                        <small id="error-password" class="error-text text-danger"></small>
+                        <small id="error-password" class="error-text text-red-400"></small>
                     </div>
-                    <div class="row">
-                        <div class="col-8">
-                            <div class="icheck-primary">
-                                <input type="checkbox" id="remember" name="remember">
-                                <label for="remember">Remember Me</label>
-                            </div>
-                        </div>
-                        <div class="col-4">
-                            <button type="submit" class="btn btn-primary btn-block" id="btn-login">
-                                Sign In
-                                <span class="fas fa-spinner fa-spin loading-spinner"></span>
-                            </button>
-                        </div>
+                    <div class="flex items-center justify-between mb-6">
+                        <label class="inline-flex items-center text-gray-300">
+                            <input type="checkbox" id="remember" name="remember" class="form-checkbox text-blue-500 bg-gray-700 border-gray-600">
+                            <span class="ml-2">Remember Me</span>
+                        </label>
+                        <button type="submit" class="btn btn-primary bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-6 rounded focus:outline-none focus:ring-2 focus:ring-blue-500 flex items-center justify-center" id="btn-login">
+                            Sign In
+                            <span class="fas fa-spinner fa-spin loading-spinner ml-2"></span>
+                        </button>
                     </div>
                 </form>
             </div>
@@ -74,7 +67,6 @@
     <script src="{{ asset('adminlte/plugins/jquery-validation/jquery.validate.min.js') }}"></script>
     <script src="{{ asset('adminlte/plugins/jquery-validation/additional-methods.min.js') }}"></script>
     <script src="{{ asset('adminlte/plugins/sweetalert2/sweetalert2.min.js') }}"></script>
-    <script src="{{ asset('adminlte/dist/js/adminlte.min.js') }}"></script>
 
     <script>
         $.ajaxSetup({
@@ -98,7 +90,6 @@
                     }
                 },
                 submitHandler: function(form) {
-                    // Tampilkan loading spinner dan disable tombol
                     const $btnLogin = $('#btn-login');
                     $btnLogin.prop('disabled', true);
                     $btnLogin.find('.loading-spinner').show();
@@ -118,7 +109,6 @@
                                     window.location = response.redirect;
                                 });
                             } else {
-                                // Tampilkan pesan error umum
                                 Swal.fire({
                                     icon: 'error',
                                     title: 'Terjadi Kesalahan',
@@ -134,7 +124,6 @@
                             });
                         },
                         complete: function() {
-                            // Sembunyikan loading spinner dan enable tombol
                             $btnLogin.prop('disabled', false);
                             $btnLogin.find('.loading-spinner').hide();
                         }
