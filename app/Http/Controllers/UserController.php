@@ -11,36 +11,47 @@ class UserController extends Controller
 {
     public function index()
     {
-        $breadcrumbs = (object) [
+        $breadcrumb = (object) [
             'title' => 'Selamat Datang',
             'list'  => ['Home', 'Welcome']
         ];
 
         $active_menu = 'dashboard';
-        return view('admin.dashboard', ['breadcrumb' => $breadcrumbs, 'active_menu' => $active_menu]);
+        return view('admin.dashboard', compact('breadcrumb', 'active_menu'));
     }
 
     public function create()
     {
+        $breadcrumb = (object) [
+            'title' => 'Tambah User',
+            'list'  => ['Home', 'User', 'Tambah']
+        ];
+
+        $active_menu = 'users';
         $roles = RoleModel::all();
-        return view('admin.create', compact('roles'));
+
+        return view('admin.create', compact('roles', 'active_menu', 'breadcrumb'));
     }
 
     public function store(Request $request)
     {
         $validated = $request->validate([
-            'username' => 'required|unique:users,username',
+            'username' => 'required|unique:m_user,username',
             'nama' => 'required|string|max:255',
             'password' => 'required|string|min:6',
-            'role_id' => 'required|exists:roles,roles_id',
+            'roles_id' => 'required|exists:m_roles,roles_id', // Ubah ke m_roles
             'avatar' => 'nullable|image|max:2048',
+            'NIM' => 'nullable|string|max:20',
+            'NIP' => 'nullable|string|max:20'
         ]);
 
         $user = new UserModel();
         $user->username = $validated['username'];
         $user->nama = $validated['nama'];
         $user->password = bcrypt($validated['password']);
-        $user->role_id = $validated['role_id'];
+        $user->roles_id = $validated['roles_id'];
+        $user->NIM = $validated['NIM'];
+        $user->NIP = $validated['NIP'];
 
         if ($request->hasFile('avatar')) {
             $user->avatar = $request->file('avatar')->store('avatars', 'public');
@@ -48,7 +59,7 @@ class UserController extends Controller
 
         $user->save();
 
-        return redirect()->route('admin.dashboard')->with('success', 'User berhasil ditambahkan.');
+        return redirect()->route('admin.users.index')->with('success', 'User berhasil ditambahkan.');
     }
 
 
@@ -65,20 +76,30 @@ class UserController extends Controller
 
         $request->validate([
             'username' => 'required|unique:m_user,username,' . $id . ',user_id',
-            'roles_id' => 'required',
+            'nama' => 'required',
+            'role_id' => 'required|exists:m_roles,roles_id', // Ubah ke m_roles
+            'NIM' => 'nullable|string|max:20',
+            'NIP' => 'nullable|string|max:20',
             'avatar' => 'nullable|image|mimes:jpeg,png,jpg,gif,svg|max:2048',
-
         ]);
 
-        $user->update([
+        $data = [
             'username' => $request->username,
-            'roles_id' => $request->roles_id,
             'nama' => $request->nama,
-            'password' => $request->password ? Hash::make($request->password) : $user->password,
-            'NIM' => optional($request)->NIM,
-            'NIP' => optional($request)->NIP,
-            'avatar' => $request->hasFile('avatar') ? $request->file('avatar')->store('avatars', 'public') : $user->avatar,
-        ]);
+            'role_id' => $request->role_id,
+            'NIM' => $request->NIM,
+            'NIP' => $request->NIP,
+        ];
+
+        if ($request->password) {
+            $data['password'] = Hash::make($request->password);
+        }
+
+        if ($request->hasFile('avatar')) {
+            $data['avatar'] = $request->file('avatar')->store('avatars', 'public');
+        }
+
+        $user->update($data);
 
         return redirect()->route('admin.users.index')->with('success', 'User updated successfully.');
     }
@@ -89,5 +110,17 @@ class UserController extends Controller
         $user->delete();
 
         return redirect()->route('admin.users.index')->with('success', 'User deleted successfully.');
+    }
+    public function list()
+    {
+        $breadcrumb = (object) [
+            'title' => 'Manajemen User',
+            'list'  => ['Home', 'User']
+        ];
+
+        $active_menu = 'users';
+        $users = UserModel::with('role')->get();
+
+        return view('admin.users.index', compact('breadcrumb', 'active_menu', 'users'));
     }
 }

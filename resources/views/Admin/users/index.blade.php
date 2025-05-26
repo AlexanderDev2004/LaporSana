@@ -1,0 +1,65 @@
+@extends('layouts.admin.template')
+
+@section('content')
+<div class="card">
+    <div class="card-header">
+        <h3 class="card-title">Daftar User</h3>
+        <div class="card-tools">
+            <a href="{{ route('admin.users.create') }}" class="btn btn-primary">
+                <i class="fas fa-plus"></i> Tambah User
+            </a>
+        </div>
+    </div>
+    <div class="card-body">
+        @if(session('success'))
+            <div class="alert alert-success">{{ session('success') }}</div>
+        @endif
+
+        <table class="table table-bordered">
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Username</th>
+                    <th>Nama</th>
+                    <th>Role</th>
+                    <th>NIM</th>
+                    <th>NIP</th>
+                    <th>Avatar</th>
+                    <th>Aksi</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach($users as $user)
+                <tr>
+                    <td>{{ $user->user_id }}</td>
+                    <td>{{ $user->username }}</td>
+                    <td>{{ $user->nama }}</td>
+                    <td>{{ $user->role->roles_nama }}</td>
+                    <td>{{ $user->NIM ?? '-' }}</td>
+                    <td>{{ $user->NIP ?? '-' }}</td>
+                    <td>
+                        @if($user->avatar)
+                            <img src="{{ asset('storage/' . $user->avatar) }}" width="50" class="img-circle">
+                        @else
+                            <img src="{{ asset('LaporSana/dist/img/user2-160x160.jpg') }}" width="50" class="img-circle">
+                        @endif
+                    </td>
+                    <td>
+                        <a href="{{ route('admin.users.edit', $user->user_id) }}" class="btn btn-sm btn-warning">
+                            <i class="fas fa-edit"></i>
+                        </a>
+                        <form action="{{ route('admin.users.destroy', $user->user_id) }}" method="POST" style="display:inline;">
+                            @csrf
+                            @method('DELETE')
+                            <button type="submit" class="btn btn-sm btn-danger" onclick="return confirm('Apakah Anda yakin?')">
+                                <i class="fas fa-trash"></i>
+                            </button>
+                        </form>
+                    </td>
+                </tr>
+                @endforeach
+            </tbody>
+        </table>
+    </div>
+</div>
+@endsection
