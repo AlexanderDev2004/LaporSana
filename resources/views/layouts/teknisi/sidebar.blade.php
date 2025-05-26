@@ -6,7 +6,7 @@
           <img src="{{ asset('LaporSana/dist/img/user2-160x160.jpg') }}" class="img-circle elevation-2" alt="User Image">
         </div>
         <div class="info">
-          <a href="#" class="d-block">Alexander Pierce -Admin</a>
+          <a href="#" class="d-block">Alexander Pierce -teknisi</a>
         </div>
       </div>
 
@@ -28,39 +28,18 @@
               <p>Logout</p>
             </a>
         </li>
-        <li class="nav-header">Manajemen Data Pengguna</li>
         <li class="nav-item">
           <a href="{{ url('/') }}" class="nav-link">
-            <i class="nav-icon fas fa-layer-group"></i>
-            <p>Role User</p>
+            <i class="nav-icon fas fa-tasks"></i>
+            <p>Tugas</p>
           </a>
         </li>
         <li class="nav-item">
           <a href="{{ url('/') }}" class="nav-link">
-            <i class="nav-icon far fa-user"></i>
-            <p>Data User</p>
+            <i class="nav-icon fas fa-business-time"></i>
+            <p>Riwayat Tugas</p>
           </a>
         </li>
-        <li class="nav-header">Manajemen Data Fasilitas</li>
-        <li class="nav-item">
-          <a href="{{ url('/') }}" class="nav-link">
-            <i class="nav-icon fas fa-home"></i>
-            <p>Ruangan</p>
-          </a>
-        </li>
-        <li class="nav-item">
-          <a href="{{ url('/') }}" class="nav-link">
-            <i class="nav-icon fas fa-plug"></i>
-            <p>Fasilitas</p>
-          </a>
-        </li>
-        <li class="nav-header">Arsip</li>
-        <li class="nav-item">
-          <a href="{{ url('/') }}" class="nav-link">
-            <i class="nav-icon fas fa-file"></i>
-            <p>Laporan</p>
-          </a>
-        </li>      
       </ul>
     </nav>
       <!-- /.sidebar-menu -->
