@@ -3,6 +3,14 @@ Laporsana adalah sebuah website untuk membuat dan mengelola masalah fasilitas ya
 kampus, perbaikan fasilitas dengan integrasi sistem pendukung keputusan, yang memberikan rekomendasi
 untuk penyelesaian masalah yang ada di kampus.
 
+## How to
+```bash
+git clone https://github.com/LaporSana/LaporSana.git
+cd LaporSana
+composer install
+php artisan migrate
+
+```
 ## Contributors
 
 <table>
