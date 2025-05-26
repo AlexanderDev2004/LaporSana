@@ -11,8 +11,13 @@ class UserController extends Controller
 {
     public function index()
     {
-        $users = UserModel::with('role')->get();
-        return view('admin.dashboard', compact('users'));
+        $breadcrumbs = (object) [
+            'title' => 'Selamat Datang',
+            'list'  => ['Home', 'Welcome']
+        ];
+
+        $active_menu = 'dashboard';
+        return view('admin.dashboard', ['breadcrumb' => $breadcrumbs, 'active_menu' => $active_menu]);
     }
 
     public function create()
