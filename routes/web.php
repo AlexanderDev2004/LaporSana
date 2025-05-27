@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\AuthController;
+use App\Http\Controllers\TeknisiController;
 use App\Http\Controllers\UserController;
 use Illuminate\Auth\Middleware\Authorize;
 use Illuminate\Support\Facades\Route;
@@ -63,7 +64,5 @@ Route::middleware(['authorize:5'])->group(function () {
     })->name('sarana.dashboard');
 });
 Route::middleware(['authorize:6'])->group(function () {
-    Route::get('/teknis/dashboard', function () {
-        return view('teknis.dashboard');
-    })->name('teknis.dashboard');
+     Route::get('/teknis/dashboard',[TeknisiController::class,'index'])->name('teknis.dashboard');
 });
