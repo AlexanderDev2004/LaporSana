@@ -32,7 +32,7 @@
 <body class="hold-transition sidebar-mini layout-fixed">
 <div class="wrapper">
   <!-- Navbar -->
-  @include('layouts.admin.header')
+  @include('layouts.teknisi.header')
   <!-- /.navbar -->
 
   <!-- Main Sidebar Container -->
@@ -44,14 +44,14 @@
     </a>
 
    <!-- Sidebar -->
-   @include('layouts.admin.sidebar')
+   @include('layouts.teknisi.sidebar')
    <!-- /.sidebar -->
   </aside>
 
   <!-- Content Wrapper. Contains page content -->
   <div class="content-wrapper">
     <!-- Content Header (Page header) -->
-    @include('layouts.admin.breadcrumb')
+    @include('layouts.teknisi.breadcrumb')
 
     <!-- Main content -->
     <section class="content">
@@ -60,7 +60,7 @@
     <!-- /.content -->
   </div>
   <!-- /.content-wrapper -->
-  @include('layouts.admin.footer')
+  @include('layouts.teknisi.footer')
 
   <!-- Control Sidebar -->
   <aside class="control-sidebar control-sidebar-dark">

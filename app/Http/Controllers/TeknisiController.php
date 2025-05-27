@@ -14,6 +14,6 @@ class TeknisiController extends Controller
         ];
 
         $active_menu = 'dashboard';
-        return view('teknis.dashboard', ['breadcrumb' => $breadcrumbs, 'active_menu' => $active_menu]);
+        return view('teknisi.dashboard', ['breadcrumb' => $breadcrumbs, 'active_menu' => $active_menu]);
     }
 }

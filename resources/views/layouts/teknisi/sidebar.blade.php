@@ -7,7 +7,7 @@
                  alt="User Image">
          </div>
          <div class="info">
-             <a href="#" class="d-block">Alexander Pierce -teknisi</a>
+             <a href="#" class="d-block">Alexander Pierce - teknisi</a>
          </div>
      </div>
 
@@ -22,11 +22,7 @@
                      <p>Dashboard</p>
                  </a>
              </li>
-             <li class="nav-item">
-                 <a href="{{ route('logout') }}" class="nav-icon fas fa-sign-out-alt">
-                     Logout
-                 </a>
-             </li>
+            
              <li class="nav-item">
                  <a href="{{ url('/') }}" class="nav-link">
                      <i class="nav-icon fas fa-tasks"></i>
@@ -37,6 +33,12 @@
                  <a href="{{ url('/') }}" class="nav-link">
                      <i class="nav-icon fas fa-business-time"></i>
                      <p>Riwayat Tugas</p>
+                 </a>
+             </li> 
+             <li class="nav-item">
+                 <a href="{{ route('logout') }}" class="nav-link">
+                    <i class="nav-icon fas fa-sign-out-alt"></i>
+                     Logout
                  </a>
              </li>
          </ul>

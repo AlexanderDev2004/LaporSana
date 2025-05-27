@@ -64,5 +64,6 @@ Route::middleware(['authorize:5'])->group(function () {
     })->name('sarana.dashboard');
 });
 Route::middleware(['authorize:6'])->group(function () {
-     Route::get('/teknis/dashboard',[TeknisiController::class,'index'])->name('teknis.dashboard');
+     Route::get('/teknisi/dashboard',[TeknisiController::class,'index'])->name('teknisi.dashboard');
+      Route::get('/teknisi/users', [TeknisiController::class, 'index'])->name('teknisi.users');
 });
