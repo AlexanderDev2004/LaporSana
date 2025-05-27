@@ -151,4 +151,15 @@ class UserController extends Controller
 
         return view('admin.users.index', compact('breadcrumb', 'active_menu', 'users'));
     }
+    public function show(UserModel $user)
+    {
+        $breadcrumb = (object) [
+            'title' => 'Detail User',
+            'list'  => ['Home', 'User', 'Detail']
+        ];
+
+        $active_menu = 'users';
+
+        return view('admin.users.show', compact('user', 'active_menu', 'breadcrumb'));
+    }
 }

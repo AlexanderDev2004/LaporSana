@@ -38,6 +38,7 @@ Route::middleware(['auth', 'authorize:1'])->group(function () {
         Route::get('/', [UserController::class, 'list'])->name('admin.users.index');
         Route::get('/create', [UserController::class, 'create'])->name('admin.users.create');
         Route::post('/', [UserController::class, 'store'])->name('admin.users.store');
+        Route::get('/{user}', [UserController::class, 'show'])->name('admin.users.show');
         Route::get('/{user}/edit', [UserController::class, 'edit'])->name('admin.users.edit');
         Route::put('/{user}', [UserController::class, 'update'])->name('admin.users.update');
         Route::delete('/{user}', [UserController::class, 'destroy'])->name('admin.users.destroy');
@@ -49,6 +50,7 @@ Route::middleware(['auth', 'authorize:1'])->group(function () {
         Route::get('/create', [RoleController::class, 'create'])->name('admin.roles.create');
         Route::post('/', [RoleController::class, 'store'])->name('admin.roles.store');
         Route::get('/{role}/edit', [RoleController::class, 'edit'])->name('admin.roles.edit');
+        Route::get('/{role}', [RoleController::class, 'show'])->name('admin.roles.show');
         Route::put('/{role}', [RoleController::class, 'update'])->name('admin.roles.update');
         Route::delete('/{role}', [RoleController::class, 'destroy'])->name('admin.roles.destroy');
     });

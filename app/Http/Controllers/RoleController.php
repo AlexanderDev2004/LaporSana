@@ -49,13 +49,12 @@ class RoleController extends Controller
             ]);
 
             return redirect()->route('admin.roles.index')
-                   ->with('success', 'Role berhasil ditambahkan');
-
+                ->with('success', 'Role berhasil ditambahkan');
         } catch (\Exception $e) {
-            Log::error('Error creating role: '.$e->getMessage());
+            Log::error('Error creating role: ' . $e->getMessage());
             return redirect()->back()
-                   ->with('error', 'Gagal menambahkan role')
-                   ->withInput();
+                ->with('error', 'Gagal menambahkan role')
+                ->withInput();
         }
     }
 
@@ -74,8 +73,8 @@ class RoleController extends Controller
     public function update(Request $request, RoleModel $role)
     {
         $request->validate([
-            'roles_nama' => 'required|unique:m_roles,roles_nama,'.$role->roles_id.',roles_id|string|max:50',
-            'roles_kode' => 'required|unique:m_roles,roles_kode,'.$role->roles_id.',roles_id|string|max:10',
+            'roles_nama' => 'required|unique:m_roles,roles_nama,' . $role->roles_id . ',roles_id|string|max:50',
+            'roles_kode' => 'required|unique:m_roles,roles_kode,' . $role->roles_id . ',roles_id|string|max:10',
             'roles_deskripsi' => 'nullable|string|max:255'
         ]);
 
@@ -87,13 +86,12 @@ class RoleController extends Controller
             ]);
 
             return redirect()->route('admin.roles.index')
-                   ->with('success', 'Role berhasil diperbarui');
-
+                ->with('success', 'Role berhasil diperbarui');
         } catch (\Exception $e) {
-            Log::error('Error updating role: '.$e->getMessage());
+            Log::error('Error updating role: ' . $e->getMessage());
             return redirect()->back()
-                   ->with('error', 'Gagal memperbarui role')
-                   ->withInput();
+                ->with('error', 'Gagal memperbarui role')
+                ->withInput();
         }
     }
 
@@ -102,12 +100,23 @@ class RoleController extends Controller
         try {
             $role->delete();
             return redirect()->route('admin.roles.index')
-                   ->with('success', 'Role berhasil dihapus');
-
+                ->with('success', 'Role berhasil dihapus');
         } catch (\Exception $e) {
-            Log::error('Error deleting role: '.$e->getMessage());
+            Log::error('Error deleting role: ' . $e->getMessage());
             return redirect()->route('admin.roles.index')
-                   ->with('error', 'Gagal menghapus role');
+                ->with('error', 'Gagal menghapus role');
         }
+    }
+
+    public function show(RoleModel $role)
+    {
+        $breadcrumb = (object) [
+            'title' => 'Detail Role',
+            'list'  => ['Home', 'Roles', 'Detail']
+        ];
+
+        $active_menu = 'roles';
+
+        return view('admin.roles.show', compact('breadcrumb', 'active_menu', 'role'));
     }
 }
