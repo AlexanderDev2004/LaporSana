@@ -6,6 +6,8 @@ use App\Models\UserModel;
 use App\Models\RoleModel;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Storage;
 
 class UserController extends Controller
 {
@@ -65,44 +67,70 @@ class UserController extends Controller
 
     public function edit(UserModel $user)
     {
+        $breadcrumb = (object) [
+            'title' => 'Edit User',
+            'list'  => ['Home', 'User', 'Edit']
+        ];
+
+        $active_menu = 'users';
         $roles = RoleModel::all();
-        return view('admin.users', compact('user', 'roles'));
+
+        return view('admin.users.edit', compact('user', 'roles', 'active_menu', 'breadcrumb'));
     }
 
 
-    public function update(Request $request, $id)
+    public function update(Request $request, UserModel $user)
     {
-        $user = UserModel::findOrFail($id);
-
-        $request->validate([
-            'username' => 'required|unique:m_user,username,' . $id . ',user_id',
+        $validated = $request->validate([
+            'username' => 'required|unique:m_user,username,' . $user->user_id . ',user_id',
             'nama' => 'required',
-            'role_id' => 'required|exists:m_roles,roles_id', // Ubah ke m_roles
+            'roles_id' => 'required|exists:m_roles,roles_id',
             'NIM' => 'nullable|string|max:20',
             'NIP' => 'nullable|string|max:20',
             'avatar' => 'nullable|image|mimes:jpeg,png,jpg,gif,svg|max:2048',
+            'password' => 'nullable|string|min:6',
         ]);
 
-        $data = [
-            'username' => $request->username,
-            'nama' => $request->nama,
-            'role_id' => $request->role_id,
-            'NIM' => $request->NIM,
-            'NIP' => $request->NIP,
-        ];
+        try {
+            // Debug data sebelum update
+            Log::info('Data sebelum update:', $user->toArray());
+            Log::info('Data validasi:', $validated);
 
-        if ($request->password) {
-            $data['password'] = Hash::make($request->password);
+            $data = [
+                'username' => $validated['username'],
+                'nama' => $validated['nama'],
+                'roles_id' => $validated['roles_id'],
+                'NIM' => $validated['NIM'],
+                'NIP' => $validated['NIP'],
+            ];
+
+            if ($request->filled('password')) {
+                $data['password'] = Hash::make($validated['password']);
+            }
+
+            if ($request->hasFile('avatar')) {
+                // Hapus avatar lama jika ada
+                if ($user->avatar) {
+                    Storage::delete('public/' . $user->avatar);
+                }
+                $data['avatar'] = $request->file('avatar')->store('avatars', 'public');
+            }
+
+            $user->update($data);
+
+            // Debug data setelah update
+            Log::info('Data setelah update:', $user->fresh()->toArray());
+
+            return redirect()->route('admin.users.index')
+                ->with('success', 'User berhasil diperbarui.');
+        } catch (\Exception $e) {
+            Log::error('Error updating user: ' . $e->getMessage());
+            return redirect()->back()
+                ->with('error', 'Gagal memperbarui user: ' . $e->getMessage())
+                ->withInput();
         }
-
-        if ($request->hasFile('avatar')) {
-            $data['avatar'] = $request->file('avatar')->store('avatars', 'public');
-        }
-
-        $user->update($data);
-
-        return redirect()->route('admin.users.index')->with('success', 'User updated successfully.');
     }
+
 
     public function destroy($id)
     {

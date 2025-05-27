@@ -30,7 +30,8 @@
              </li>
              <li class="nav-header">Manajemen Data Pengguna</li>
              <li class="nav-item">
-                 <a href="{{ url('/') }}" class="nav-link">
+                 <a href="{{ route('admin.roles.index') }}"
+                 class="nav-link" {{ $active_menu == 'roles' ? 'active' : '' }}">
                      <i class="nav-icon fas fa-layer-group"></i>
                      <p>Role User</p>
                  </a>
