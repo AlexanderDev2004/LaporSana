@@ -14,8 +14,27 @@
             @if (session('success'))
                 <div class="alert alert-success">{{ session('success') }}</div>
             @endif
+            @if (session('error'))
+                <div class="alert alert-danger">{{ session('error') }}</div>
+            @endif
 
-            <table class="table table-bordered">
+            <!-- Form Filter -->
+            <form method="GET" action="{{ route('admin.users.index') }}" class="form-inline mb-3">
+                <label for="role" class="mr-2">Filter Role:</label>
+                <select name="role" id="role" class="form-control mr-2">
+                    <option value="">- Semua Role -</option>
+                    @foreach ($roles as $item)
+                        <option value="{{ $item->roles_id }}"
+                            {{ request('role') == $item->roles_id ? 'selected' : '' }}>
+                            {{ $item->roles_nama }}
+                        </option>
+                    @endforeach
+                </select>
+                <button type="submit" class="btn btn-primary">Filter</button>
+            </form>
+
+            <!-- Tabel User -->
+            <table class="table table-bordered table-hover">
                 <thead>
                     <tr>
                         <th>ID</th>
@@ -29,46 +48,53 @@
                     </tr>
                 </thead>
                 <tbody>
-                    @foreach ($users as $user)
+                    @forelse ($users as $user)
                         <tr>
                             <td>{{ $user->user_id }}</td>
                             <td>{{ $user->username }}</td>
-                            <td>{{ $user->name }}</td>
+                            <td>{{ $user->nama }}</td>
                             <td>
                                 @if ($user->avatar)
-                                    <img src="{{ asset('storage/' . $user->avatar) }}" width="50" class="img-circle">
+                                    <img src="{{ asset('storage/' . $user->avatar) }}" width="50" class="img-circle" alt="Avatar">
                                 @else
-                                    <img src="{{ asset('LaporSana/dist/img/user2-160x160.jpg') }}" width="50"
-                                        class="img-circle">
+                                    <img src="{{ asset('LaporSana/dist/img/user2-160x160.jpg') }}" width="50" class="img-circle" alt="Default Avatar">
                                 @endif
                             </td>
-                            <td>{{ $user->role->roles_nama }}</td>
+                            <td>{{ $user->role->roles_nama ?? 'Tidak Ada Role' }}</td>
                             <td>{{ $user->NIM ?? '-' }}</td>
                             <td>{{ $user->NIP ?? '-' }}</td>
                             <td>
                                 <div class="d-flex">
                                     <a href="{{ route('admin.users.show', $user) }}"
-                                        class="btn btn-sm btn-info btn-actions" title="Detail">
+                                        class="btn btn-sm btn-info btn-actions mr-1" title="Detail">
                                         <i class="fas fa-eye"></i>
                                     </a>
                                     <a href="{{ route('admin.users.edit', $user) }}"
-                                        class="btn btn-sm btn-warning btn-actions" title="Edit">
+                                        class="btn btn-sm btn-warning btn-actions mr-1" title="Edit">
                                         <i class="fas fa-edit"></i>
                                     </a>
-                                    <form action="{{ route('admin.users.destroy', $user) }}" method="POST">
+                                    <form action="{{ route('admin.users.destroy', $user) }}" method="POST" onsubmit="return confirm('Apakah Anda yakin ingin menghapus user ini?')">
                                         @csrf
                                         @method('DELETE')
-                                        <button type="submit" class="btn btn-sm btn-danger btn-actions" title="Hapus"
-                                            onclick="return confirm('Apakah Anda yakin?')">
+                                        <button type="submit" class="btn btn-sm btn-danger btn-actions" title="Hapus">
                                             <i class="fas fa-trash"></i>
                                         </button>
                                     </form>
                                 </div>
                             </td>
                         </tr>
-                    @endforeach
+                    @empty
+                        <tr>
+                            <td colspan="8" class="text-center">Tidak ada data user ditemukan.</td>
+                        </tr>
+                    @endforelse
                 </tbody>
             </table>
+
+            <!-- Pagination -->
+            <div class="mt-3">
+                {{ $users->links() }}
+            </div>
         </div>
     </div>
 @endsection

@@ -139,7 +139,7 @@ class UserController extends Controller
 
         return redirect()->route('admin.users.index')->with('success', 'User deleted successfully.');
     }
-    public function list()
+    public function list(Request $request)
     {
         $breadcrumb = (object) [
             'title' => 'Manajemen User',
@@ -147,10 +147,25 @@ class UserController extends Controller
         ];
 
         $active_menu = 'users';
-        $users = UserModel::with('role')->get();
 
-        return view('admin.users.index', compact('breadcrumb', 'active_menu', 'users'));
+        // Ambil semua role untuk dropdown filter
+        $roles = RoleModel::all();
+
+        // Buat query user dengan relasi role
+        $query = UserModel::with('role');
+
+        // Jika ada filter role
+        if ($request->filled('role') && $request->role !== '') {
+            $query->where('roles_id', $request->role);
+        }
+
+        // Jalankan query dengan pagination
+        $users = $query->paginate(10); 
+
+        // Kirim data ke view, termasuk roles dan filter yang aktif
+        return view('admin.users.index', compact('breadcrumb', 'active_menu', 'users', 'roles'));
     }
+
     public function show(UserModel $user)
     {
         $breadcrumb = (object) [
