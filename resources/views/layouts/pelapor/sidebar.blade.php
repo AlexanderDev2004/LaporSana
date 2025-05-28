@@ -1,4 +1,4 @@
- <!-- Sidebar -->
+<!-- Sidebar -->
  <div class="sidebar">
      <!-- Sidebar user panel (optional) -->
      <div class="user-panel mt-3 pb-3 mb-3 d-flex">
@@ -7,7 +7,7 @@
                  alt="User Image">
          </div>
          <div class="info">
-             <a href="#" class="d-block">Alexander Pierce -teknisi</a>
+             <a href="#" class="d-block"><strong>{{ Auth::user()->name }}</strong></a>
          </div>
      </div>
 
@@ -24,20 +24,41 @@
                  </a>
              </li>
              <li class="nav-item">
+                 <a href="{{ url('/') }}" class="nav-link">
+                     <i class="nav-icon fas fa-file"></i>
+                     <p>Form Laporan Kerusakan</p>
+                 </a>
+             </li>
+             <li class="nav-header">Manajemen Data Pengguna</li>
+             <li class="nav-item">
+                 <a href="{{ url('/') }}" class="nav-link">
+                     <i class="nav-icon fas fa-layer-group"></i>
+                     <p>Role User</p>
+                 </a>
+             </li>
+             <li class="nav-item">
+                 <a href="{{ route('admin.users.index') }}"
+                     class="nav-link {{ $active_menu == 'users' ? 'active' : '' }}">
+                     <i class="nav-icon far fa-user"></i>
+                     <p>Data User</p>
+                 </a>
+             </li>
+             <li class="nav-header">Manajemen Data Fasilitas</li>
+             <li class="nav-item">
+                 <a href="{{ url('/') }}" class="nav-link">
+                     <i class="nav-icon fas fa-home"></i>
+                     <p>Ruangan</p>
+                 </a>
+             </li>
+             <li class="nav-item">
+                 <a href="{{ url('/') }}" class="nav-link">
+                     <i class="nav-icon fas fa-plug"></i>
+                     <p>Fasilitas</p>
+                 </a>
+             </li>
+             <li class="nav-header">
                  <a href="{{ route('logout') }}" class="nav-icon fas fa-sign-out-alt">
                      Logout
-                 </a>
-             </li>
-             <li class="nav-item">
-                 <a href="{{ url('/') }}" class="nav-link">
-                     <i class="nav-icon fas fa-file-upload"></i>
-                     <p>Laporan</p>
-                 </a>
-             </li>
-             <li class="nav-item">
-                 <a href="{{ url('/') }}" class="nav-link">
-                     <i class="nav-icon fas fa-file-signature"></i>
-                     <p>Riwayat Laporan</p>
                  </a>
              </li>
          </ul>

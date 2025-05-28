@@ -42,11 +42,11 @@ class AuthController extends Controller
             case 1:
                 return redirect('/admin/dashboard');
             case 2:
-                return redirect('/mahasiswa/dashboard');
+                return redirect('/pelapor/dashboard');
             case 3:
-                return redirect('/dosen/dashboard');
+                return redirect('/pelapor/dashboard');
             case 4:
-                return redirect('/tendik/dashboard');
+                return redirect('/pelapor/dashboard');
             case 5:
                 return redirect('/sarana/dashboard');
             case 6:
