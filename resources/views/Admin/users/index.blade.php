@@ -21,10 +21,10 @@
                         <th>ID</th>
                         <th>Username</th>
                         <th>Nama</th>
+                        <th>Avatar</th>
                         <th>Role</th>
                         <th>NIM</th>
                         <th>NIP</th>
-                        <th>Avatar</th>
                         <th>Aksi</th>
                     </tr>
                 </thead>
@@ -33,10 +33,7 @@
                         <tr>
                             <td>{{ $user->user_id }}</td>
                             <td>{{ $user->username }}</td>
-                            <td>{{ $user->nama }}</td>
-                            <td>{{ $user->role->roles_nama }}</td>
-                            <td>{{ $user->NIM ?? '-' }}</td>
-                            <td>{{ $user->NIP ?? '-' }}</td>
+                            <td>{{ $user->name }}</td>
                             <td>
                                 @if ($user->avatar)
                                     <img src="{{ asset('storage/' . $user->avatar) }}" width="50" class="img-circle">
@@ -45,6 +42,9 @@
                                         class="img-circle">
                                 @endif
                             </td>
+                            <td>{{ $user->role->roles_nama }}</td>
+                            <td>{{ $user->NIM ?? '-' }}</td>
+                            <td>{{ $user->NIP ?? '-' }}</td>
                             <td>
                                 <div class="d-flex">
                                     <a href="{{ route('admin.users.show', $user) }}"
