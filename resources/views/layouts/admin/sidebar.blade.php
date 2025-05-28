@@ -1,14 +1,15 @@
  <!-- Sidebar -->
-    <div class="sidebar">
-      <!-- Sidebar user panel (optional) -->
-      <div class="user-panel mt-3 pb-3 mb-3 d-flex">
-        <div class="image">
-          <img src="{{ asset('LaporSana/dist/img/user2-160x160.jpg') }}" class="img-circle elevation-2" alt="User Image">
-        </div>
-        <div class="info">
-          <a href="#" class="d-block">Alexander Pierce</a>
-        </div>
-      </div>
+ <div class="sidebar">
+     <!-- Sidebar user panel (optional) -->
+     <div class="user-panel mt-3 pb-3 mb-3 d-flex">
+         <div class="image">
+             <img src="{{ asset('LaporSana/dist/img/user2-160x160.jpg') }}" class="img-circle elevation-2"
+                 alt="User Image">
+         </div>
+         <div class="info">
+             <a href="#" class="d-block">Alexander Pierce</a>
+         </div>
+     </div>
 
      <!-- Sidebar Menu -->
      <nav class="mt-2">
@@ -17,26 +18,27 @@
              with font-awesome or any other icon font library -->
              <li class="nav-header">Opsi</li>
              <li class="nav-item">
-                 <a href="{{ url('/') }}" class="nav-link {{ $active_menu == 'dashboard' ? 'active' : '' }}">
+                 <a href="{{ route('admin.dashboard') }}" class="nav-link {{ $active_menu == 'dashboard' ? 'active' : '' }}">
                      <i class="nav-icon fas fa-tachometer-alt"></i>
                      <p>Dashboard</p>
                  </a>
              </li>
              <li class="nav-header">
-                 <a href="{{ route('logout') }}"
-                     class="nav-icon fas fa-sign-out-alt">
+                 <a href="{{ route('logout') }}" class="nav-icon fas fa-sign-out-alt">
                      Logout
                  </a>
              </li>
              <li class="nav-header">Manajemen Data Pengguna</li>
              <li class="nav-item">
-                 <a href="{{ url('/') }}" class="nav-link">
+                 <a href="{{ route('admin.roles.index') }}"
+                 class="nav-link" {{ $active_menu == 'roles' ? 'active' : '' }}">
                      <i class="nav-icon fas fa-layer-group"></i>
                      <p>Role User</p>
                  </a>
              </li>
              <li class="nav-item">
-                 <a href="{{ url('/') }}" class="nav-link">
+                 <a href="{{ route('admin.users.index') }}"
+                     class="nav-link {{ $active_menu == 'users' ? 'active' : '' }}">
                      <i class="nav-icon far fa-user"></i>
                      <p>Data User</p>
                  </a>
