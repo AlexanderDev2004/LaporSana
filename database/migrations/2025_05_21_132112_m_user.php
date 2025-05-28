@@ -15,7 +15,7 @@ return new class extends Migration
             $table->id('user_id');
             $table->foreignId('roles_id')->constrained('m_roles', 'roles_id')->onDelete('cascade');
             $table->string('username', 255);
-            $table->string('nama', 255);
+            $table->string('name', 255);
             $table->string('password', 255);
             $table->integer('NIM')->nullable();
             $table->integer('NIP')->nullable();

@@ -16,9 +16,9 @@ class UserModel extends Authenticatable
     protected $primaryKey = 'user_id';
     public $incrementing = true;
     protected $fillable = [
-        'roles_id', 
+        'roles_id',
         'username',
-        'nama',
+        'name',
         'password',
         'NIM',
         'NIP',

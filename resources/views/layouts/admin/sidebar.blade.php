@@ -18,7 +18,7 @@
              with font-awesome or any other icon font library -->
              <li class="nav-header">Opsi</li>
              <li class="nav-item">
-                 <a href="{{ url('/') }}" class="nav-link {{ $active_menu == 'dashboard' ? 'active' : '' }}">
+                 <a href="{{ route('admin.dashboard') }}" class="nav-link {{ $active_menu == 'dashboard' ? 'active' : '' }}">
                      <i class="nav-icon fas fa-tachometer-alt"></i>
                      <p>Dashboard</p>
                  </a>
@@ -30,7 +30,8 @@
              </li>
              <li class="nav-header">Manajemen Data Pengguna</li>
              <li class="nav-item">
-                 <a href="{{ url('/') }}" class="nav-link">
+                 <a href="{{ route('admin.roles.index') }}"
+                 class="nav-link" {{ $active_menu == 'roles' ? 'active' : '' }}">
                      <i class="nav-icon fas fa-layer-group"></i>
                      <p>Role User</p>
                  </a>
