@@ -13,8 +13,8 @@
                     <input type="text" class="form-control" id="username" name="username" required>
                 </div>
                 <div class="form-group">
-                    <label for="nama">Nama</label>
-                    <input type="text" class="form-control" id="nama" name="nama" required>
+                    <label for="name">Nama</label>
+                    <input type="text" class="form-control" id="name" name="name" required>
                 </div>
                 <div class="form-group">
                     <label for="password">Password</label>

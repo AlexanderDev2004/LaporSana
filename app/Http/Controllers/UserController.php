@@ -8,6 +8,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
+use Yajra\DataTables\Facades\DataTables;
 
 class UserController extends Controller
 {
@@ -39,7 +40,7 @@ class UserController extends Controller
     {
         $validated = $request->validate([
             'username' => 'required|unique:m_user,username',
-            'nama' => 'required|string|max:255',
+            'name' => 'required|string|max:255',
             'password' => 'required|string|min:6',
             'roles_id' => 'required|exists:m_roles,roles_id', // Ubah ke m_roles
             'avatar' => 'nullable|image|max:2048',
@@ -49,7 +50,7 @@ class UserController extends Controller
 
         $user = new UserModel();
         $user->username = $validated['username'];
-        $user->nama = $validated['nama'];
+        $user->name = $validated['name'];
         $user->password = bcrypt($validated['password']);
         $user->roles_id = $validated['roles_id'];
         $user->NIM = $validated['NIM'];
@@ -83,7 +84,7 @@ class UserController extends Controller
     {
         $validated = $request->validate([
             'username' => 'required|unique:m_user,username,' . $user->user_id . ',user_id',
-            'nama' => 'required',
+            'name' => 'required',
             'roles_id' => 'required|exists:m_roles,roles_id',
             'NIM' => 'nullable|string|max:20',
             'NIP' => 'nullable|string|max:20',
@@ -98,7 +99,7 @@ class UserController extends Controller
 
             $data = [
                 'username' => $validated['username'],
-                'nama' => $validated['nama'],
+                'name' => $validated['name'],
                 'roles_id' => $validated['roles_id'],
                 'NIM' => $validated['NIM'],
                 'NIP' => $validated['NIP'],
@@ -154,17 +155,17 @@ class UserController extends Controller
         // Buat query user dengan relasi role
         $query = UserModel::with('role');
 
-        // Jika ada filter role
+        // Terapkan filter role jika ada
         if ($request->filled('role') && $request->role !== '') {
             $query->where('roles_id', $request->role);
         }
 
-        // Jalankan query dengan pagination
-        $users = $query->paginate(10); 
+        // Ambil data dengan paginasi (10 per halaman)
+        $users = $query->paginate(10);
 
-        // Kirim data ke view, termasuk roles dan filter yang aktif
         return view('admin.users.index', compact('breadcrumb', 'active_menu', 'users', 'roles'));
     }
+
 
     public function show(UserModel $user)
     {

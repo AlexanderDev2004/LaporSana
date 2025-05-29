@@ -10,31 +10,31 @@
                 </a>
             </div>
         </div>
+
         <div class="card-body">
             @if (session('success'))
                 <div class="alert alert-success">{{ session('success') }}</div>
             @endif
-            @if (session('error'))
-                <div class="alert alert-danger">{{ session('error') }}</div>
-            @endif
 
-            <!-- Form Filter -->
+            {{-- Filter Role --}}
             <form method="GET" action="{{ route('admin.users.index') }}" class="form-inline mb-3">
                 <label for="role" class="mr-2">Filter Role:</label>
                 <select name="role" id="role" class="form-control mr-2">
-                    <option value="">- Semua Role -</option>
+                    <option value="">- Semua -</option>
                     @foreach ($roles as $item)
-                        <option value="{{ $item->roles_id }}"
-                            {{ request('role') == $item->roles_id ? 'selected' : '' }}>
+                        <option value="{{ $item->roles_id }}" {{ request('role') == $item->roles_id ? 'selected' : '' }}>
                             {{ $item->roles_nama }}
                         </option>
                     @endforeach
                 </select>
-                <button type="submit" class="btn btn-primary">Filter</button>
+                <button type="submit" class="btn btn-primary">Terapkan</button>
             </form>
-
-            <!-- Tabel User -->
-            <table class="table table-bordered table-hover">
+            <div class="col-md-3 offset-md-6 text-right">
+                    <label for="search" class="control-label">Search:</label>
+                    <input type="text" id="search" class="form-control" placeholder="Search...">
+                </div>
+            {{-- Tabel User --}}
+            <table id="user-table" class="table table-bordered table-striped">
                 <thead>
                     <tr>
                         <th>ID</th>
@@ -52,31 +52,29 @@
                         <tr>
                             <td>{{ $user->user_id }}</td>
                             <td>{{ $user->username }}</td>
-                            <td>{{ $user->nama }}</td>
+                            <td>{{ $user->name ?? $user->nama }}</td>
                             <td>
                                 @if ($user->avatar)
-                                    <img src="{{ asset('storage/' . $user->avatar) }}" width="50" class="img-circle" alt="Avatar">
+                                    <img src="{{ asset('storage/' . $user->avatar) }}" width="50" class="img-circle">
                                 @else
-                                    <img src="{{ asset('LaporSana/dist/img/user2-160x160.jpg') }}" width="50" class="img-circle" alt="Default Avatar">
+                                    <img src="{{ asset('LaporSana/dist/img/user2-160x160.jpg') }}" width="50" class="img-circle">
                                 @endif
                             </td>
-                            <td>{{ $user->role->roles_nama ?? 'Tidak Ada Role' }}</td>
+                            <td>{{ $user->role->roles_nama ?? '-' }}</td>
                             <td>{{ $user->NIM ?? '-' }}</td>
                             <td>{{ $user->NIP ?? '-' }}</td>
                             <td>
                                 <div class="d-flex">
-                                    <a href="{{ route('admin.users.show', $user) }}"
-                                        class="btn btn-sm btn-info btn-actions mr-1" title="Detail">
+                                    <a href="{{ route('admin.users.show', $user) }}" class="btn btn-sm btn-info mr-1" title="Detail">
                                         <i class="fas fa-eye"></i>
                                     </a>
-                                    <a href="{{ route('admin.users.edit', $user) }}"
-                                        class="btn btn-sm btn-warning btn-actions mr-1" title="Edit">
+                                    <a href="{{ route('admin.users.edit', $user) }}" class="btn btn-sm btn-warning mr-1" title="Edit">
                                         <i class="fas fa-edit"></i>
                                     </a>
                                     <form action="{{ route('admin.users.destroy', $user) }}" method="POST" onsubmit="return confirm('Apakah Anda yakin ingin menghapus user ini?')">
                                         @csrf
                                         @method('DELETE')
-                                        <button type="submit" class="btn btn-sm btn-danger btn-actions" title="Hapus">
+                                        <button type="submit" class="btn btn-sm btn-danger" title="Hapus">
                                             <i class="fas fa-trash"></i>
                                         </button>
                                     </form>
@@ -85,16 +83,42 @@
                         </tr>
                     @empty
                         <tr>
-                            <td colspan="8" class="text-center">Tidak ada data user ditemukan.</td>
+                            <td colspan="8" class="text-center">Tidak ada data pengguna.</td>
                         </tr>
                     @endforelse
                 </tbody>
             </table>
-
-            <!-- Pagination -->
-            <div class="mt-3">
-                {{ $users->links() }}
-            </div>
         </div>
     </div>
 @endsection
+
+@push('css')
+    <link rel="stylesheet" href="https://cdn.datatables.net/1.13.6/css/jquery.dataTables.min.css">
+@endpush
+
+@push('js')
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
+    <script>
+        $(document).ready(function () {
+            $('#user-table').DataTable({
+                responsive: true,
+                language: {
+                    lengthMenu: "Tampilkan _MENU_ entri",
+                    zeroRecords: "Tidak ditemukan data",
+                    info: "Menampilkan _START_ sampai _END_ dari _TOTAL_ entri",
+                    infoEmpty: "Menampilkan 0 sampai 0 dari 0 entri",
+                    infoFiltered: "(difilter dari _MAX_ total entri)",
+                    search: "Cari:",
+                    paginate: {
+                        first: "Pertama",
+                        last: "Terakhir",
+                        next: "Selanjutnya",
+                        previous: "Sebelumnya"
+                    },
+                },
+                pageLength: 10
+            });
+        });
+    </script>
+@endpush
