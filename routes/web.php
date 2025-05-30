@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\AuthController;
+use App\Http\Controllers\MahasiswaController;
 use App\Http\Controllers\UserController;
 use Illuminate\Auth\Middleware\Authorize;
 use Illuminate\Support\Facades\Route;
@@ -39,9 +40,11 @@ Route::middleware(['auth', 'authorize:1'])->group(function () {
 
 // Rute untuk Mahasiswa (role 2)
 Route::middleware(['authorize:2'])->group(function () {
-    Route::get('/mahasiswa/dashboard', function () {
-        return view('mahasiswa.dashboard');
-    })->name('mahasiswa.dashboard');
+    Route::group(['prefix' => 'mahasiswa'], function () {
+        Route::get('/dashboard', [MahasiswaController::class, 'index'])->name('mahasiswa.dashboard');
+        Route::get('/laporan', [MahasiswaController::class, 'laporan'])->name('mahasiswa.laporan');
+        Route::post('/laporan/create', [MahasiswaController::class, 'create'])->name('mahasiswa.create');
+    });
 });
 
 // Rute untuk Dosen (role 3)
