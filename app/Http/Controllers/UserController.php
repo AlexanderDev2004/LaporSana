@@ -12,16 +12,32 @@ use Yajra\DataTables\Facades\DataTables;
 
 class UserController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
-        $breadcrumb = (object) [
-            'title' => 'Selamat Datang',
-            'list'  => ['Home', 'Welcome']
-        ];
+
 
         $active_menu = 'dashboard';
-        return view('admin.dashboard', compact('breadcrumb', 'active_menu'));
+        $query = UserModel::with('role');
+
+        if ($request->filled('role')) {
+            $query->where('roles_id', $request->role);
+        }
+
+        if ($request->filled('search')) {
+            $search = $request->search;
+            $query->where(function ($q) use ($search) {
+                $q->where('username', 'like', "%$search%")
+                    ->orWhere('name', 'like', "%$search%");
+            });
+        }
+
+        $users = $query->paginate(10);
+        $roles = RoleModel::all();
+
+        return view('admin.users.index', compact( 'users', 'roles'));
     }
+
+
 
     public function create()
     {

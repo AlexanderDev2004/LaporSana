@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\AuthController;
+use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\RoleController;
 use App\Http\Controllers\UserController;
 use Illuminate\Auth\Middleware\Authorize;
@@ -31,8 +32,7 @@ Route::get('logout', [AuthController::class, 'logout'])->middleware('auth')->nam
 // Rute untuk Admin (role 1)
 Route::middleware(['auth', 'authorize:1'])->group(function () {
     // Dashboard
-    Route::get('/admin/dashboard', [UserController::class, 'index'])->name('admin.dashboard');
-
+    Route::get('/admin/dashboard', [DashboardController::class, 'index'])->name('admin.dashboard');
     // User Management
     Route::group(['prefix' => 'admin/users'], function () {
         Route::get('/', [UserController::class, 'list'])->name('admin.users.index');
