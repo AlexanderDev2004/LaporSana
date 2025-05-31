@@ -19,6 +19,7 @@
                 <thead>
                     <tr>
                         <th>ID</th>
+                        <th>Kode Role</th>
                         <th>Nama Role</th>
                         <th>Aksi</th>
                     </tr>
@@ -27,6 +28,7 @@
                     @foreach ($roles as $role)
                         <tr>
                             <td>{{ $role->roles_id }}</td>
+                            <td>{{ $role->roles_kode }}</td>
                             <td>{{ $role->roles_nama }}</td>
                             <td>
                                 <a href="{{ route('admin.roles.show', $role->roles_id) }}" class="btn btn-sm btn-info">
