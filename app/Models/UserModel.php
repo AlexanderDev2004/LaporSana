@@ -7,6 +7,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Foundation\Auth\User as Authenticatable;
+
 class UserModel extends Authenticatable
 {
     use HasFactory;
@@ -17,7 +18,7 @@ class UserModel extends Authenticatable
     protected $fillable = [
         'roles_id',
         'username',
-        'nama',
+        'name',
         'password',
         'NIM',
         'NIP',
@@ -40,21 +41,24 @@ class UserModel extends Authenticatable
     protected function image(): Attribute
     {
         return Attribute::make(
-            get: fn ($image) => url('/storage/posts/' . $image),
+            get: fn($image) => url('/storage/posts/' . $image),
         );
     }
 
     //ambil nama role
-    public function getRoleName(): string{
+    public function getRoleName(): string
+    {
         return $this->role->roles_nama;
     }
 
     //cek apakah user memiliki role tertentu
-    public function hasRole(string $role): bool{
+    public function hasRole(string $role): bool
+    {
         return $this->role->roles_kode === $role;
     }
 
-    public function getRole(){
+    public function getRole()
+    {
         return $this->role->roles_kode;
     }
 

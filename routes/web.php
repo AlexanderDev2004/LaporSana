@@ -43,7 +43,7 @@ Route::middleware(['authorize:2'])->group(function () {
     Route::group(['prefix' => 'mahasiswa'], function () {
         Route::get('/dashboard', [MahasiswaController::class, 'index'])->name('mahasiswa.dashboard');
         Route::get('/laporan', [MahasiswaController::class, 'laporan'])->name('mahasiswa.laporan');
-        Route::post('/laporan/create', [MahasiswaController::class, 'create'])->name('mahasiswa.create');
+        Route::get('/create', [MahasiswaController::class, 'create'])->name('mahasiswa.create');
     });
 });
 
