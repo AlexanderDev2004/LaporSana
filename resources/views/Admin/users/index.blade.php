@@ -29,10 +29,10 @@
                         @endforeach
                     </select>
                 </div>
-                <div class="form-group col-md-3">
+                {{-- <div class="form-group col-md-3">
                     <label for="search" class="mr-2">Search:</label>
                     <input type="text" name="search" id="search" value="{{ request('search') }}" class="form-control w-100" placeholder="Cari username/nama...">
-                </div>
+                </div> --}}
                 <div class="form-group col-md-2">
                     <button type="submit" class="btn btn-primary btn-block mt-4">Terapkan</button>
                 </div>
