@@ -8,19 +8,36 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
+use Yajra\DataTables\Facades\DataTables;
 
 class UserController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
-        $breadcrumb = (object) [
-            'title' => 'Selamat Datang',
-            'list'  => ['Home', 'Welcome']
-        ];
+
 
         $active_menu = 'dashboard';
-        return view('admin.dashboard', compact('breadcrumb', 'active_menu'));
+        $query = UserModel::with('role');
+
+        if ($request->filled('role')) {
+            $query->where('roles_id', $request->role);
+        }
+
+        if ($request->filled('search')) {
+            $search = $request->search;
+            $query->where(function ($q) use ($search) {
+                $q->where('username', 'like', "%$search%")
+                    ->orWhere('name', 'like', "%$search%");
+            });
+        }
+
+        $users = $query->paginate(10);
+        $roles = RoleModel::all();
+
+        return view('admin.users.index', compact( 'users', 'roles'));
     }
+
+
 
     public function create()
     {
@@ -39,7 +56,7 @@ class UserController extends Controller
     {
         $validated = $request->validate([
             'username' => 'required|unique:m_user,username',
-            'nama' => 'required|string|max:255',
+            'name' => 'required|string|max:255',
             'password' => 'required|string|min:6',
             'roles_id' => 'required|exists:m_roles,roles_id', // Ubah ke m_roles
             'avatar' => 'nullable|image|max:2048',
@@ -49,7 +66,7 @@ class UserController extends Controller
 
         $user = new UserModel();
         $user->username = $validated['username'];
-        $user->nama = $validated['nama'];
+        $user->name = $validated['name'];
         $user->password = bcrypt($validated['password']);
         $user->roles_id = $validated['roles_id'];
         $user->NIM = $validated['NIM'];
@@ -83,7 +100,7 @@ class UserController extends Controller
     {
         $validated = $request->validate([
             'username' => 'required|unique:m_user,username,' . $user->user_id . ',user_id',
-            'nama' => 'required',
+            'name' => 'required',
             'roles_id' => 'required|exists:m_roles,roles_id',
             'NIM' => 'nullable|string|max:20',
             'NIP' => 'nullable|string|max:20',
@@ -98,7 +115,7 @@ class UserController extends Controller
 
             $data = [
                 'username' => $validated['username'],
-                'nama' => $validated['nama'],
+                'name' => $validated['name'],
                 'roles_id' => $validated['roles_id'],
                 'NIM' => $validated['NIM'],
                 'NIP' => $validated['NIP'],
@@ -139,7 +156,7 @@ class UserController extends Controller
 
         return redirect()->route('admin.users.index')->with('success', 'User deleted successfully.');
     }
-    public function list()
+    public function list(Request $request)
     {
         $breadcrumb = (object) [
             'title' => 'Manajemen User',
@@ -147,10 +164,25 @@ class UserController extends Controller
         ];
 
         $active_menu = 'users';
-        $users = UserModel::with('role')->get();
 
-        return view('admin.users.index', compact('breadcrumb', 'active_menu', 'users'));
+        // Ambil semua role untuk dropdown filter
+        $roles = RoleModel::all();
+
+        // Buat query user dengan relasi role
+        $query = UserModel::with('role');
+
+        // Terapkan filter role jika ada
+        if ($request->filled('role') && $request->role !== '') {
+            $query->where('roles_id', $request->role);
+        }
+
+        // Ambil data dengan paginasi (10 per halaman)
+        $users = $query->paginate(10);
+
+        return view('admin.users.index', compact('breadcrumb', 'active_menu', 'users', 'roles'));
     }
+
+
     public function show(UserModel $user)
     {
         $breadcrumb = (object) [

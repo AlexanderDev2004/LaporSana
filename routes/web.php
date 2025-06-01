@@ -1,7 +1,9 @@
 <?php
 
 use App\Http\Controllers\AuthController;
+use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\PelaporController;
+use App\Http\Controllers\RoleController;
 use App\Http\Controllers\UserController;
 use Illuminate\Auth\Middleware\Authorize;
 use Illuminate\Support\Facades\Route;
@@ -30,20 +32,29 @@ Route::get('logout', [AuthController::class, 'logout'])->middleware('auth')->nam
 
 // Rute untuk Admin (role 1)
 Route::middleware(['auth', 'authorize:1'])->group(function () {
-    Route::get('/admin/dashboard', [UserController::class, 'index'])->name('admin.dashboard');
+    // Dashboard
+    Route::get('/admin/dashboard', [DashboardController::class, 'index'])->name('admin.dashboard');
+    // User Management
+    Route::group(['prefix' => 'admin/users'], function () {
+        Route::get('/', [UserController::class, 'list'])->name('admin.users.index');
+        Route::get('/create', [UserController::class, 'create'])->name('admin.users.create');
+        Route::post('/', [UserController::class, 'store'])->name('admin.users.store');
+        Route::get('/{user}', [UserController::class, 'show'])->name('admin.users.show');
+        Route::get('/{user}/edit', [UserController::class, 'edit'])->name('admin.users.edit');
+        Route::put('/{user}', [UserController::class, 'update'])->name('admin.users.update');
+        Route::delete('/{user}', [UserController::class, 'destroy'])->name('admin.users.destroy');
+    });
 
-    Route::get('/admin/users', [UserController::class, 'index'])->name('admin.users');
-    Route::get('/admin/users/create', [UserController::class, 'create'])->name('admin.users.create');
-    Route::post('/admin/users', [UserController::class, 'store'])->name('admin.users.store');
-    Route::get('/admin/users/{id}/edit', [UserController::class, 'edit'])->name('admin.users.edit');
-    Route::put('/admin/users/{id}', [UserController::class, 'update'])->name('admin.users.update');
-    Route::delete('/admin/users/{id}', [UserController::class, 'destroy'])->name('admin.users.destroy');
-    Route::get('/admin/users', [UserController::class, 'list'])->name('admin.users.index');
-    Route::get('/admin/users/create', [UserController::class, 'create'])->name('admin.users.create');
-    Route::post('/admin/users', [UserController::class, 'store'])->name('admin.users.store');
-    Route::get('/admin/users/{user}/edit', [UserController::class, 'edit'])->name('admin.users.edit');
-    Route::put('/admin/users/{user}', [UserController::class, 'update'])->name('admin.users.update');
-    Route::delete('/admin/users/{user}', [UserController::class, 'destroy'])->name('admin.users.destroy');
+    // Role Management
+    Route::group(['prefix' => 'admin/roles'], function () {
+        Route::get('/', [RoleController::class, 'index'])->name('admin.roles.index');
+        Route::get('/create', [RoleController::class, 'create'])->name('admin.roles.create');
+        Route::post('/', [RoleController::class, 'store'])->name('admin.roles.store');
+        Route::get('/{role}/edit', [RoleController::class, 'edit'])->name('admin.roles.edit');
+        Route::get('/{role}', [RoleController::class, 'show'])->name('admin.roles.show');
+        Route::put('/{role}', [RoleController::class, 'update'])->name('admin.roles.update');
+        Route::delete('/{role}', [RoleController::class, 'destroy'])->name('admin.roles.destroy');
+    });
 });
 
 // Rute untuk Pelapor (role 2)

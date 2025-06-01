@@ -37,9 +37,9 @@
 
             <div class="form-group">
                 <label for="nama">Nama</label>
-                <input type="text" class="form-control @error('nama') is-invalid @enderror"
-                       id="nama" name="nama" value="{{ old('nama', $user->nama) }}" required>
-                @error('nama')
+                <input type="text" class="form-control @error('name') is-invalid @enderror"
+                       id="name" name="name" value="{{ old('name', $user->name) }}" required>
+                @error('name')
                     <div class="invalid-feedback">{{ $message }}</div>
                 @enderror
             </div>
