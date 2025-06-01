@@ -1,11 +1,11 @@
 <?php
 
 use App\Http\Controllers\AuthController;
-use App\Http\Controllers\RoleController;
+use App\Http\Controllers\PelaporController;
 use App\Http\Controllers\UserController;
 use Illuminate\Auth\Middleware\Authorize;
 use Illuminate\Support\Facades\Route;
-use Tymon\JWTAuth\Http\Parser\RouteParams;
+use Illuminate\Support\Facades\Auth;
 
 /*
 |--------------------------------------------------------------------------
@@ -30,26 +30,36 @@ Route::get('logout', [AuthController::class, 'logout'])->middleware('auth')->nam
 
 // Rute untuk Admin (role 1)
 Route::middleware(['auth', 'authorize:1'])->group(function () {
-    Route::get('/admin/dashboard',[UserController::class,'index'])->name('admin.dashboard');
+    Route::get('/admin/dashboard', [UserController::class, 'index'])->name('admin.dashboard');
+
     Route::get('/admin/users', [UserController::class, 'index'])->name('admin.users');
     Route::get('/admin/users/create', [UserController::class, 'create'])->name('admin.users.create');
     Route::post('/admin/users', [UserController::class, 'store'])->name('admin.users.store');
     Route::get('/admin/users/{id}/edit', [UserController::class, 'edit'])->name('admin.users.edit');
     Route::put('/admin/users/{id}', [UserController::class, 'update'])->name('admin.users.update');
     Route::delete('/admin/users/{id}', [UserController::class, 'destroy'])->name('admin.users.destroy');
+    Route::get('/admin/users', [UserController::class, 'list'])->name('admin.users.index');
+    Route::get('/admin/users/create', [UserController::class, 'create'])->name('admin.users.create');
+    Route::post('/admin/users', [UserController::class, 'store'])->name('admin.users.store');
+    Route::get('/admin/users/{user}/edit', [UserController::class, 'edit'])->name('admin.users.edit');
+    Route::put('/admin/users/{user}', [UserController::class, 'update'])->name('admin.users.update');
+    Route::delete('/admin/users/{user}', [UserController::class, 'destroy'])->name('admin.users.destroy');
 });
 
-// Rute untuk Mahasiswa (role 2)
+// Rute untuk Pelapor (role 2)
 Route::middleware(['authorize:2'])->group(function () {
-    Route::get('/mahasiswa/dashboard', function () {
-        return view('mahasiswa.dashboard');
-    })->name('mahasiswa.dashboard');
+    Route::get('/pelapor/dashboard', [PelaporController::class, 'index'])->name('pelapor.dashboard');
+    // Route::get('/pelapor/dashboard', function () {
+    //     return view('pelapor.dashboard');
+
+    // })->name('Pelapor.dashboard');
 });
 
 // Rute untuk Dosen (role 3)
 Route::middleware(['authorize:3'])->group(function () {
     Route::get('/dosen/dashboard', function () {
-        return view('dosen.dashboard');
+
+        return view('pelapor.dashboard');
     })->name('dosen.dashboard');
 });
 
@@ -66,6 +76,6 @@ Route::middleware(['authorize:5'])->group(function () {
 });
 Route::middleware(['authorize:6'])->group(function () {
     Route::get('/teknis/dashboard', function () {
-        return view('teknis.dashboard');
+        return view('teknisi.dashboard');
     })->name('teknis.dashboard');
 });
