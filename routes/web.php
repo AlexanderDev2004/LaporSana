@@ -65,5 +65,9 @@ Route::middleware(['authorize:5'])->group(function () {
 });
 Route::middleware(['authorize:6'])->group(function () {
      Route::get('/teknisi/dashboard',[TeknisiController::class,'index'])->name('teknisi.dashboard');
-      Route::get('/teknisi/users', [TeknisiController::class, 'index'])->name('teknisi.users');
+      Route::get('/teknisi/tugas', [TeknisiController::class, 'tugas'])->name('teknisi.tugas');
+      Route::get('/teknisi/riwayat', [TeknisiController::class, 'riwayat'])->name('teknisi.riwayat');
+   Route::get('/teknisi/laporan/{id}', [TeknisiController::class, 'show'])->name('teknisi.detail');
+
+
 });

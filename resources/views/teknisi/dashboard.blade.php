@@ -12,7 +12,7 @@
 
             <!-- Statistik -->
             <div class="row mb-3">
-                <!-- Laporan -->
+                {{-- <!-- Laporan -->
                 <div class="col-md-6 mb-3">
                     <div class="p-3 bg-white shadow-sm border rounded d-flex justify-content-between align-items-center">
                         <div>
@@ -28,10 +28,10 @@
                             <i class="fas fa-file-alt fa-lg text-secondary"></i>
                         </div>
                     </div>
-                </div>
+                </div> --}}
 
                 <!-- Perbaikan -->
-                <div class="col-md-6 mb-3">
+                {{-- <div class="col-md-6 mb-3">
                     <div class="p-3 bg-white shadow-sm border rounded d-flex justify-content-between align-items-center">
                         <div>
                             <div class="text-muted small">Perbaikan</div>
@@ -47,10 +47,10 @@
                         </div>
                     </div>
                 </div>
-            </div>
+            </div> --}}
 
             <!-- Tugas Terbaru -->
-            <div class="row mb-3">
+             <div class="col-lg-6 mb-3">
                 <div class="col-12">
                     <div class="card shadow-sm">
                         <div class="card-header bg-primary text-white py-2">
@@ -90,7 +90,7 @@
             </div>
 
             <!-- Grafik Kerusakan -->
-            <div class="row mb-4">
+            <div class="col-lg-6 mb-3">
                 <div class="col-12">
                     <div class="card shadow-sm">
                         <div class="card-header bg-primary text-white py-2">
