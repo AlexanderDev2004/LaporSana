@@ -16,23 +16,28 @@
                 <div class="alert alert-success">{{ session('success') }}</div>
             @endif
 
-            {{-- Filter Role --}}
-            <form method="GET" action="{{ route('admin.users.index') }}" class="form-inline mb-3">
-                <label for="role" class="mr-2">Filter Role:</label>
-                <select name="role" id="role" class="form-control mr-2">
-                    <option value="">- Semua -</option>
-                    @foreach ($roles as $item)
-                        <option value="{{ $item->roles_id }}" {{ request('role') == $item->roles_id ? 'selected' : '' }}>
-                            {{ $item->roles_nama }}
-                        </option>
-                    @endforeach
-                </select>
-                <button type="submit" class="btn btn-primary">Terapkan</button>
-            </form>
-            <div class="col-md-3 offset-md-6 text-right">
-                    <label for="search" class="control-label">Search:</label>
-                    <input type="text" id="search" class="form-control" placeholder="Search...">
+            {{-- Filter Role dan Search --}}
+            <form method="GET" action="{{ route('admin.users.index') }}" class="form-inline mb-3 row">
+                <div class="form-group col-md-3">
+                    <label for="role" class="mr-2">Filter Role:</label>
+                    <select name="role" id="role" class="form-control mr-2 w-100">
+                        <option value="">- Semua -</option>
+                        @foreach ($roles as $item)
+                            <option value="{{ $item->roles_id }}" {{ request('role') == $item->roles_id ? 'selected' : '' }}>
+                                {{ $item->roles_nama }}
+                            </option>
+                        @endforeach
+                    </select>
                 </div>
+                {{-- <div class="form-group col-md-3">
+                    <label for="search" class="mr-2">Search:</label>
+                    <input type="text" name="search" id="search" value="{{ request('search') }}" class="form-control w-100" placeholder="Cari username/nama...">
+                </div> --}}
+                <div class="form-group col-md-2">
+                    <button type="submit" class="btn btn-primary btn-block mt-4">Terapkan</button>
+                </div>
+            </form>
+
             {{-- Tabel User --}}
             <table id="user-table" class="table table-bordered table-striped">
                 <thead>
@@ -88,12 +93,24 @@
                     @endforelse
                 </tbody>
             </table>
+
+            {{-- Laravel Pagination --}}
+            <div class="d-flex justify-content-center">
+                {{ $users->appends(request()->query())->links() }}
+            </div>
         </div>
     </div>
 @endsection
 
 @push('css')
     <link rel="stylesheet" href="https://cdn.datatables.net/1.13.6/css/jquery.dataTables.min.css">
+    <style>
+        /* Tambahan untuk kecilkan pagination DataTables jika tetap muncul */
+        .dataTables_paginate .paginate_button {
+            font-size: 0.875rem !important;
+            padding: 0.25rem 0.5rem !important;
+        }
+    </style>
 @endpush
 
 @push('js')
@@ -103,21 +120,9 @@
         $(document).ready(function () {
             $('#user-table').DataTable({
                 responsive: true,
-                language: {
-                    lengthMenu: "Tampilkan _MENU_ entri",
-                    zeroRecords: "Tidak ditemukan data",
-                    info: "Menampilkan _START_ sampai _END_ dari _TOTAL_ entri",
-                    infoEmpty: "Menampilkan 0 sampai 0 dari 0 entri",
-                    infoFiltered: "(difilter dari _MAX_ total entri)",
-                    search: "Cari:",
-                    paginate: {
-                        first: "Pertama",
-                        last: "Terakhir",
-                        next: "Selanjutnya",
-                        previous: "Sebelumnya"
-                    },
-                },
-                pageLength: 10
+                searching: false,   // Nonaktifkan search bawaan
+                paging: false,      // Nonaktifkan paging bawaan
+                info: false         // Nonaktifkan info bawah
             });
         });
     </script>
