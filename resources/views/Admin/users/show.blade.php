@@ -26,7 +26,7 @@
                         </tr>
                         <tr>
                             <th>Nama Lengkap</th>
-                            <td>{{ $user->nama }}</td>
+                            <td>{{ $user->name }}</td>
                         </tr>
                         <tr>
                             <th>Role</th>
