@@ -7,7 +7,7 @@
                  alt="User Image">
          </div>
          <div class="info">
-             <a href="#" class="d-block">Alexander Pierce - teknisi</a>
+             <a href="#" class="d-block"><strong>{{ Auth::user()->name }}</strong></a>
          </div>
      </div>
 
