@@ -35,14 +35,7 @@
                 @enderror
             </div>
 
-            <div class="form-group">
-                <label for="roles_deskripsi">Deskripsi</label>
-                <textarea class="form-control @error('roles_deskripsi') is-invalid @enderror"
-                          id="roles_deskripsi" name="roles_deskripsi" required>{{ old('roles_deskripsi', $role->roles_deskripsi) }}</textarea>
-                @error('roles_deskripsi')
-                    <div class="invalid-feedback">{{ $message }}</div>
-                @enderror
-            </div>
+           
 
             <button type="submit" class="btn btn-primary">Update</button>
             <a href="{{ route('admin.roles.index') }}" class="btn btn-default">Batal</a>
