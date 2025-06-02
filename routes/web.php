@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\DashboardController;
+use App\Http\Controllers\FasilitasController;
 use App\Http\Controllers\LantaiController;
 use App\Http\Controllers\RoleController;
 use App\Http\Controllers\RuanganController;
@@ -36,14 +37,16 @@ Route::middleware(['auth', 'authorize:1'])->group(function () {
     // Dashboard
     Route::get('/admin/dashboard', [DashboardController::class, 'index'])->name('admin.dashboard');
     // User Management
-    Route::group(['prefix' => 'admin/users'], function () {
-        Route::get('/', [UserController::class, 'list'])->name('admin.users.index');
+    Route::group(['prefix' => 'admin/users'], function (): void {
+        Route::get('/', [UserController::class, 'index'])->name('admin.users.index');
+        Route::get('/list', [UserController::class, 'list'])->name('admin.users.list');
         Route::get('/create', [UserController::class, 'create'])->name('admin.users.create');
         Route::post('/', [UserController::class, 'store'])->name('admin.users.store');
-        Route::get('/{user}', [UserController::class, 'show'])->name('admin.users.show');
         Route::get('/{user}/edit', [UserController::class, 'edit'])->name('admin.users.edit');
         Route::put('/{user}', [UserController::class, 'update'])->name('admin.users.update');
-        Route::delete('/{user}', [UserController::class, 'destroy'])->name('admin.users.destroy');
+        Route::get('/{user}/show', [UserController::class, 'show'])->name('admin.users.show');
+        Route::get('/{user}/confirm', [UserController::class, 'confirm'])->name('admin.users.confirm');
+        Route::delete('/{user}/delete', [UserController::class, 'delete'])->name('admin.users.delete');
     });
 
     // Role Management
@@ -83,6 +86,19 @@ Route::middleware(['auth', 'authorize:1'])->group(function () {
         Route::get('/{ruangan}/show', [RuanganController::class, 'show'])->name('admin.ruangan.show');
         Route::get('/{ruangan}/confirm', [RuanganController::class, 'confirm'])->name('admin.ruangan.confirm');
         Route::delete('/{ruangan}/delete', [RuanganController::class, 'delete'])->name('admin.ruangan.delete');
+    });
+
+      //Fasilitas Management
+        Route::group(['prefix' => 'admin/fasilitas'], function () {
+        Route::get('/', [FasilitasController::class, 'index'])->name('admin.fasilitas.index');
+        Route::get('/list', [FasilitasController::class, 'list'])->name('admin.fasilitas.list');
+        Route::get('/create', [FasilitasController::class, 'create'])->name('admin.fasilitas.create');
+        Route::post('/', [FasilitasController::class, 'store'])->name('admin.fasilitas.store');
+        Route::get('/{fasilitas}/edit', [FasilitasController::class, 'edit'])->name('admin.fasilitas.edit');
+        Route::put('/{fasilitas}', [FasilitasController::class, 'update'])->name('admin.fasilitas.update');
+        Route::get('/{fasilitas}/show', [FasilitasController::class, 'show'])->name('admin.fasilitas.show');
+        Route::get('/{fasilitas}/confirm', [FasilitasController::class, 'confirm'])->name('admin.fasilitas.confirm');
+        Route::delete('/{fasilitas}/delete', [FasilitasController::class, 'delete'])->name('admin.fasilitas.delete');
     });
 });
 
