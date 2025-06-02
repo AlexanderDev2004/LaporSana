@@ -13,7 +13,7 @@ class LantaiModel extends Model
     protected $primaryKey = 'lantai_id';
 
     protected $fillable = [
-        'lantai_kode'.
+        'lantai_kode',
         'lantai_nama',
         'created_at',
         'updated_at'
