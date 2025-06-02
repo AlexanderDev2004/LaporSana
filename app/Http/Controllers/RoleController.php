@@ -17,7 +17,7 @@ class RoleController extends Controller
             'list'  => ['Home', 'role']
         ];
 
-        $active_menu = 'role';
+        $active_menu = 'roles';
         $role = RoleModel::all();
 
         return view('admin.roles.index', compact('breadcrumb', 'active_menu', 'role'));
@@ -57,7 +57,7 @@ class RoleController extends Controller
             'list'  => ['Home', 'role', 'Tambah']
         ];
 
-        $active_menu = 'role';
+        $active_menu = 'roles';
         return view('admin.roles.create', compact('breadcrumb', 'active_menu'));
     }
   
@@ -171,7 +171,7 @@ class RoleController extends Controller
             'list'  => ['Home', 'role', 'Detail']
         ];
 
-        $active_menu = 'role';
+        $active_menu = 'roles';
 
         return view('admin.roles.show', compact('breadcrumb', 'active_menu', 'role'));
     }
