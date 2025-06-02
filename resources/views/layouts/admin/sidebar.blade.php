@@ -52,7 +52,8 @@
                  </a>
              </li>
              <li class="nav-item">
-                 <a href="{{ url('/') }}" class="nav-link">
+                 <a href="{{ route('admin.ruangan.index') }}" 
+                     class="nav-link {{ $active_menu == 'ruangan' ? 'active' : '' }}">
                      <i class="nav-icon fas fa-home"></i>
                      <p>Ruangan</p>
                  </a>
