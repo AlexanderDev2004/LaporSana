@@ -1,5 +1,5 @@
 <!-- Preloader -->
-  <div class="preloader flex-column justify-content-center align-items-center bg-black">
+  <div class="preloader flex-column justify-content-center align-items-center bg-blue">
     <img class="animation__shake" src="{{ asset('LaporSana.png')}}" alt="AdminLTELogo" sm:auto>
   </div>
 
