@@ -49,7 +49,7 @@ class UserController extends Controller
         $active_menu = 'users';
         $roles = RoleModel::all();
 
-        return view('admin.create', compact('roles', 'active_menu', 'breadcrumb'));
+        return view('admin.users.create', compact('roles', 'active_menu', 'breadcrumb'));
     }
 
     public function store(Request $request)

@@ -16,7 +16,6 @@
          <ul class="nav nav-pills nav-sidebar flex-column" data-widget="treeview" role="menu" data-accordion="false">
              <!-- Add icons to the links using the .nav-icon class
              with font-awesome or any other icon font library -->
-             <li class="nav-header">Opsi</li>
              <li class="nav-item">
                  <a href="{{ route('admin.dashboard') }}"
                      class="nav-link {{ $active_menu == 'dashboard' ? 'active' : '' }}">
@@ -32,8 +31,8 @@
              </li>
              <li class="nav-header">Manajemen Data Pengguna</li>
              <li class="nav-item">
-                 <a href="{{ route('admin.roles.index') }}" class="nav-link"
-                     {{ $active_menu == 'roles' ? 'active' : '' }}">
+                 <a href="{{ route('admin.roles.index') }}"
+                 class="nav-link {{ $active_menu == 'roles' ? 'active' : '' }}">
                      <i class="nav-icon fas fa-layer-group"></i>
                      <p>Role User</p>
                  </a>
@@ -46,6 +45,13 @@
                  </a>
              </li>
              <li class="nav-header">Manajemen Data Fasilitas</li>
+             <li class="nav-item">
+                 <a href="{{ route('admin.lantai.index') }}"
+                     class="nav-link {{ $active_menu == 'lantai' ? 'active' : '' }}">
+                     <i class="nav-icon fas fa-square"></i>
+                     <p>Lantai</p>
+                 </a>
+             </li>
              <li class="nav-item">
                  <a href="{{ url('/') }}" class="nav-link">
                      <i class="nav-icon fas fa-home"></i>
