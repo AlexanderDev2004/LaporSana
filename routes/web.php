@@ -57,29 +57,32 @@ Route::middleware(['auth', 'authorize:1'])->group(function () {
     });
 });
 
-// Rute untuk Pelapor (role 2)
-Route::middleware(['authorize:2'])->group(function () {
-    Route::get('/pelapor/dashboard', [PelaporController::class, 'index'])->name('pelapor.dashboard');
-    // Route::get('/pelapor/dashboard', function () {
-    //     return view('pelapor.dashboard');
-
-    // })->name('Pelapor.dashboard');
+// Rute untuk Pelapor (role 2, 3, 4)
+Route::middleware(['authorize:2,3,4'])->group(function () {
+    Route::group(['prefix' => 'pelapor'], function () {
+        Route::get('/dashboard', [PelaporController::class, 'index'])->name('pelapor.dashboard');
+        Route::get('/laporan', [PelaporController::class, 'laporan'])->name('pelapor.laporan');
+        Route::POST('/laporan/list', [PelaporController::class, 'list'])->name('pelapor.list');
+        Route::get('/create', [PelaporController::class, 'create'])->name('pelapor.create');
+        Route::post('/store', [PelaporController::class, 'store'])->name('pelapor.store');
+        Route::get('/laporan/{laporan_id}', [PelaporController::class, 'show'])->name('pelapor.show');
+    });
 });
 
-// Rute untuk Dosen (role 3)
-Route::middleware(['authorize:3'])->group(function () {
-    Route::get('/dosen/dashboard', function () {
+// // Rute untuk Dosen (role 3)
+// Route::middleware(['authorize:3'])->group(function () {
+//     Route::get('/dosen/dashboard', function () {
 
-        return view('pelapor.dashboard');
-    })->name('dosen.dashboard');
-});
+//         return view('pelapor.dashboard');
+//     })->name('dosen.dashboard');
+// });
 
-// Rute untuk Tendik (role 4), Sarana (role 5), Teknis (role 6)
-Route::middleware(['authorize:4'])->group(function () {
-    Route::get('/tendik/dashboard', function () {
-        return view('tendik.dashboard');
-    })->name('tendik.dashboard');
-});
+// // Rute untuk Tendik (role 4), Sarana (role 5), Teknis (role 6)
+// Route::middleware(['authorize:4'])->group(function () {
+//     Route::get('/tendik/dashboard', function () {
+//         return view('tendik.dashboard');
+//     })->name('tendik.dashboard');
+// });
 Route::middleware(['authorize:5'])->group(function () {
     Route::get('/sarana/dashboard', function () {
         return view('sarana.dashboard');

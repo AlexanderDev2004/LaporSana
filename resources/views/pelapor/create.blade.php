@@ -1,13 +1,15 @@
-@extends('layouts.pelapor.template')
-
-@section('content')
-    <form action="{{ url('/mahasiswa/store') }}" method="POST" id="form-tambah"> 
+<form action="{{ route('pelapor.store') }}" method="POST" id="form-tambah" enctype="multipart/form-data"> 
     @csrf 
-    <div class="modal-content"> 
-        <div class="modal-header"> 
-            <h5 class="modal-title" id="exampleModalLabel">Tambah Laporan Kerusakan Fasilitas</h5> 
-            <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button> 
-        </div> 
+    <div class="modal-content">
+        @if ($errors->any())
+            <div class="alert alert-danger">
+                <ul>
+                    @foreach ($errors->all() as $error)
+                        <li>{{ $error }}</li>
+                    @endforeach
+                </ul>
+            </div>
+        @endif 
         <div class="modal-body"> 
             <div class="form-group"> 
                 <label>Lantai</label> 
@@ -17,7 +19,9 @@
                         <option value="{{ $k->lantai_id }}">{{ $k->lantai_nama }}</option> 
                     @endforeach 
                 </select> 
-                <small id="error-lantai_id" class="error-text form-text text-danger"></small> 
+                @error('lantai_id')
+                <small class="form-text text-danger">{{ $message }}</small>
+                @enderror 
             </div>
             <div class="form-group"> 
                 <label>Ruangan</label> 
@@ -27,7 +31,9 @@
                         <option value="{{ $k->ruangan_id }}">{{ $k->ruangan_nama }}</option> 
                     @endforeach 
                 </select> 
-                <small id="error-ruangan_id" class="error-text form-text text-danger"></small> 
+                @error('ruangan_id')
+                <small class="form-text text-danger">{{ $message }}</small>
+                @enderror 
             </div>
             <div class="form-group"> 
                 <label>Fasilitas</label> 
@@ -37,22 +43,24 @@
                         <option value="{{ $k->fasilitas_id }}">{{ $k->fasilitas_nama }}</option> 
                     @endforeach 
                 </select> 
-                <small id="error-fasilitas_id" class="error-text form-text text-danger"></small> 
+                @error('fasilitas_id')
+                <small class="form-text text-danger">{{ $message }}</small>
+                @enderror 
             </div> 
             <div class="form-group"> 
                 <label>Foto Bukti</label> 
-                <input type="file" name="foto_bukti" id="foto_bukti" class="form-control-file" required> 
+                <input type="file" name="foto_bukti" id="foto_bukti" class="form-control-file"> 
                 <small id="error-foto_bukti" class="error-text form-text text-danger"></small> 
             </div> 
             <div class="form-group"> 
                 <label>Deskripsi</label> 
                 <input value="" type="text" name="deskripsi" id="deskripsi" class="form-control" required> 
                 <small id="error-deskripsi" class="error-text form-text text-danger"></small> 
-            </div> 
+            </div>
+        </div>
         <div class="modal-footer"> 
-            <button type="button" data-dismiss="modal" class="btn btn-warning">Batal</button> 
+            <button type="button" class="btn btn-warning" data-dismiss="modal">Batal</button>
             <button type="submit" class="btn btn-primary">Simpan</button> 
         </div> 
     </div>  
 </form>
-@endsection
