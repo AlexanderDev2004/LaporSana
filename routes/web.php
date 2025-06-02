@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\DashboardController;
+use App\Http\Controllers\DosenController;
 use App\Http\Controllers\MahasiswaController;
 use App\Http\Controllers\RoleController;
 use App\Http\Controllers\UserController;
@@ -67,9 +68,11 @@ Route::middleware(['authorize:2'])->group(function () {
 
 // Rute untuk Dosen (role 3)
 Route::middleware(['authorize:3'])->group(function () {
-    Route::get('/dosen/dashboard', function () {
-        return view('dosen.dashboard');
-    })->name('dosen.dashboard');
+    Route::group(['prefix' => 'dosen'], function () {
+        Route::get('/dashboard', [DosenController::class, 'index'])->name('dosen.dashboard');
+        Route::get('/laporan', [DosenController::class, 'laporan'])->name('dosen.laporan');
+        Route::get('/create', [DosenController::class, 'create'])->name('dosen.create');
+    });
 });
 
 // Rute untuk Tendik (role 4), Sarana (role 5), Teknis (role 6)
