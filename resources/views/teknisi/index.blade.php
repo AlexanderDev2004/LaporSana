@@ -54,19 +54,24 @@
 @endpush
 @push('js')
     <script>
+        function modalAction(url = '') {
+            $('#myModal').load(url, function() {
+                $('#myModal').modal('show');
+            });
+        }
         var tableTugas;
 
         $(document).ready(function() {
-    tableTugas = $('#table_tugas').DataTable({
-        processing: true,
-        serverSide: true,
-        ajax: {
-            url: "{{ route('teknisi.list') }}",
-            type: "GET",
-            data: function(d) {
-                d.filter_status = $('.filter_status').val();
-            }
-        },
+            tableTugas = $('#table_tugas').DataTable({
+                processing: true,
+                serverSide: true,
+                ajax: {
+                    url: "{{ route('teknisi.list') }}",
+                    type: "GET",
+                    data: function(d) {
+                        d.filter_status = $('.filter_status').val();
+                    }
+                },
                 columns: [{
                         data: null,
                         className: "text-center",
@@ -80,7 +85,7 @@
                     {
                         data: "user.name",
                         className: "",
-                         orderable: true,
+                        orderable: true,
                         searchable: true
                     },
                     {
@@ -108,19 +113,19 @@
                     {
                         data: "tugas_jenis",
                         className: "",
-                         orderable: true,
+                        orderable: true,
                         searchable: true
                     },
                     {
                         data: "tugas_mulai",
                         className: "",
-                         orderable: true,
+                        orderable: true,
                         searchable: true
                     },
                     {
                         data: "tugas_selesai",
                         className: "",
-                         orderable: true,
+                        orderable: true,
                         searchable: true
                     },
                     {
@@ -132,7 +137,7 @@
                 ]
             });
 
-             $('#table_tugas_filter input').unbind().bind().on('keyup', function(e) {
+            $('#table_tugas_filter input').unbind().bind().on('keyup', function(e) {
                 if (e.keyCode == 13) {
                     tableTugas.search(this.value).draw();
                 }

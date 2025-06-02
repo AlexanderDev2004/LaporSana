@@ -104,7 +104,7 @@ Route::group(['prefix' => 'teknisi', 'middleware' => 'authorize:6'], function ()
         Route::get('/list', [TeknisiController::class, 'list'])->name('teknisi.list');           
         Route::post('/', [TeknisiController::class, 'store'])->name('teknisi.store');
         Route::get('/{teknisi}/edit', [TeknisiController::class, 'edit'])->name('teknisi.edit');
-        Route::get('/{teknisi}', [TeknisiController::class, 'show'])->name('teknisi.show');
+        Route::get('/{teknisi}/show', [TeknisiController::class, 'show'])->name('teknisi.show');
         Route::put('/{teknisi}', [TeknisiController::class, 'update'])->name('teknisi.update');
         Route::delete('/{teknisi}', [TeknisiController::class, 'destroy'])->name('teknisi.destroy');    
     });

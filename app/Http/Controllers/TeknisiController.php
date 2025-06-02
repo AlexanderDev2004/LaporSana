@@ -31,21 +31,12 @@ class TeknisiController extends Controller
             'list' => ['Home', 'Tugas']
         ];
 
-        $query = TugasModel::with(['status', 'user']);
+        $tugas = TugasModel::with(['status', 'user']);
 
         if ($request->filled('status')) {
-            $query->where('status_id', $request->status);
+            $tugas->where('status_id', $request->status);
         }
 
-        if ($request->filled('search')) {
-            $search = $request->search;
-            $query->where(function ($q) use ($search) {
-                $q->where('username', 'like', "%$search%")
-                    ->orWhere('name', 'like', "%$search%");
-            });
-        }
-
-        $tugas = $query->paginate(10);
         $status = StatusModel::all();
         $user = UserModel::all();
 
@@ -56,46 +47,34 @@ class TeknisiController extends Controller
 
     public function list(Request $request)
     {
-        $query = TugasModel::with(['status', 'user']); // Gunakan with() untuk eager loading
+        $tugas = TugasModel::with(['status', 'user']); 
 
         // Filter status
         if ($request->has('filter_status') && $request->filter_status != '') {
-            $query->where('status_id', $request->filter_status);
+            $tugas->where('status_id', $request->filter_status);
         }
 
-        return DataTables::of($query)
+        return DataTables::of($tugas->get())
             ->addIndexColumn()
             ->addColumn('aksi', function ($tugas) {
                 // Gabungkan semua tombol aksi
-                return '
-                <button onclick="modalAction(\'' . route('teknisi.show', $tugas->tugas_id) . '\')" 
-                    class="btn btn-info btn-sm">Detail</button>
-                <button onclick="modalAction(\'' . route('teknisi.edit', $tugas->tugas_id) . '\')" 
-                    class="btn btn-warning btn-sm">Edit</button>
-                <button onclick="modalAction(\'' . route('teknisi.destroy', $tugas->tugas_id) . '\')" 
-                    class="btn btn-danger btn-sm">Hapus</button>
-            ';
+             
+                $btn = '<button onclick="modalAction(\'' . route('teknisi.show', $tugas->tugas_id) . '\')" class="btn btn-info btn-sm"><i class="fas fa-eye"></i></button>';
+                $btn .= '<button onclick="modalAction(\'' . route('teknisi.edit', $tugas->tugas_id) . '\')" class="btn btn-warning btn-sm"><i class="fas fa-edit"></i></button>';
+                $btn .= '<button onclick="modalAction(\'' . route('teknisi.destroy', $tugas->tugas_id) . '\')" class="btn btn-danger btn-sm"><i class="fas fa-trash"></i></button>';
+                return $btn;
             })
             ->rawColumns(['aksi']) // Kolom aksi mengandung HTML
             ->toJson(); // Pastikan mengembalikan JSON
     }
 
-     public function show(string $id)
-        {
-
-                $tugas = TugasModel::with('user')->find($id);
-
-                $breadcrumb = (object) [
-                        'title' => 'Detail Tugas',
-                        'list'  => ['Home', 'Tugas', 'Detail']
-                ];
-
-                $page = (object) [
-                        'title' => 'Detail tugas'
-                ];
-
-                $activeMenu = 'detail'; // set menu yang sedang aktif
-
-                return view('teknisi.detail', ['breadcrumb' => $breadcrumb, 'page' => $page, 'tugas' => $tugas, 'activeMenu' => $activeMenu]);
-        }
+    public function show(TugasModel $tugas)
+    {
+        $breadcrumb = (object) [
+            'title' => 'Detail Tugas',
+            'list'  => ['Home', 'Tugas', 'Detail']
+        ];
+        $active_menu = 'tugas';
+        return view('teknisi.show', compact('breadcrumb', 'active_menu', 'tugas'));
+    }
 }
