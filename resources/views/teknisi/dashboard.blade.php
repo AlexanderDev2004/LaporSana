@@ -12,42 +12,6 @@
 
             <!-- Statistik -->
             <div class="row mb-3">
-                {{-- <!-- Laporan -->
-                <div class="col-md-6 mb-3">
-                    <div class="p-3 bg-white shadow-sm border rounded d-flex justify-content-between align-items-center">
-                        <div>
-                            <div class="text-muted small">Laporan</div>
-                            <h4 class="mb-0">
-                                3,782 
-                                <small class="text-success fs-6">
-                                    <i class="fas fa-arrow-up text-primary"></i> 11.01%
-                                </small>
-                            </h4>
-                        </div>
-                        <div>
-                            <i class="fas fa-file-alt fa-lg text-secondary"></i>
-                        </div>
-                    </div>
-                </div> --}}
-
-                <!-- Perbaikan -->
-                {{-- <div class="col-md-6 mb-3">
-                    <div class="p-3 bg-white shadow-sm border rounded d-flex justify-content-between align-items-center">
-                        <div>
-                            <div class="text-muted small">Perbaikan</div>
-                            <h4 class="mb-0">
-                                5,359 
-                                <small class="text-danger fs-6">
-                                    <i class="fas fa-arrow-down text-primary"></i> 9.05%
-                                </small>
-                            </h4>
-                        </div>
-                        <div>
-                            <i class="fas fa-tools fa-lg text-secondary"></i>
-                        </div>
-                    </div>
-                </div>
-            </div> --}}
 
             <!-- Tugas Terbaru -->
              <div class="col-lg-6 mb-3">

@@ -12,6 +12,7 @@
   <link href='https://fonts.googleapis.com/css?family=Poppins' rel='stylesheet'>
   <!-- Font Awesome -->
   <link rel="stylesheet" href="{{ asset('LaporSana/plugins/fontawesome-free/css/all.min.css') }}">
+
   <!-- Ionicons -->
   <link rel="stylesheet" href="https://code.ionicframework.com/ionicons/2.0.1/css/ionicons.min.css">
   <!-- Tempusdominus Bootstrap 4 -->
@@ -80,6 +81,19 @@
 </script>
 <!-- Bootstrap 4 -->
 <script src="{{ asset('LaporSana/plugins/bootstrap/js/bootstrap.bundle.min.js') }}"></script>
+<!-- DataTables & Plugins -->
+    <script src="{{ asset('adminlte/plugins/datatables/jquery.dataTables.min.js') }}"></script>
+    <script src="{{ asset('adminlte/plugins/datatables-bs4/js/dataTables.bootstrap4.min.js') }}"></script>
+    <script src="{{ asset('adminlte/plugins/datatables-responsive/js/dataTables.responsive.min.js') }}"></script>
+    <script src="{{ asset('adminlte/plugins/datatables-responsive/js/responsive.bootstrap4.min.js') }}"></script>
+    <script src="{{ asset('adminlte/plugins/datatables-buttons/js/dataTables.buttons.min.js') }}"></script>
+    <script src="{{ asset('adminlte/plugins/datatables-buttons/js/buttons.bootstrap4.min.js') }}"></script>
+    <script src="{{ asset('adminlte/plugins/jszip/jszip.min.js') }}"></script>
+    <script src="{{ asset('adminlte/plugins/pdfmake/pdfmake.min.js') }}"></script>
+    <script src="{{ asset('adminlte/plugins/pdfmake/vfs_fonts.js') }}"></script>
+    <script src="{{ asset('adminlte/plugins/datatables-buttons/js/buttons.html5.min.js') }}"></script>
+    <script src="{{ asset('adminlte/plugins/datatables-buttons/js/buttons.print.min.js') }}"></script>
+    <script src="{{ asset('adminlte/plugins/datatables-buttons/js/buttons.colVis.min.js') }}"></script>
 <!-- ChartJS -->
 <script src="{{ asset('LaporSana/plugins/chart.js/Chart.min.js') }}"></script>
 <!-- Sparkline -->

@@ -83,11 +83,14 @@ Route::middleware(['authorize:5'])->group(function () {
         return view('sarana.dashboard');
     })->name('sarana.dashboard');
 });
-Route::middleware(['authorize:6'])->group(function () {
-     Route::get('/teknisi/dashboard',[TeknisiController::class,'index'])->name('teknisi.dashboard');
-      Route::get('/teknisi/tugas', [TeknisiController::class, 'tugas'])->name('teknisi.tugas');
-      Route::get('/teknisi/riwayat',[TeknisiController::class, 'riwayat'])->name('teknisi.riwayat');
-   Route::get('/teknisi/laporan/{id}',[TeknisiController::class, 'show'])->name('teknisi.detail');
 
-
-});
+Route::group(['prefix' => 'teknisi', 'middleware' => 'authorize:6'], function () {
+        Route::get('/dashboard', [TeknisiController::class, 'dashboard'])->name('teknisi.dashboard');
+        Route::get('/', [TeknisiController::class, 'index'])->name('teknisi.index');       
+        Route::get('/list', [TeknisiController::class, 'list'])->name('teknisi.list');           
+        Route::post('/', [TeknisiController::class, 'store'])->name('teknisi.store');
+        Route::get('/{teknisi}/edit', [TeknisiController::class, 'edit'])->name('teknisi.edit');
+        Route::get('/{teknisi}', [TeknisiController::class, 'show'])->name('teknisi.show');
+        Route::put('/{teknisi}', [TeknisiController::class, 'update'])->name('teknisi.update');
+        Route::delete('/{teknisi}', [TeknisiController::class, 'destroy'])->name('teknisi.destroy');    
+    });

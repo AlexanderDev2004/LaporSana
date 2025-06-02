@@ -2,83 +2,100 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\StatusModel;
+use App\Models\TugasModel;
+use App\Models\UserModel;
 use Illuminate\Http\Request;
+use Yajra\DataTables\Facades\DataTables;
 
 class TeknisiController extends Controller
 {
-    public function index()
+
+    public function dashboard(Request $request)
     {
-        $breadcrumbs = (object) [
-            'title' => 'Selamat Datang',
-            'list'  => ['Home', 'Welcome']
+        $breadcrumb = (object) [
+            'title' => 'Dashboard',
+            'list'  => ['Home', 'Dashboard']
         ];
 
         $active_menu = 'dashboard';
-        return view('teknisi.dashboard', ['breadcrumb' => $breadcrumbs, 'active_menu' => $active_menu]);
+
+        return view('teknisi.dashboard', compact('breadcrumb', 'active_menu'));
     }
 
-    public function tugas()
+    public function index(Request $request)
     {
-        $breadcrumbs = (object) [
-            'title' => 'Tugas Perbaikan',
-            'list'  => ['Home', 'Welcome']
+        $active_menu = 'index';
+        $breadcrumb = (object) [
+            'title' => 'Daftar Tugas',
+            'list' => ['Home', 'Tugas']
         ];
-        $active_menu = 'tugas';
-        return view('teknisi.tugas', ['breadcrumb' => $breadcrumbs, 'active_menu' => $active_menu]);
+
+        $query = TugasModel::with(['status', 'user']);
+
+        if ($request->filled('status')) {
+            $query->where('status_id', $request->status);
+        }
+
+        if ($request->filled('search')) {
+            $search = $request->search;
+            $query->where(function ($q) use ($search) {
+                $q->where('username', 'like', "%$search%")
+                    ->orWhere('name', 'like', "%$search%");
+            });
+        }
+
+        $tugas = $query->paginate(10);
+        $status = StatusModel::all();
+        $user = UserModel::all();
+
+
+
+        return view('teknisi.index', compact('user', 'status', 'tugas', 'active_menu', 'breadcrumb'));
     }
 
-    public function riwayat()
+    public function list(Request $request)
     {
-        $breadcrumbs = (object) [
-            'title' => 'Tugas Perbaikan',
-            'list'  => ['Home', 'Welcome']
-        ];
-        $active_menu = 'riwayat';
-        return view('teknisi.riwayat', ['breadcrumb' => $breadcrumbs, 'active_menu' => $active_menu]);
+        $query = TugasModel::with(['status', 'user']); // Gunakan with() untuk eager loading
+
+        // Filter status
+        if ($request->has('filter_status') && $request->filter_status != '') {
+            $query->where('status_id', $request->filter_status);
+        }
+
+        return DataTables::of($query)
+            ->addIndexColumn()
+            ->addColumn('aksi', function ($tugas) {
+                // Gabungkan semua tombol aksi
+                return '
+                <button onclick="modalAction(\'' . route('teknisi.show', $tugas->tugas_id) . '\')" 
+                    class="btn btn-info btn-sm">Detail</button>
+                <button onclick="modalAction(\'' . route('teknisi.edit', $tugas->tugas_id) . '\')" 
+                    class="btn btn-warning btn-sm">Edit</button>
+                <button onclick="modalAction(\'' . route('teknisi.destroy', $tugas->tugas_id) . '\')" 
+                    class="btn btn-danger btn-sm">Hapus</button>
+            ';
+            })
+            ->rawColumns(['aksi']) // Kolom aksi mengandung HTML
+            ->toJson(); // Pastikan mengembalikan JSON
     }
 
-public function show($id)
-{
-    $laporans = [
-        1 => [
-            'id' => 1,
-            'fasilitas_nama' => 'Proyektor',
-            'fasilitas_lokasi' => 'LIG1 Lantai 7',
-            'tanggal_penugasan' => '2025-04-05',
-            'tanggal_selesai' => '2025-04-06',
-            'deskripsi' => 'Proyektor tidak menyala saat digunakan.',
-            'feedback_rating' => 3.5,
-            'feedback_komentar' => 'Sudah bagus, tapi agak lama responnya.'
-        ],
-        2 => [
-            'id' => 2,
-            'fasilitas_nama' => 'Kipas Angin Kelas',
-            'fasilitas_lokasi' => 'LIG1 Lantai 7',
-            'tanggal_penugasan' => '2025-04-01',
-            'tanggal_selesai' => '2025-04-02',
-            'deskripsi' => 'Kipas angin tidak berputar.',
-            'feedback_rating' => 5,
-            'feedback_komentar' => 'Pelayanan cepat dan hasil memuaskan.'
-        ],
-    ];
+     public function show(string $id)
+        {
 
-    if (!isset($laporans[$id])) {
-        abort(404);
-    }
+                $tugas = TugasModel::with('user')->find($id);
 
-    $laporan = (object) $laporans[$id]; // Pastikan ini object
-    $active_menu = 'laporan';
+                $breadcrumb = (object) [
+                        'title' => 'Detail Tugas',
+                        'list'  => ['Home', 'Tugas', 'Detail']
+                ];
 
-    $breadcrumb = (object) [
-        'title' => 'Detail Laporan',
-        'list' => [
-            (object) ['label' => 'Dashboard', 'url' => route('teknisi.dashboard')],
-            (object) ['label' => 'Detail Laporan', 'url' => '']
-        ]
-    ];
+                $page = (object) [
+                        'title' => 'Detail tugas'
+                ];
 
-    return view('teknisi.detail', compact('laporan', 'active_menu', 'breadcrumb'));
-}
+                $activeMenu = 'detail'; // set menu yang sedang aktif
 
-
+                return view('teknisi.detail', ['breadcrumb' => $breadcrumb, 'page' => $page, 'tugas' => $tugas, 'activeMenu' => $activeMenu]);
+        }
 }
