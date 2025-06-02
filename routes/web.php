@@ -2,12 +2,12 @@
 
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\DashboardController;
-use App\Http\Controllers\DosenController;
-use App\Http\Controllers\MahasiswaController;
+use App\Http\Controllers\PelaporController;
 use App\Http\Controllers\RoleController;
 use App\Http\Controllers\UserController;
 use Illuminate\Auth\Middleware\Authorize;
 use Illuminate\Support\Facades\Route;
+use Illuminate\Support\Facades\Auth;
 
 /*
 |--------------------------------------------------------------------------
@@ -57,22 +57,21 @@ Route::middleware(['auth', 'authorize:1'])->group(function () {
     });
 });
 
-// Rute untuk Mahasiswa (role 2)
+// Rute untuk Pelapor (role 2)
 Route::middleware(['authorize:2'])->group(function () {
-    Route::group(['prefix' => 'mahasiswa'], function () {
-        Route::get('/dashboard', [MahasiswaController::class, 'index'])->name('mahasiswa.dashboard');
-        Route::get('/laporan', [MahasiswaController::class, 'laporan'])->name('mahasiswa.laporan');
-        Route::get('/create', [MahasiswaController::class, 'create'])->name('mahasiswa.create');
-    });
+    Route::get('/pelapor/dashboard', [PelaporController::class, 'index'])->name('pelapor.dashboard');
+    // Route::get('/pelapor/dashboard', function () {
+    //     return view('pelapor.dashboard');
+
+    // })->name('Pelapor.dashboard');
 });
 
 // Rute untuk Dosen (role 3)
 Route::middleware(['authorize:3'])->group(function () {
-    Route::group(['prefix' => 'dosen'], function () {
-        Route::get('/dashboard', [DosenController::class, 'index'])->name('dosen.dashboard');
-        Route::get('/laporan', [DosenController::class, 'laporan'])->name('dosen.laporan');
-        Route::get('/create', [DosenController::class, 'create'])->name('dosen.create');
-    });
+    Route::get('/dosen/dashboard', function () {
+
+        return view('pelapor.dashboard');
+    })->name('dosen.dashboard');
 });
 
 // Rute untuk Tendik (role 4), Sarana (role 5), Teknis (role 6)
@@ -88,6 +87,6 @@ Route::middleware(['authorize:5'])->group(function () {
 });
 Route::middleware(['authorize:6'])->group(function () {
     Route::get('/teknis/dashboard', function () {
-        return view('teknis.dashboard');
+        return view('teknisi.dashboard');
     })->name('teknis.dashboard');
 });
