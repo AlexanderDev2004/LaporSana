@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\DashboardController;
+use App\Http\Controllers\LantaiController;
 use App\Http\Controllers\RoleController;
 use App\Http\Controllers\TeknisiController;
 use App\Http\Controllers\UserController;
@@ -54,6 +55,19 @@ Route::middleware(['auth', 'authorize:1'])->group(function () {
         Route::get('/{role}', [RoleController::class, 'show'])->name('admin.roles.show');
         Route::put('/{role}', [RoleController::class, 'update'])->name('admin.roles.update');
         Route::delete('/{role}', [RoleController::class, 'destroy'])->name('admin.roles.destroy');
+    });
+
+    //Lantai Management
+        Route::group(['prefix' => 'admin/lantai'], function () {
+        Route::get('/', [LantaiController::class, 'index'])->name('admin.lantai.index');
+        Route::get('/list', [LantaiController::class, 'list'])->name('admin.lantai.list');
+        Route::get('/create', [LantaiController::class, 'create'])->name('admin.lantai.create');
+        Route::post('/', [LantaiController::class, 'store'])->name('admin.lantai.store');
+        Route::get('/{lantai}/edit', [LantaiController::class, 'edit'])->name('admin.lantai.edit');
+        Route::put('/{lantai}', [LantaiController::class, 'update'])->name('admin.lantai.update');
+        Route::get('/{lantai}/show', [LantaiController::class, 'show'])->name('admin.lantai.show');
+        Route::get('/{lantai}/confirm', [LantaiController::class, 'confirm'])->name('admin.lantai.confirm');
+        Route::delete('/{lantai}/delete', [LantaiController::class, 'delete'])->name('admin.lantai.delete');
     });
 });
 
