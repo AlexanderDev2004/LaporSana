@@ -1,23 +1,33 @@
-<form action="{{ route('admin.roles.store') }}" method="POST" id="form-tambah">
+<form action="{{ route('admin.ruangan.store') }}" method="POST" id="form-tambah">
     @csrf
     <div id="modal-master" class="modal-dialog modal-lg" role="document">
         <div class="modal-content">
             <div class="modal-header">
-                <h5 class="modal-title" id="exampleModalLabel">Tambah Data Role</h5>
+                <h5 class="modal-title" id="exampleModalLabel">Tambah Data Ruangan</h5>
                 <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                     <span aria-hidden="true">&times;</span>
                 </button>
             </div>
             <div class="modal-body">
-                <div class="form-group">
-                    <label>Kode roles</label>
-                    <input type="text" name="roles_kode" id="roles_kode" class="form-control" required>
-                    <small id="error-roles_kode" class="error-text form-text text-danger"></small>
+                 <div class="form-group">
+                    <label>Lantai Ruangan</label>
+                    <select name="lantai_id" id="lantai_id" class="form-control" required>
+                        <option value="">- Pilih Lantai -</option>
+                        @foreach ($lantai as $l)
+                            <option value="{{ $l->lantai_id }}">{{ $l->lantai_nama }}</option>
+                        @endforeach
+                    </select>
+                    <small id="error-lantai_id" class="error-text form-text text-danger"></small>
                 </div>
                 <div class="form-group">
-                    <label>Nama roles</label>
-                    <input type="text" name="roles_nama" id="roles_nama" class="form-control" required>
-                    <small id="error-roles_nama" class="error-text form-text text-danger"></small>
+                    <label>Kode Ruangan</label>
+                    <input type="text" name="ruangan_kode" id="ruangan_kode" class="form-control" required>
+                    <small id="error-ruangan_kode" class="error-text form-text text-danger"></small>
+                </div>
+                <div class="form-group">
+                    <label>Nama Ruangan</label>
+                    <input type="text" name="ruangan_nama" id="ruangan_nama" class="form-control" required>
+                    <small id="error-ruangan_nama" class="error-text form-text text-danger"></small>
                 </div>
             </div>
             <div class="modal-footer">
@@ -31,8 +41,9 @@
    $(document).ready(function() {
         $("#form-tambah").validate({
             rules: {
-                roles_kode: {required: true, maxlength: 5 },
-                roles_nama: {required: true, minlength: 3, maxlength: 50}
+                lantai_id: {required: true},
+                ruangan_kode: {required: true },
+                ruangan_nama: {required: true, minlength: 3, maxlength: 50},
             },
             submitHandler: function(form) {
                 $.ajax({
@@ -47,7 +58,7 @@
                                 title: 'Berhasil',
                                 text: response.message
                             });
-                            dataRoles.ajax.reload();
+                            dataRuangan.ajax.reload();
                         } else {
                             $('.error-text').text('');
                             $.each(response.msgField, function(prefix, val) {

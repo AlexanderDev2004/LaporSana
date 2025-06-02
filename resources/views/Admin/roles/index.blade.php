@@ -5,52 +5,58 @@
         <div class="card-header">
             <h3 class="card-title">Daftar Role</h3>
             <div class="card-tools">
-                <a href="{{ route('admin.roles.create') }}" class="btn btn-primary">
-                    <i class="fas fa-plus"></i> Tambah Role
-                </a>
+                <button onclick="modalAction('{{ route('admin.roles.create') }}')" class="btn btn-primary">
+                    <i class="fas fa-plus"></i> Tambah role
+                </button>
             </div>
         </div>
         <div class="card-body">
             @if (session('success'))
                 <div class="alert alert-success">{{ session('success') }}</div>
             @endif
-
-            <table class="table table-bordered">
+            <table class="table table-bordered" id="table_role">
                 <thead>
                     <tr>
                         <th>ID</th>
-                        <th>Kode Role</th>
-                        <th>Nama Role</th>
+                        <th>Kode role</th>
+                        <th>Nama role</th>
                         <th>Aksi</th>
                     </tr>
                 </thead>
-                <tbody>
-                    @foreach ($roles as $role)
-                        <tr>
-                            <td>{{ $role->roles_id }}</td>
-                            <td>{{ $role->roles_kode }}</td>
-                            <td>{{ $role->roles_nama }}</td>
-                            <td>
-                                <a href="{{ route('admin.roles.show', $role->roles_id) }}" class="btn btn-sm btn-info">
-                                    <i class="fas fa-eye"></i>
-                                </a>
-                                <a href="{{ route('admin.roles.edit', $role->roles_id) }}" class="btn btn-sm btn-warning">
-                                    <i class="fas fa-edit"></i>
-                                </a>
-                                <form action="{{ route('admin.roles.destroy', $role->roles_id) }}" method="POST"
-                                    style="display:inline;">
-                                    @csrf
-                                    @method('DELETE')
-                                    <button type="submit" class="btn btn-sm btn-danger"
-                                        onclick="return confirm('Apakah Anda yakin?')">
-                                        <i class="fas fa-trash"></i>
-                                    </button>
-                                </form>
-                            </td>
-                        </tr>
-                    @endforeach
-                </tbody>
             </table>
         </div>
     </div>
+    <div id="myModal" class="modal fade animate shake" tabindex="-1" role="dialog" data-backdrop="static" data-keyboard="false" data-width="75%" aria-hidden="true"></div>
 @endsection
+
+@push('css')
+@endpush
+
+@push('js')
+    <script>
+        function modalAction(url = '') {
+            $('#myModal').load(url, function() {
+                $('#myModal').modal('show');
+            });
+        }
+        
+        var dataRoles;
+        $(document).ready(function(){
+            dataRoles = $('#table_role').DataTable({
+                processing: true,
+                serverSide: true,
+                ajax: {
+                    "url": "{{ route('admin.roles.list') }}",
+                    "dataType": "json",
+                    "type": "GET",
+                },
+                columns: [
+                    {data: 'DT_RowIndex', className: 'text-center', orderable: false, searchable: false},
+                    {data: 'roles_kode', className: '', orderable: true, searchable: true},
+                    {data: 'roles_nama', className: '', orderable: true, searchable: true},
+                    {data: 'aksi', className: '', orderable: false, searchable: false}
+                ]
+            });
+        });
+    </script>
+@endpush

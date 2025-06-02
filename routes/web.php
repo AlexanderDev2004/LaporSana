@@ -4,6 +4,7 @@ use App\Http\Controllers\AuthController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\LantaiController;
 use App\Http\Controllers\RoleController;
+use App\Http\Controllers\RuanganController;
 use App\Http\Controllers\UserController;
 use Illuminate\Auth\Middleware\Authorize;
 use Illuminate\Support\Facades\Route;
@@ -46,14 +47,16 @@ Route::middleware(['auth', 'authorize:1'])->group(function () {
     });
 
     // Role Management
-    Route::group(['prefix' => 'admin/roles'], function () {
+    Route::group(['prefix' => 'admin/roles'], function (): void {
         Route::get('/', [RoleController::class, 'index'])->name('admin.roles.index');
+        Route::get('/list', [RoleController::class, 'list'])->name('admin.roles.list');
         Route::get('/create', [RoleController::class, 'create'])->name('admin.roles.create');
         Route::post('/', [RoleController::class, 'store'])->name('admin.roles.store');
         Route::get('/{role}/edit', [RoleController::class, 'edit'])->name('admin.roles.edit');
-        Route::get('/{role}', [RoleController::class, 'show'])->name('admin.roles.show');
         Route::put('/{role}', [RoleController::class, 'update'])->name('admin.roles.update');
-        Route::delete('/{role}', [RoleController::class, 'destroy'])->name('admin.roles.destroy');
+        Route::get('/{role}/show', [RoleController::class, 'show'])->name('admin.roles.show');
+        Route::get('/{role}/confirm', [RoleController::class, 'confirm'])->name('admin.roles.confirm');
+        Route::delete('/{role}/delete', [RoleController::class, 'delete'])->name('admin.roles.delete');
     });
 
     //Lantai Management
@@ -67,6 +70,19 @@ Route::middleware(['auth', 'authorize:1'])->group(function () {
         Route::get('/{lantai}/show', [LantaiController::class, 'show'])->name('admin.lantai.show');
         Route::get('/{lantai}/confirm', [LantaiController::class, 'confirm'])->name('admin.lantai.confirm');
         Route::delete('/{lantai}/delete', [LantaiController::class, 'delete'])->name('admin.lantai.delete');
+    });
+
+       //Ruangan Management
+        Route::group(['prefix' => 'admin/ruangan'], function () {
+        Route::get('/', [RuanganController::class, 'index'])->name('admin.ruangan.index');
+        Route::get('/list', [RuanganController::class, 'list'])->name('admin.ruangan.list');
+        Route::get('/create', [RuanganController::class, 'create'])->name('admin.ruangan.create');
+        Route::post('/', [RuanganController::class, 'store'])->name('admin.ruangan.store');
+        Route::get('/{ruangan}/edit', [RuanganController::class, 'edit'])->name('admin.ruangan.edit');
+        Route::put('/{ruangan}', [RuanganController::class, 'update'])->name('admin.ruangan.update');
+        Route::get('/{ruangan}/show', [RuanganController::class, 'show'])->name('admin.ruangan.show');
+        Route::get('/{ruangan}/confirm', [RuanganController::class, 'confirm'])->name('admin.ruangan.confirm');
+        Route::delete('/{ruangan}/delete', [RuanganController::class, 'delete'])->name('admin.ruangan.delete');
     });
 });
 
