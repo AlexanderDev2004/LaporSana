@@ -103,26 +103,24 @@ Route::get('logout', [AuthController::class, 'logout'])->middleware('auth')->nam
 
 
 // Rute untuk Pelapor (role 2)
-Route::middleware(['authorize:2,3,4'])->group(function () {
-    Route::group(['prefix' => 'pelapor'], function () {
-        Route::get('/pelapor/dashboard', [PelaporController::class, 'index'])->name('pelapor.dashboard');
-    });
+Route::middleware(['authorize:2,3,4'])->prefix('pelapor')->group(function () {
+    Route::get('/dashboard', [PelaporController::class, 'index'])->name('pelapor.dashboard');
 });
 
-// Rute untuk Dosen (role 3)
-Route::middleware(['authorize:3'])->group(function () {
-    Route::get('/pelapor/dashboard', function () {
+// // Rute untuk Dosen (role 3)
+// Route::middleware(['authorize:3'])->group(function () {
+//     Route::get('/pelapor/dashboard', function () {
 
-        return view('pelapor.dashboard');
-    })->name('pelapor.dashboard');
-});
+//         return view('pelapor.dashboard');
+//     })->name('pelapor.dashboard');
+// });
 
-// Rute untuk Tendik (role 4), Sarana (role 5), Teknis (role 6)
-Route::middleware(['authorize:4'])->group(function () {
-    Route::get('/pelapor/dashboard', function () {
-        return view('pelapor.dashboard');
-    })->name('pelapor.dashboard');
-});
+// // Rute untuk Tendik (role 4), Sarana (role 5), Teknis (role 6)
+// Route::middleware(['authorize:4'])->group(function () {
+//     Route::get('/pelapor/dashboard', function () {
+//         return view('pelapor.dashboard');
+//     })->name('pelapor.dashboard');
+// });
 
 Route::middleware(['authorize:5'])->group(callback: function () {
         Route::get('/sarpras/dashboard', [SarprasController::class, 'index'])->name('sarpras.dashboard');
