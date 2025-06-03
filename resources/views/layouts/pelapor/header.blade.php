@@ -1,7 +1,45 @@
 <!-- Preloader -->
-  <div class="preloader flex-column justify-content-center align-items-center">
-    <img class="animation__shake" src="dist/img/AdminLTELogo.png" alt="AdminLTELogo" height="60" width="60">
-  </div>
+<style>
+    .preloader {
+        position: fixed;
+        top: 0;
+        left: 0;
+        z-index: 9999;
+        width: 100%;
+        height: 100%;
+        background-color: #3b82f6; /* Sesuaikan tema */
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+    }
+
+    .preloader img {
+        width: 281px;
+        height: 77px;
+        border-radius: 8px;
+        animation: shake 1.2s infinite;
+    }
+
+    .preloader p {
+        margin-top: 16px;
+        color: #ffee00;
+        font-weight: bold;
+        font-size: 16px;
+    }
+
+    @keyframes shake {
+        0%, 100% { transform: translateX(0); }
+        25% { transform: translateX(-3px); }
+        50% { transform: translateX(3px); }
+        75% { transform: translateX(-2px); }
+    }
+</style>
+
+<div class="preloader">
+    <img src="{{ asset('LaporSana.png') }}" alt="Laporsana Logo">
+    <p>Memuat LaporSana...</p>
+</div>
 
   <!-- Navbar -->
   <nav class="main-header navbar navbar-expand navbar-white navbar-light">

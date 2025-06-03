@@ -4,12 +4,14 @@ use App\Http\Controllers\AuthController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\FasilitasController;
 use App\Http\Controllers\LantaiController;
+use App\Http\Controllers\PelaporController;
 use App\Http\Controllers\RoleController;
 use App\Http\Controllers\RuanganController;
+use App\Http\Controllers\SarprasController;
 use App\Http\Controllers\UserController;
 use Illuminate\Auth\Middleware\Authorize;
 use Illuminate\Support\Facades\Route;
-use Tymon\JWTAuth\Http\Parser\RouteParams;
+use Illuminate\Support\Facades\Auth;
 
 /*
 |--------------------------------------------------------------------------
@@ -100,35 +102,37 @@ Route::get('logout', [AuthController::class, 'logout'])->middleware('auth')->nam
     });
 
 
-
-// Rute untuk Mahasiswa (role 2)
-Route::middleware(['authorize:2'])->group(function () {
-    Route::get('/mahasiswa/dashboard', function () {
-        return view('mahasiswa.dashboard');
-    })->name('mahasiswa.dashboard');
+// Rute untuk Pelapor (role 2)
+Route::middleware(['authorize:2,3,4'])->group(function () {
+    Route::group(['prefix' => 'pelapor'], function () {
+        Route::get('/pelapor/dashboard', [PelaporController::class, 'index'])->name('pelapor.dashboard');
+    });
 });
 
 // Rute untuk Dosen (role 3)
 Route::middleware(['authorize:3'])->group(function () {
-    Route::get('/dosen/dashboard', function () {
-        return view('dosen.dashboard');
-    })->name('dosen.dashboard');
+    Route::get('/pelapor/dashboard', function () {
+
+        return view('pelapor.dashboard');
+    })->name('pelapor.dashboard');
 });
 
 // Rute untuk Tendik (role 4), Sarana (role 5), Teknis (role 6)
 Route::middleware(['authorize:4'])->group(function () {
-    Route::get('/tendik/dashboard', function () {
-        return view('tendik.dashboard');
-    })->name('tendik.dashboard');
+    Route::get('/pelapor/dashboard', function () {
+        return view('pelapor.dashboard');
+    })->name('pelapor.dashboard');
 });
-Route::middleware(['authorize:5'])->group(function () {
-    Route::get('/sarana/dashboard', function () {
-        return view('sarana.dashboard');
-    })->name('sarana.dashboard');
+
+Route::middleware(['authorize:5'])->group(callback: function () {
+        Route::get('/sarpras/dashboard', [SarprasController::class, 'index'])->name('sarpras.dashboard');
+        Route::get('/sarpras/profile', [SarprasController::class, 'show'])->name('sarpras.profile.show');
+        Route::get('/sarpras/profile/edit', [SarprasController::class, 'edit'])->name('sarpras.profile.edit');
+        Route::put('/sarpras/profile', [SarprasController::class, 'update'])->name('sarpras.profile.update');
 });
 Route::middleware(['authorize:6'])->group(function () {
     Route::get('/teknis/dashboard', function () {
-        return view('teknis.dashboard');
+        return view('teknisi.dashboard');
     })->name('teknis.dashboard');
 });
 });
