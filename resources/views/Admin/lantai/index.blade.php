@@ -39,7 +39,7 @@
                 $('#myModal').modal('show');
             });
         }
-        
+
         var dataLantai;
         $(document).ready(function(){
             dataLantai = $('#table_lantai').DataTable({

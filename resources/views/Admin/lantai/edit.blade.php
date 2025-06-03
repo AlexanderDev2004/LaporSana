@@ -60,7 +60,7 @@
                     type: form.method,
                     data: $(form).serialize(),
                     success: function(response) {
-                        if (response.status) {   
+                        if (response.status) {
                             $('#myModal').modal('hide');
                             Swal.fire({
                                 icon: 'success',
@@ -79,7 +79,7 @@
                                 text: response.message
                             });
                         }
-                    } 
+                    }
                 });
                 return false;
             },

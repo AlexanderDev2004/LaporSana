@@ -10,7 +10,7 @@
 
   <div class="card-body">
     <p>Selamat datang! <strong>{{ Auth::user()->name }}</strong>,</p>
-    <p>Ngetes dashboard sarpras</p>
+    
   </div>
 </div>
 

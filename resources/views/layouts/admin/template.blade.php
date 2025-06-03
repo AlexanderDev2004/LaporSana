@@ -15,7 +15,6 @@
   <link href='https://fonts.googleapis.com/css?family=Poppins' rel='stylesheet'>
   <!-- Font Awesome -->
   <link rel="stylesheet" href="{{ asset('LaporSana/plugins/fontawesome-free/css/all.min.css') }}">
-
   <!-- Ionicons -->
   <link rel="stylesheet" href="https://code.ionicframework.com/ionicons/2.0.1/css/ionicons.min.css">
   <!-- Tempusdominus Bootstrap 4 -->
@@ -85,39 +84,60 @@
   </div>
   <!-- ./wrapper -->
 
-<!-- jQuery -->
-<script src="{{ asset('LaporSana/plugins/jquery/jquery.min.js') }}"></script>
-<!-- jQuery UI 1.11.4 -->
-<script src="{{ asset('LaporSana/plugins/jquery-ui/jquery-ui.min.js') }}"></script>
-<!-- Resolve conflict in jQuery UI tooltip with Bootstrap tooltip -->
-<script>
-  $.widget.bridge('uibutton', $.ui.button)
-</script>
-<!-- Bootstrap 4 -->
-<script src="{{ asset('LaporSana/plugins/bootstrap/js/bootstrap.bundle.min.js') }}"></script>
-<!-- ChartJS -->
-<script src="{{ asset('LaporSana/plugins/chart.js/Chart.min.js') }}"></script>
-<!-- Sparkline -->
-<script src="{{ asset('LaporSana/plugins/sparklines/sparkline.js') }}"></script>
-<!-- JQVMap -->
-<script src="{{ asset('LaporSana/plugins/jqvmap/jquery.vmap.min.js') }}"></script>
-<script src="{{ asset('LaporSana/plugins/jqvmap/maps/jquery.vmap.usa.js') }}"></script>
-<!-- jQuery Knob Chart -->
-<script src="{{ asset('LaporSana/plugins/jquery-knob/jquery.knob.min.js') }}"></script>
-<!-- daterangepicker -->
-<script src="{{ asset('LaporSana/plugins/moment/moment.min.js') }}"></script>
-<script src="{{ asset('LaporSana/plugins/daterangepicker/daterangepicker.js') }}"></script>
-<!-- Tempusdominus Bootstrap 4 -->
-<script src="{{ asset('LaporSana/plugins/tempusdominus-bootstrap-4/js/tempusdominus-bootstrap-4.min.js') }}"></script>
-<!-- Summernote -->
-<script src="{{ asset('LaporSana/plugins/summernote/summernote-bs4.min.js') }}"></script>
-<!-- overlayScrollbars -->
-<script src="{{ asset('LaporSana/plugins/overlayScrollbars/js/jquery.overlayScrollbars.min.js') }}"></script>
-<!-- AdminLTE App -->
-<script src="{{ asset('LaporSana/dist/js/adminlte.js') }}"></script>
-<!-- AdminLTE for demo purposes -->
-<script src="{{ asset('LaporSana/dist/js/demo.js') }}"></script>
-<!-- AdminLTE dashboard demo (This is only for demo purposes) -->
-<script src="{{ asset('LaporSana/dist/js/pages/dashboard.js') }}"></script>
+  <!-- jQuery -->
+  <script src="{{ asset('LaporSana/plugins/jquery/jquery.min.js') }}"></script>
+  <!-- jQuery UI 1.11.4 -->
+  <script src="{{ asset('LaporSana/plugins/jquery-ui/jquery-ui.min.js') }}"></script>
+  <script>
+    $.widget.bridge('uibutton', $.ui.button)
+  </script>
+  <!-- Bootstrap 4 -->
+  <script src="{{ asset('LaporSana/plugins/bootstrap/js/bootstrap.bundle.min.js') }}"></script>
+  <!-- ChartJS -->
+  <script src="{{ asset('LaporSana/plugins/chart.js/Chart.min.js') }}"></script>
+  <!-- Sparkline -->
+  <script src="{{ asset('LaporSana/plugins/sparklines/sparkline.js') }}"></script>
+  <!-- JQVMap -->
+  <script src="{{ asset('LaporSana/plugins/jqvmap/jquery.vmap.min.js') }}"></script>
+  <script src="{{ asset('LaporSana/plugins/jqvmap/maps/jquery.vmap.usa.js') }}"></script>
+  <!-- jQuery Knob Chart -->
+  <script src="{{ asset('LaporSana/plugins/jquery-knob/jquery.knob.min.js') }}"></script>
+  <!-- daterangepicker -->
+  <script src="{{ asset('LaporSana/plugins/moment/moment.min.js') }}"></script>
+  <script src="{{ asset('LaporSana/plugins/daterangepicker/daterangepicker.js') }}"></script>
+  <!-- Tempusdominus Bootstrap 4 -->
+  <script src="{{ asset('LaporSana/plugins/tempusdominus-bootstrap-4/js/tempusdominus-bootstrap-4.min.js') }}"></script>
+  <!-- Summernote -->
+  <script src="{{ asset('LaporSana/plugins/summernote/summernote-bs4.min.js') }}"></script>
+  <!-- overlayScrollbars -->
+  <script src="{{ asset('LaporSana/plugins/overlayScrollbars/js/jquery.overlayScrollbars.min.js') }}"></script>
+  <!-- AdminLTE App -->
+  <script src="{{ asset('LaporSana/dist/js/adminlte.js') }}"></script>
+  <!-- jquery-validation -->
+  <script src="{{ asset('LaporSana/plugins/jquery-validation/jquery.validate.min.js') }}"></script>
+  <script src="{{ asset('LaporSana/plugins/jquery-validation/additional-methods.min.js') }}"></script>
+  <!-- DataTables  & Plugins -->
+  <script src="{{ asset('LaporSana/plugins/datatables/jquery.dataTables.min.js') }}"></script>
+  <script src="{{ asset('LaporSana/plugins/datatables-bs4/js/dataTables.bootstrap4.min.js') }}"></script>
+  <script src="{{ asset('LaporSana/plugins/datatables-responsive/js/dataTables.responsive.min.js') }}"></script>
+  <script src="{{ asset('LaporSana/plugins/datatables-responsive/js/responsive.bootstrap4.min.js') }}"></script>
+  <script src="{{ asset('LaporSana/plugins/datatables-buttons/js/dataTables.buttons.min.js') }}"></script>
+  <script src="{{ asset('LaporSana/plugins/datatables-buttons/js/buttons.bootstrap4.min.js') }}"></script>
+  <script src="{{ asset('LaporSana/plugins/jszip/jszip.min.js') }}"></script>
+  <script src="{{ asset('LaporSana/plugins/pdfmake/pdfmake.min.js') }}"></script>
+  <script src="{{ asset('LaporSana/plugins/pdfmake/vfs_fonts.js') }}"></script>
+  <script src="{{ asset('LaporSana/plugins/datatables-buttons/js/buttons.html5.min.js') }}"></script>
+  <script src="{{ asset('LaporSana/plugins/datatables-buttons/js/buttons.print.min.js') }}"></script>
+  <script src="{{ asset('LaporSana/plugins/datatables-buttons/js/buttons.colVis.min.js') }}"></script>
+  <!-- SweetAlert2 -->
+  <script src="{{ asset('LaporSana/plugins/sweetalert2/sweetalert2.min.js') }}"></script>
+  <script>
+    $.ajaxSetup({
+      headers: {
+        'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+      }
+    });
+  </script>
+  @stack('js')
 </body>
 </html>

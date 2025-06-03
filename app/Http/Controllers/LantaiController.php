@@ -60,7 +60,7 @@ class LantaiController extends Controller
         $active_menu = 'lantai';
         return view('admin.lantai.create', compact('breadcrumb', 'active_menu'));
     }
-  
+
         public function store(Request $request)
         {
             // Validate the request
@@ -99,7 +99,7 @@ class LantaiController extends Controller
     public function edit(string $id) {
             $lantai = LantaiModel::find($id);
 
-            return view('admin.lantai.edit', ['lantai' => $lantai]); 
+            return view('admin.lantai.edit', ['lantai' => $lantai]);
         }
 
       public function update(Request $request, $id) {
