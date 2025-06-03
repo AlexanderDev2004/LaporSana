@@ -1,54 +1,79 @@
-@extends('layouts.admin.template')
-
-@section('content')
-<div class="card">
-    <div class="card-header">
-        <h3 class="card-title">Tambah Role Baru</h3>
+<form action="{{ route('admin.roles.store') }}" method="POST" id="form-tambah">
+    @csrf
+    <div id="modal-master" class="modal-dialog modal-lg" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="exampleModalLabel">Tambah Data Role</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div class="form-group">
+                    <label>Kode roles</label>
+                    <input type="text" name="roles_kode" id="roles_kode" class="form-control" required>
+                    <small id="error-roles_kode" class="error-text form-text text-danger"></small>
+                </div>
+                <div class="form-group">
+                    <label>Nama roles</label>
+                    <input type="text" name="roles_nama" id="roles_nama" class="form-control" required>
+                    <small id="error-roles_nama" class="error-text form-text text-danger"></small>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" data-dismiss="modal" class="btn btn-warning">Batal</button>
+                <button type="submit" class="btn btn-primary">Simpan</button>
+            </div>
+        </div>
     </div>
-    <div class="card-body">
-        @if($errors->any())
-            <div class="alert alert-danger">
-                <ul>
-                    @foreach($errors->all() as $error)
-                        <li>{{ $error }}</li>
-                    @endforeach
-                </ul>
-            </div>
-        @endif
-
-        <form action="{{ route('admin.roles.store') }}" method="POST">
-            @csrf
-
-            <div class="form-group">
-                <label for="roles_nama">Nama Role</label>
-                <input type="text" class="form-control @error('roles_nama') is-invalid @enderror"
-                       id="roles_nama" name="roles_nama" value="{{ old('roles_nama') }}" required>
-                @error('roles_nama')
-                    <div class="invalid-feedback">{{ $message }}</div>
-                @enderror
-            </div>
-
-            <div class="form-group">
-                <label for="roles_kode">Kode Role</label>
-                <input type="text" class="form-control @error('roles_kode') is-invalid @enderror"
-                       id="roles_kode" name="roles_kode" value="{{ old('roles_kode') }}" required>
-                @error('roles_kode')
-                    <div class="invalid-feedback">{{ $message }}</div>
-                @enderror
-            </div>
-
-            <div class="form-group">
-                <label for="roles_deskripsi">Deskripsi</label>
-                <textarea class="form-control @error('roles_deskripsi') is-invalid @enderror"
-                          id="roles_deskripsi" name="roles_deskripsi">{{ old('roles_deskripsi') }}</textarea>
-                @error('roles_deskripsi')
-                    <div class="invalid-feedback">{{ $message }}</div>
-                @enderror
-            </div>
-
-            <button type="submit" class="btn btn-primary">Simpan</button>
-            <a href="{{ route('admin.roles.index') }}" class="btn btn-default">Batal</a>
-        </form>
-    </div>
-</div>
-@endsection
+</form>
+<script>
+   $(document).ready(function() {
+        $("#form-tambah").validate({
+            rules: {
+                roles_kode: {required: true, maxlength: 5 },
+                roles_nama: {required: true, minlength: 3, maxlength: 50}
+            },
+            submitHandler: function(form) {
+                $.ajax({
+                    url: form.action,
+                    type: form.method,
+                    data: $(form).serialize(),
+                    success: function(response) {
+                        if (response.status) {
+                            $('#myModal').modal('hide');
+                            Swal.fire({
+                                icon: 'success',
+                                title: 'Berhasil',
+                                text: response.message
+                            });
+                            dataRoles.ajax.reload();
+                        } else {
+                            $('.error-text').text('');
+                            $.each(response.msgField, function(prefix, val) {
+                                $('#error-'+prefix).text(val[0]);
+                            });
+                            Swal.fire({
+                                icon: 'error',
+                                title: 'Terjadi Kesalahan',
+                                text: response.message
+                            });
+                        }
+                    }
+                });
+                return false;
+            },
+            errorElement: 'span',
+            errorPlacement: function(error, element) {
+                error.addClass('invalid-feedback');
+                element.closest('.form-group').append(error);
+            },
+            highlight: function(element, errorClass, validClass) {
+                $(element).addClass('is-invalid');
+            },
+            unhighlight: function(element, errorClass, validClass) {
+                $(element).removeClass('is-invalid');
+            }
+        });
+    });
+</script>

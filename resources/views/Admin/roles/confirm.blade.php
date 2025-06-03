@@ -1,4 +1,4 @@
-@empty($lantai)
+@empty($role)
     <div id="modal-master" class="modal-dialog modal-lg" role="document">
         <div class="modal-content">
             <div class="modal-header">
@@ -12,18 +12,18 @@
                     <h5><i class="icon fas fa-ban"></i> Kesalahan!!!</h5>
                     Data yang anda cari tidak ditemukan
                 </div>
-                <a href="{{ url('/lantai') }}" class="btn btn-warning">Kembali</a>
+                <a href="{{ url('/role') }}" class="btn btn-warning">Kembali</a>
             </div>
         </div>
     </div>
 @else
-    <form action="{{ route('admin.lantai.delete', $lantai->lantai_id) }}" method="POST" id="form-delete">
+    <form action="{{ route('admin.roles.delete', $role->roles_id) }}" method="POST" id="form-delete">
         @csrf
         @method('DELETE')
         <div id="modal-master" class="modal-dialog modal-lg" role="document">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h5 class="modal-title" id="exampleModalLabel">Hapus Data lantai</h5>
+                    <h5 class="modal-title" id="exampleModalLabel">Hapus Data role</h5>
                     <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                         <span aria-hidden="true">&times;</span>
                     </button>
@@ -35,12 +35,12 @@
                     </div>
                     <table class="table table-sm table-bordered table-striped">
                         <tr>
-                            <th class="text-right col-3">Kode Lantai:</th>
-                            <td class="col-9">{{ $lantai->lantai_kode }}</td>
+                            <th class="text-right col-3">Kode role:</th>
+                            <td class="col-9">{{ $role->roles_kode }}</td>
                         </tr>
                         <tr>
-                            <th class="text-right col-3">Nama Lantai :</th>
-                            <td class="col-9">{{ $lantai->lantai_nama }}</td>
+                            <th class="text-right col-3">Nama role :</th>
+                            <td class="col-9">{{ $role->roles_nama }}</td>
                         </tr>
                     </table>
                 </div>
@@ -68,7 +68,7 @@
                                     title: 'Berhasil',
                                     text: response.message
                                 });
-                                dataLantai.ajax.reload();
+                                dataRoles.ajax.reload();
                             } else {
                                 $('.error-text').text('');
                                 $.each(response.msgField, function(prefix, val) {

@@ -3,46 +3,49 @@
 namespace App\Http\Controllers;
 
 use App\Models\LantaiModel;
+use App\Models\FasilitasModel;
+use App\Models\RuanganModel;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Validator;
 use Yajra\DataTables\Facades\DataTables;
 
-class LantaiController extends Controller
+class FasilitasController extends Controller
 {
     public function index()
     {
         $breadcrumb = (object) [
-            'title' => 'Manajemen lantai',
-            'list'  => ['Home', 'lantai']
+            'title' => 'Manajemen Fasilitas',
+            'list'  => ['Home', 'Fasilitas']
         ];
 
-        $active_menu = 'lantai';
-        $lantai = LantaiModel::all();
+        $active_menu = 'fasilitas';
+        $ruangan = RuanganModel::all();
 
-        return view('admin.lantai.index', compact('breadcrumb', 'active_menu', 'lantai'));
+        return view('admin.fasilitas.index', compact('breadcrumb', 'active_menu', 'ruangan'));
     }
 
      public function list(Request $request)
     {
-        $lantai = LantaiModel::select('lantai_id', 'lantai_kode', 'lantai_nama');
+        $fasilitas = FasilitasModel::select('fasilitas_id', 'fasilitas_kode', 'fasilitas_nama', 'ruangan_id')
+        ->with('ruangan');
 
-        if ($request->lantai_id) {
-            $lantai->where('lantai_id', $request->lantai_id);
+        if ($request->ruangan_id) {
+            $fasilitas->where('ruangan_id', $request->ruangan_id);
         }
 
-        return DataTables::of($lantai)
+        return DataTables::of($fasilitas)
             ->addIndexColumn()
-            ->addColumn('aksi', function ($lantai) {
+            ->addColumn('aksi', function ($fasilitas) {
                 // $btn = '<a href="' . url('/lantai/' . $lantai->lantai_id) . '" class="btn btn-info btn-sm">Detail</a> ';
                 // $btn .= '<a href="' . url('/lantai/' . $lantai->lantai_id . '/edit') . '" class="btn btn-warning btn-sm">Edit</a> ';
                 // $btn .= '<form class="d-inline-block" method="POST" action="' . url('/lantai/' . $lantai->lantai_id) . '">'
                 //     . csrf_field() . method_field('DELETE')
                 //     . '<button type="submit" class="btn btn-danger btn-sm" onclick="return confirm(\'Apakah anda yakin menghapus data ini?\');">Hapus</button></form>';
 
-                $btn = '<button onclick="modalAction(\''.route('admin.lantai.show', $lantai->lantai_id).'\')" class="btn btn-info btn-sm"><i class="fas fa-eye"></i></button>';
-                $btn .= '<button onclick="modalAction(\''.route('admin.lantai.edit', $lantai->lantai_id).'\')" class="btn btn-warning btn-sm"><i class="fas fa-edit"></i></button>';
-                $btn .= '<button onclick="modalAction(\''.route('admin.lantai.confirm', $lantai->lantai_id).'\')" class="btn btn-danger btn-sm"><i class="fas fa-trash"></i></button>';
+                $btn = '<button onclick="modalAction(\''.route('admin.fasilitas.show', $fasilitas->fasilitas_id).'\')" class="btn btn-info btn-sm"><i class="fas fa-eye"></i></button>';
+                $btn .= '<button onclick="modalAction(\''.route('admin.fasilitas.edit', $fasilitas->fasilitas_id).'\')" class="btn btn-warning btn-sm"><i class="fas fa-edit"></i></button>';
+                $btn .= '<button onclick="modalAction(\''.route('admin.fasilitas.confirm', $fasilitas->fasilitas_id).'\')" class="btn btn-danger btn-sm"><i class="fas fa-trash"></i></button>';
                 return $btn;
             })
             ->rawColumns(['aksi'])
@@ -52,21 +55,25 @@ class LantaiController extends Controller
 
     public function create()
     {
-        $breadcrumb = (object) [
-            'title' => 'Tambah Lantai',
-            'list'  => ['Home', 'lantai', 'Tambah']
+         $breadcrumb = (object) [
+            'title' => 'Tambah Fasiltas',
+            'list'  => ['Home', 'Fasiltas', 'Tambah']
         ];
 
-        $active_menu = 'lantai';
-        return view('admin.lantai.create', compact('breadcrumb', 'active_menu'));
+        $active_menu = 'fasilitas';
+        $ruangan = RuanganModel::select('ruangan_id', 'ruangan_nama')->get();
+        
+        return view('admin.fasilitas.create', compact('breadcrumb', 'active_menu'))
+                    ->with('ruangan', $ruangan);
     }
-
-        public function store(Request $request)
+  
+          public function store(Request $request)
         {
             // Validate the request
             $validator = Validator::make($request->all(), [
-                'lantai_kode' => 'required|string|max:5',
-                'lantai_nama' => 'required|string|min:3|max:50'
+                'fasilitas_kode' => 'required',
+                'fasilitas_nama' => 'required',
+                'ruangan_id'    => 'required'
             ]);
 
             // If validation fails, return with errors
@@ -78,16 +85,17 @@ class LantaiController extends Controller
                 ]);
             }
 
-            // Create new lantai
+            // Create new
             try {
-                $lantai = new LantaiModel();
-                $lantai->lantai_kode = $request->lantai_kode;
-                $lantai->lantai_nama = $request->lantai_nama;
-                $lantai->save();
+                $fasilitas = new FasilitasModel();
+                $fasilitas->fasilitas_kode = $request->fasilitas_kode;
+                $fasilitas->fasilitas_nama = $request->fasilitas_nama;
+                $fasilitas->ruangan_id = $request->ruangan_id;
+                $fasilitas->save();
 
                 return response()->json([
                     'status' => true,
-                    'message' => 'Data lantai berhasil disimpan'
+                    'message' => 'Data Fasilitas berhasil disimpan'
                 ]);
             } catch (\Exception $e) {
                 return response()->json([
@@ -97,16 +105,18 @@ class LantaiController extends Controller
             }
         }
     public function edit(string $id) {
-            $lantai = LantaiModel::find($id);
+            $fasilitas = FasilitasModel::find(id: $id);
+            $ruangan = RuanganModel::select('ruangan_id', 'ruangan_nama')->get();
 
-            return view('admin.lantai.edit', ['lantai' => $lantai]);
+            return view('admin.fasilitas.edit', ['fasilitas' => $fasilitas, 'ruangan' => $ruangan]); 
         }
 
       public function update(Request $request, $id) {
         if ($request->ajax() || $request->wantsJson()) {
             $rules = [
-                'lantai_kode' => 'required|string|max:5',
-                'lantai_nama' => 'required|string|min:3|max:50'
+                'ruangan_id'    => 'required|exists:m_ruangan,ruangan_id',
+                'fasilitas_kode' => 'required',
+                'fasilitas_nama' => 'required|min:3|max:50',
             ];
 
             $validator = Validator::make($request->all(), $rules);
@@ -119,7 +129,7 @@ class LantaiController extends Controller
                 ]);
             }
 
-            $check = LantaiModel::find($id);
+            $check = FasilitasModel::find($id);
             if ($check) {
                 $check->update($request->all());
                 return response()->json([
@@ -137,24 +147,24 @@ class LantaiController extends Controller
     }
 
     public function confirm(string $id) {
-        $lantai = LantaiModel::find($id);
+        $fasilitas = FasilitasModel::find($id);
 
-        return view('admin.lantai.confirm', ['lantai' => $lantai]);
+        return view('admin.fasilitas.confirm', ['fasilitas' => $fasilitas]);
     }
     public function delete(Request $request, $id)
     {
-        $lantai = LantaiModel::find($id);
-        if (!$lantai) {
+        $fasilitas = FasilitasModel::find($id);
+        if (!$fasilitas) {
             return response()->json([
                 'status' => false,
                 'message' => 'Data tidak ditemukan'
             ]);
         }
         try {
-            $lantai->delete();
+            $fasilitas->delete();
             return response()->json([
                 'status' => true,
-                'message' => 'Data lantai berhasil dihapus'
+                'message' => 'Data fasilitas$fasilitas berhasil dihapus'
             ]);
         } catch (\Exception $e) {
             return response()->json([
@@ -164,15 +174,15 @@ class LantaiController extends Controller
         }
     }
 
-    public function show(LantaiModel $lantai)
+    public function show(FasilitasModel $fasilitas)
     {
         $breadcrumb = (object) [
-            'title' => 'Detail Lantai',
-            'list'  => ['Home', 'lantai', 'Detail']
+            'title' => 'Detail fasilitas',
+            'list'  => ['Home', 'fasilitas', 'Detail']
         ];
 
-        $active_menu = 'lantai';
+        $active_menu = 'fasilitas';
 
-        return view('admin.lantai.show', compact('breadcrumb', 'active_menu', 'lantai'));
+        return view('admin.fasilitas.show', compact('breadcrumb', 'active_menu', 'fasilitas'));
     }
 }

@@ -1,4 +1,4 @@
-@empty($lantai)
+@empty($ruangan)
     <div id="modal-master" class="modal-dialog modal-lg" role="document">
         <div class="modal-content">
             <div class="modal-header">
@@ -17,27 +17,37 @@
         </div>
     </div>
 @else
-    <form action="{{ route('admin.lantai.update', $lantai->lantai_id) }}" method="POST" id="form-edit">
+    <form action="{{ route('admin.ruangan.update', $ruangan->ruangan_id) }}" method="POST" id="form-edit">
     @csrf
     @method('PUT')
     <div id="modal-master" class="modal-dialog modal-lg" role="document">
         <div class="modal-content">
             <div class="modal-header">
-                <h5 class="modal-title" id="exampleModalLabel">Edit Data lantai</h5>
+                <h5 class="modal-title" id="exampleModalLabel">Edit Data Ruangan</h5>
                 <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                     <span aria-hidden="true">&times;</span>
                 </button>
             </div>
             <div class="modal-body">
                 <div class="form-group">
-                    <label>Kode lantai</label>
-                    <input value="{{ $lantai->lantai_kode }}" type="text" name="lantai_kode" id="lantai_kode" class="form-control" required>
-                    <small id="error-lantai_kode" class="error-text form-text text-danger"></small>
+                    <label>Lantai Ruangan</label>
+                    <select name="lantai_id" id="lantai_id" class="form-control" required>
+                        <option value="">- Pilih Lantai -</option>
+                        @foreach ($lantai as $l)
+                            <option {{ ($l->lantai_id == $ruangan->lantai_id)? 'selected' : ''}} value="{{ $l->lantai_id }}">{{ $l->lantai_nama }}</option>
+                        @endforeach
+                    </select>
+                    <small id="error-lantai_id" class="error-text form-text text-danger"></small>
                 </div>
                 <div class="form-group">
-                    <label>Nama lantai</label>
-                    <input value="{{ $lantai->lantai_nama }}" type="text" name="lantai_nama" id="lantai_nama" class="form-control" required>
-                    <small id="error-lantai_nama" class="error-text form-text text-danger"></small>
+                    <label>Kode Ruangan</label>
+                    <input value="{{ $ruangan->ruangan_kode }}" type="text" name="ruangan_kode" id="ruangan_kode" class="form-control" required>
+                    <small id="error-ruangan_kode" class="error-text form-text text-danger"></small>
+                </div>
+                <div class="form-group">
+                    <label>Nama Ruangan</label>
+                    <input value="{{ $ruangan->ruangan_nama }}" type="text" name="ruangan_nama" id="ruangan_nama" class="form-control" required>
+                    <small id="error-ruangan_nama" class="error-text form-text text-danger"></small>
                 </div>
             </div>
             <div class="modal-footer">
@@ -51,8 +61,9 @@
     $(document).ready(function() {
         $('#form-edit').validate({
             rules: {
-                lantai_kode: {required: true, maxlength: 5},
-                lantai_nama: {required: true, minlength: 3, maxlength: 50}
+                ruangan_kode: {required: true},
+                ruangan_nama: {required: true, minlength: 3, maxlength: 50},
+                lantai_id: {required: true}
             },
             submitHandler: function(form) {
                 $.ajax({
@@ -60,14 +71,14 @@
                     type: form.method,
                     data: $(form).serialize(),
                     success: function(response) {
-                        if (response.status) {
+                        if (response.status) {   
                             $('#myModal').modal('hide');
                             Swal.fire({
                                 icon: 'success',
                                 title: 'Berhasil',
                                 text: response.message
                             });
-                          dataLantai.ajax.reload();
+                          dataRuangan.ajax.reload();
                         } else {
                             $('.error-text').text('');
                             $.each(response.msgField, function(prefix, val) {
@@ -79,7 +90,7 @@
                                 text: response.message
                             });
                         }
-                    }
+                    } 
                 });
                 return false;
             },

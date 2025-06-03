@@ -3,10 +3,10 @@
 @section('content')
     <div class="card">
         <div class="card-header">
-            <h3 class="card-title">Daftar Ruangan</h3>
+            <h3 class="card-title">Daftar Fasilitas</h3>
             <div class="card-tools">
-                <button onclick="modalAction('{{ route('admin.ruangan.create') }}')" class="btn btn-primary">
-                    <i class="fas fa-plus"></i> Tambah Ruangan
+                <button onclick="modalAction('{{ route('admin.fasilitas.create') }}')" class="btn btn-primary">
+                    <i class="fas fa-plus"></i> Tambah Fasilitas
                 </button>
             </div>
         </div>
@@ -19,24 +19,24 @@
                     <div class="form-group-row">
                         <label class="col-1 control-label col-form-label">Filter:</label>
                         <div class="col-3">
-                            <select class="form-control" id="lantai_id" name="lantai_id" required>
+                            <select class="form-control" id="ruangan_id" name="ruangan_id" required>
                                 <option value="">- Semua -</option>
-                                @foreach($lantai as $item)
-                                    <option value="{{ $item->lantai_id }}">{{ $item->lantai_nama }}</option>
+                                @foreach($ruangan as $item)
+                                    <option value="{{ $item->ruangan_id }}">{{ $item->ruangan_nama }}</option>
                                 @endforeach
                             </select>
-                            <small class="form-text text-muted">Lantai</small>
+                            <small class="form-text text-muted">Ruangan</small>
                         </div>
                     </div>
                 </div>
             </div>
-            <table class="table table-bordered" id="table_ruangan">
+            <table class="table table-bordered" id="table_fasilitas">
                 <thead>
                     <tr>
                         <th>ID</th>
-                        <th>Kode Ruangan</th>
-                        <th>Nama Ruangan</th>
-                        <th>Lantai</th>
+                        <th>Kode Fasilitas</th>
+                        <th>Nama Fasilitas</th>
+                        <th>Ruangan</th>
                         <th>Aksi</th>
                     </tr>
                 </thead>
@@ -57,29 +57,29 @@
             });
         }
         
-        var dataRuangan;
+        var dataFasilitas;
         $(document).ready(function(){
-            dataRuangan = $('#table_ruangan').DataTable({
+            dataFasilitas = $('#table_fasilitas').DataTable({
                 processing: true,
                 serverSide: true,
                 ajax: {
-                    "url": "{{ route('admin.ruangan.list') }}",
+                    "url": "{{ route('admin.fasilitas.list') }}",
                     "dataType": "json",
                     "type": "GET",
                     "data": function (r) {
-                        r.lantai_id = $('#lantai_id').val();
+                        r.ruangan_id = $('#ruangan_id').val();
                     }
                 },
                 columns: [
                     {data: 'DT_RowIndex', className: 'text-center', orderable: false, searchable: false},
-                    {data: 'ruangan_kode', className: '', orderable: true, searchable: true},
-                    {data: 'ruangan_nama', className: '', orderable: true, searchable: true},
-                    {data: 'lantai.lantai_nama', className: '', orderable: false, searchable: false},
+                    {data: 'fasilitas_kode', className: '', orderable: true, searchable: true},
+                    {data: 'fasilitas_nama', className: '', orderable: true, searchable: true},
+                    {data: 'ruangan.ruangan_nama', className: '', orderable: false, searchable: false},
                     {data: 'aksi', className: '', orderable: false, searchable: false}
                 ]
             });
-             $('#lantai_id').on('change', function() {
-                dataRuangan.ajax.reload();
+             $('#ruangan_id').on('change', function() {
+                dataFasilitas.ajax.reload();
             });
         });
     </script>
