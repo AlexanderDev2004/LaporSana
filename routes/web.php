@@ -102,10 +102,7 @@ Route::get('logout', [AuthController::class, 'logout'])->middleware('auth')->nam
     });
 
 
-// Rute untuk Pelapor (role 2)
-Route::middleware(['authorize:2,3,4'])->prefix('pelapor')->group(function () {
-    Route::get('/dashboard', [PelaporController::class, 'index'])->name('pelapor.dashboard');
-});
+
 
 // // Rute untuk Dosen (role 3)
 // Route::middleware(['authorize:3'])->group(function () {
@@ -133,4 +130,8 @@ Route::middleware(['authorize:6'])->group(function () {
         return view('teknisi.dashboard');
     })->name('teknis.dashboard');
 });
+});
+// Rute untuk Pelapor (role 2)
+Route::middleware(['authorize:2,3,4'])->prefix('pelapor')->group(function () {
+    Route::get('/dashboard', [PelaporController::class, 'index'])->name('pelapor.dashboard');
 });
