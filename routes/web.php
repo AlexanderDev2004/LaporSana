@@ -35,16 +35,8 @@ Route::get('logout', [AuthController::class, 'logout'])->middleware('auth')->nam
 Route::middleware(['auth', 'authorize:1'])->group(function () {
     // Dashboard
     Route::get('/admin/dashboard', [DashboardController::class, 'index'])->name('admin.dashboard');
-    // User Management
-    Route::group(['prefix' => 'admin/users'], function () {
-        Route::get('/', [UserController::class, 'list'])->name('admin.users.index');
-        Route::get('/create', [UserController::class, 'create'])->name('admin.users.create');
-        Route::post('/', [UserController::class, 'store'])->name('admin.users.store');
-        Route::get('/{user}', [UserController::class, 'show'])->name('admin.users.show');
-        Route::get('/{user}/edit', [UserController::class, 'edit'])->name('admin.users.edit');
-        Route::put('/{user}', [UserController::class, 'update'])->name('admin.users.update');
-        Route::delete('/{user}', [UserController::class, 'destroy'])->name('admin.users.destroy');
-    });
+
+    
 
     // Role Management
     Route::group(['prefix' => 'admin/roles'], function (): void {
