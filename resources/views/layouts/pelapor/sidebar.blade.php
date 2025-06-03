@@ -41,7 +41,7 @@
                     </a>
                 </li>
                 <li class="nav-item">
-                    <a href="{{ url('/laporan/bersama') }}" class="nav-link">
+                    <a href="{{ url('/pelapor/laporan_bersama') }}" class="nav-link {{ $active_menu == 'laporan bersama' ? 'active' : '' }}">
                         <i class="far fa-circle nav-icon"></i>
                         <p>Laporan Bersama</p>
                     </a>

@@ -1,12 +1,9 @@
 @php
-    // Definisikan variabel $detail di awal agar kode lebih bersih dan aman
     $detail = $laporan->details->first();
 @endphp
 
-{{-- (BARU) Tambahkan div.modal-dialog untuk konsistensi dengan pop-up tambah --}}
 <div class="modal-dialog modal-xl" role="document">
     <div class="modal-content">
-        {{-- (BARU) Tambahkan modal-header untuk judul --}}
         <div class="modal-header">
             <h5 class="modal-title" id="detailLaporanModalLabel">Detail Laporan #{{ $laporan->laporan_id }}</h5>
             <button type="button" class="close" data-dismiss="modal" aria-label="Close">
@@ -21,6 +18,10 @@
                             <tr>
                                 <th style="width: 35%;">ID Laporan</th>
                                 <td>{{ $laporan->laporan_id }}</td>
+                            </tr>
+                            <tr>
+                                <th>Nama Pelapor</th>
+                                <td>{{ $laporan->user->name ?? '-' }}</td>
                             </tr>
                             <tr>
                                 <th>Tanggal Lapor</th>

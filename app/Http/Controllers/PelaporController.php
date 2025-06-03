@@ -10,6 +10,7 @@ use App\Models\FasilitasModel;
 use Illuminate\Http\Request;
 use Yajra\DataTables\Facades\DataTables;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Validator;
 
 class PelaporController extends Controller
 {
@@ -47,31 +48,50 @@ class PelaporController extends Controller
 
         return DataTables::of($laporans)
             ->addIndexColumn()
-            ->addColumn('aksi', function ($laporan) {
-                return '<button class="btn btn-info btn-sm btn-detail" data-id="' . $laporan->laporan_id . '"><i class="fas fa-eye"></i> Detail</button>';
+            ->editColumn('status.status_nama', function ($laporan) {
+                $status = $laporan->status->status_nama ?? 'Tidak Diketahui';
+                switch ($laporan->status_id) {
+                    case 1: return '<span class="badge badge-warning">' . $status . '</span>';
+                    case 2: return '<span class="badge badge-danger">' . $status . '</span>';
+                    case 3: return '<span class="badge badge-info">' . $status . '</span>';
+                    case 4: return '<span class="badge badge-success">' . $status . '</span>';
+                    default: return '<span class="badge badge-secondary">' . $status . '</span>';
+                }
             })
-            ->rawColumns(['aksi'])
+            ->addColumn('aksi', function ($laporan) {
+                $detailUrl = route('pelapor.show', ['laporan_id' => $laporan->laporan_id]);
+                $btn = '<button onclick="modalAction(\''.$detailUrl.'\')" class="btn btn-info btn-sm">Detail</button> ';
+                return $btn;
+            })
+            ->rawColumns(['status.status_nama', 'aksi'])
             ->make(true);
     }
 
     public function create()
     {
         $lantai = LantaiModel::all();
-        $ruangan = RuanganModel::all();
+        $ruangan = RuanganModel::all(); 
         $fasilitas = FasilitasModel::all();
-
+        
         return view('pelapor.create', compact('lantai', 'ruangan', 'fasilitas'));
     }
 
+
     public function store(Request $request)
     {
-        $validated = $request->validate([
+        $validator = Validator::make($request->all(), [
             'lantai_id' => 'required|exists:m_lantai,lantai_id',
             'ruangan_id' => 'required|exists:m_ruangan,ruangan_id',
             'fasilitas_id' => 'required|exists:m_fasilitas,fasilitas_id',
-            'foto_bukti' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
-            'deskripsi' => 'required|string|max:255',
+            'foto_bukti' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:10240', // Batas sudah 10MB
+            'deskripsi' => 'required|string|min:10|max:255',
         ]);
+
+        if ($validator->fails()) {
+            return response()->json(['status' => false, 'message' => 'Validasi Gagal', 'msgField' => $validator->errors()], 422);
+        }
+
+        $validated = $validator->validated();
 
         $existingLaporan = LaporanModel::whereHas('details', function ($query) use ($validated) {
             $query->where('fasilitas_id', $validated['fasilitas_id'])
@@ -87,7 +107,8 @@ class PelaporController extends Controller
         if ($existingLaporan) {
             $existingLaporan->jumlah_pelapor += 1;
             $existingLaporan->save();
-            return response()->json(['success' => 'Anda telah bergabung ke laporan bersama. Jumlah pelapor diperbarui.']);
+            
+            return response()->json(['status' => true, 'message' => 'Laporan serupa sudah ada. Anda telah ditambahkan sebagai pelapor.']);
         }
 
         $laporan = new LaporanModel();
@@ -105,8 +126,7 @@ class PelaporController extends Controller
             $detail->foto_bukti = $request->file('foto_bukti')->store('foto_bukti', 'public');
         }
         $detail->save();
-
-        return response()->json(['success' => 'Laporan baru berhasil dibuat.']);
+        return response()->json(['status' => true, 'message' => 'Laporan baru berhasil dibuat.']);
     }
 
     public function show($laporan_id)
@@ -117,5 +137,55 @@ class PelaporController extends Controller
             ->firstOrFail();
 
         return view('pelapor.show', compact('laporan'));
+    }
+
+    public function laporanBersama()
+    {
+        $breadcrumb = (object) [
+            'title' => 'Laporan Kerusakan Fasilitas',
+            'list'  => ['Home', 'Laporan Bersama']
+        ];
+
+        $page = (object) [
+            'title' => 'Daftar Laporan Kerusakan'
+        ];
+
+        $active_menu = 'laporan bersama';
+
+        return view('pelapor.laporan_bersama', compact('breadcrumb', 'page', 'active_menu'));
+    }
+
+    public function listBersama(Request $request)
+    {
+        $laporans = LaporanModel::with(['details.fasilitas.ruangan.lantai', 'status'])->get();
+
+        return DataTables::of($laporans)
+            ->addIndexColumn()
+            ->editColumn('status.status_nama', function ($laporan) {
+                $status = $laporan->status->status_nama ?? 'Tidak Diketahui';
+                switch ($laporan->status_id) {
+                    case 1: return '<span class="badge badge-warning">' . $status . '</span>';
+                    case 2: return '<span class="badge badge-danger">' . $status . '</span>';
+                    case 3: return '<span class="badge badge-info">' . $status . '</span>';
+                    case 4: return '<span class="badge badge-success">' . $status . '</span>';
+                    default: return '<span class="badge badge-secondary">' . $status . '</span>';
+                }
+            })
+            ->addColumn('aksi', function ($laporan) {
+                $detailUrl = route('pelapor.show.bersama', ['laporan_id' => $laporan->laporan_id]);
+                $btn = '<button onclick="modalAction(\''.$detailUrl.'\')" class="btn btn-info btn-sm">Detail</button> ';
+                return $btn;
+            })
+            ->rawColumns(['status.status_nama', 'aksi'])
+            ->make(true);
+    }
+
+    public function showBersama($laporan_id)
+    {
+        $laporan = LaporanModel::with(['details.fasilitas.ruangan.lantai', 'status'])
+            ->where('laporan_id', $laporan_id)
+            ->firstOrFail();
+
+        return view('pelapor.show_bersama', compact('laporan'));
     }
 }
