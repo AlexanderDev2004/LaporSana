@@ -34,6 +34,10 @@ Route::get('logout', [AuthController::class, 'logout'])->middleware('auth')->nam
 
 // Rute untuk Admin (role 1)
 // User Management
+    Route::middleware(['auth', 'authorize:1'])->group(function () {
+
+    Route::get('/admin/dashboard', [DashboardController::class, 'index'])->name('admin.dashboard');
+    // User Management
     Route::group(['prefix' => 'admin/users'], function () {
         Route::get('/', [UserController::class, 'list'])->name('admin.users.index');
         Route::get('/create', [UserController::class, 'create'])->name('admin.users.create');
@@ -43,7 +47,6 @@ Route::get('logout', [AuthController::class, 'logout'])->middleware('auth')->nam
         Route::put('/{user}', [UserController::class, 'update'])->name('admin.users.update');
         Route::delete('/{user}', [UserController::class, 'destroy'])->name('admin.users.destroy');
     });
-
     // Role Management
     Route::group(['prefix' => 'admin/roles'], function (): void {
         Route::get('/', [RoleController::class, 'index'])->name('admin.roles.index');
@@ -95,7 +98,7 @@ Route::get('logout', [AuthController::class, 'logout'])->middleware('auth')->nam
         Route::get('/{fasilitas}/confirm', [FasilitasController::class, 'confirm'])->name('admin.fasilitas.confirm');
         Route::delete('/{fasilitas}/delete', [FasilitasController::class, 'delete'])->name('admin.fasilitas.delete');
     });
-});
+
 
 
 // Rute untuk Mahasiswa (role 2)
@@ -127,4 +130,5 @@ Route::middleware(['authorize:6'])->group(function () {
     Route::get('/teknis/dashboard', function () {
         return view('teknis.dashboard');
     })->name('teknis.dashboard');
+});
 });
