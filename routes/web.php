@@ -6,8 +6,6 @@ use App\Http\Controllers\FasilitasController;
 use App\Http\Controllers\LantaiController;
 use App\Http\Controllers\PelaporController;
 use App\Http\Controllers\RoleController;
-use App\Http\Controllers\RuanganController;
-use App\Http\Controllers\SarprasController;
 use App\Http\Controllers\UserController;
 use Illuminate\Auth\Middleware\Authorize;
 use Illuminate\Support\Facades\Route;
@@ -86,23 +84,6 @@ Route::middleware(['authorize:5'])->group(function () {
 });
 Route::middleware(['authorize:6'])->group(function () {
     Route::get('/teknis/dashboard', function () {
-        return view('teknisi.dashboard');
+        return view('teknis.dashboard');
     })->name('teknis.dashboard');
-});
-});
-// Rute untuk Pelapor (role 2)
-
-
-Route::middleware(['authorize:2,3,4'])->group(function () {
-    Route::group(['prefix' => 'pelapor'], function () {
-        Route::get('/dashboard', [PelaporController::class, 'index'])->name('pelapor.dashboard');
-        Route::get('/laporan', [PelaporController::class, 'laporan'])->name('pelapor.laporan');
-        Route::POST('/laporan/list', [PelaporController::class, 'list'])->name('pelapor.list');
-        Route::get('/create', [PelaporController::class, 'create'])->name('pelapor.create');
-        Route::post('/store', [PelaporController::class, 'store'])->name('pelapor.store');
-        Route::get('/laporan/{laporan_id}', [PelaporController::class, 'show'])->name('pelapor.show');
-        Route::get('/laporan_bersama', [PelaporController::class, 'laporanBersama'])->name('pelapor.laporan_bersama');
-        Route::POST('/laporan/list_bersama', [PelaporController::class, 'listBersama'])->name('pelapor.list.bersama');
-        Route::get('/laporan_bersama/{laporan_id}', [PelaporController::class, 'showBersama'])->name('pelapor.show.bersama');
-    });
 });

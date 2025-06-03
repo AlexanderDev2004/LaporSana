@@ -50,7 +50,7 @@ class AuthController extends Controller
             case 5:
                 return redirect('/sarpras/dashboard');
             case 6:
-                return redirect('/teknis/dashboard');
+                return redirect('/teknisi/dashboard');
             default:
                 Auth::logout();
                 return back()->withErrors(['msg' => 'Role tidak dikenali']);
