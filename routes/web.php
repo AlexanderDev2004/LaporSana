@@ -62,68 +62,39 @@ Route::get('logout', [AuthController::class, 'logout'])->middleware('auth')->nam
         Route::delete('/{role}/delete', [RoleController::class, 'delete'])->name('admin.roles.delete');
     });
 
-    //Lantai Management
-        Route::group(['prefix' => 'admin/lantai'], function () {
-        Route::get('/', [LantaiController::class, 'index'])->name('admin.lantai.index');
-        Route::get('/list', [LantaiController::class, 'list'])->name('admin.lantai.list');
-        Route::get('/create', [LantaiController::class, 'create'])->name('admin.lantai.create');
-        Route::post('/', [LantaiController::class, 'store'])->name('admin.lantai.store');
-        Route::get('/{lantai}/edit', [LantaiController::class, 'edit'])->name('admin.lantai.edit');
-        Route::put('/{lantai}', [LantaiController::class, 'update'])->name('admin.lantai.update');
-        Route::get('/{lantai}/show', [LantaiController::class, 'show'])->name('admin.lantai.show');
-        Route::get('/{lantai}/confirm', [LantaiController::class, 'confirm'])->name('admin.lantai.confirm');
-        Route::delete('/{lantai}/delete', [LantaiController::class, 'delete'])->name('admin.lantai.delete');
+// Rute untuk Pelapor (role 2, 3, 4)
+Route::middleware(['authorize:2,3,4'])->group(function () {
+    Route::group(['prefix' => 'pelapor'], function () {
+        Route::get('/dashboard', [PelaporController::class, 'index'])->name('pelapor.dashboard');
+        Route::get('/laporan', [PelaporController::class, 'laporan'])->name('pelapor.laporan');
+        Route::POST('/laporan/list', [PelaporController::class, 'list'])->name('pelapor.list');
+        Route::get('/create', [PelaporController::class, 'create'])->name('pelapor.create');
+        Route::post('/store', [PelaporController::class, 'store'])->name('pelapor.store');
+        Route::get('/laporan/{laporan_id}', [PelaporController::class, 'show'])->name('pelapor.show');
+        Route::get('/laporan_bersama', [PelaporController::class, 'laporanBersama'])->name('pelapor.laporan_bersama');
+        Route::POST('/laporan/list_bersama', [PelaporController::class, 'listBersama'])->name('pelapor.list.bersama');
+        Route::get('/laporan_bersama/{laporan_id}', [PelaporController::class, 'showBersama'])->name('pelapor.show.bersama');
     });
-
-       //Ruangan Management
-        Route::group(['prefix' => 'admin/ruangan'], function () {
-        Route::get('/', [RuanganController::class, 'index'])->name('admin.ruangan.index');
-        Route::get('/list', [RuanganController::class, 'list'])->name('admin.ruangan.list');
-        Route::get('/create', [RuanganController::class, 'create'])->name('admin.ruangan.create');
-        Route::post('/', [RuanganController::class, 'store'])->name('admin.ruangan.store');
-        Route::get('/{ruangan}/edit', [RuanganController::class, 'edit'])->name('admin.ruangan.edit');
-        Route::put('/{ruangan}', [RuanganController::class, 'update'])->name('admin.ruangan.update');
-        Route::get('/{ruangan}/show', [RuanganController::class, 'show'])->name('admin.ruangan.show');
-        Route::get('/{ruangan}/confirm', [RuanganController::class, 'confirm'])->name('admin.ruangan.confirm');
-        Route::delete('/{ruangan}/delete', [RuanganController::class, 'delete'])->name('admin.ruangan.delete');
-    });
-
-      //Fasilitas Management
-        Route::group(['prefix' => 'admin/fasilitas'], function () {
-        Route::get('/', [FasilitasController::class, 'index'])->name('admin.fasilitas.index');
-        Route::get('/list', [FasilitasController::class, 'list'])->name('admin.fasilitas.list');
-        Route::get('/create', [FasilitasController::class, 'create'])->name('admin.fasilitas.create');
-        Route::post('/', [FasilitasController::class, 'store'])->name('admin.fasilitas.store');
-        Route::get('/{fasilitas}/edit', [FasilitasController::class, 'edit'])->name('admin.fasilitas.edit');
-        Route::put('/{fasilitas}', [FasilitasController::class, 'update'])->name('admin.fasilitas.update');
-        Route::get('/{fasilitas}/show', [FasilitasController::class, 'show'])->name('admin.fasilitas.show');
-        Route::get('/{fasilitas}/confirm', [FasilitasController::class, 'confirm'])->name('admin.fasilitas.confirm');
-        Route::delete('/{fasilitas}/delete', [FasilitasController::class, 'delete'])->name('admin.fasilitas.delete');
-    });
-
-
-
+});
 
 // // Rute untuk Dosen (role 3)
 // Route::middleware(['authorize:3'])->group(function () {
-//     Route::get('/pelapor/dashboard', function () {
+//     Route::get('/dosen/dashboard', function () {
 
 //         return view('pelapor.dashboard');
-//     })->name('pelapor.dashboard');
+//     })->name('dosen.dashboard');
 // });
 
 // // Rute untuk Tendik (role 4), Sarana (role 5), Teknis (role 6)
 // Route::middleware(['authorize:4'])->group(function () {
-//     Route::get('/pelapor/dashboard', function () {
-//         return view('pelapor.dashboard');
-//     })->name('pelapor.dashboard');
+//     Route::get('/tendik/dashboard', function () {
+//         return view('tendik.dashboard');
+//     })->name('tendik.dashboard');
 // });
-
-Route::middleware(['authorize:5'])->group(callback: function () {
-        Route::get('/sarpras/dashboard', [SarprasController::class, 'index'])->name('sarpras.dashboard');
-        Route::get('/sarpras/profile', [SarprasController::class, 'show'])->name('sarpras.profile.show');
-        Route::get('/sarpras/profile/edit', [SarprasController::class, 'edit'])->name('sarpras.profile.edit');
-        Route::put('/sarpras/profile', [SarprasController::class, 'update'])->name('sarpras.profile.update');
+Route::middleware(['authorize:5'])->group(function () {
+    Route::get('/sarana/dashboard', function () {
+        return view('sarana.dashboard');
+    })->name('sarana.dashboard');
 });
 Route::middleware(['authorize:6'])->group(function () {
     Route::get('/teknis/dashboard', function () {

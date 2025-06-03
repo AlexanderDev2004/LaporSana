@@ -19,7 +19,7 @@
         {{-- <li class="nav-header">Opsi</li> --}}
 
         <li class="nav-item">
-            <a href="{{ url('/') }}" class="nav-link {{ $active_menu == 'dashboard' ? 'active' : '' }}">
+            <a href="{{ url('/pelapor/dashboard') }}" class="nav-link {{ $active_menu == 'dashboard' ? 'active' : '' }}">
                 <i class="nav-icon fas fa-tachometer-alt"></i>
                 <p>Dashboard</p>
             </a>
@@ -35,24 +35,17 @@
             </a>
             <ul class="nav nav-treeview">
                 <li class="nav-item">
-                    <a href="{{ url('/laporan/form') }}" class="nav-link">
+                    <a href="{{ url('/pelapor/laporan') }}" class="nav-link {{ $active_menu == 'laporan saya' ? 'active' : '' }}">
                         <i class="far fa-circle nav-icon"></i>
-                        <p>Laporan saya</p>
+                        <p>Laporan Saya</p>
                     </a>
                 </li>
                 <li class="nav-item">
-                    <a href="{{ url('/laporan/riwayat') }}" class="nav-link">
+                    <a href="{{ url('/pelapor/laporan_bersama') }}" class="nav-link {{ $active_menu == 'laporan bersama' ? 'active' : '' }}">
                         <i class="far fa-circle nav-icon"></i>
-                        <p>Laporan bersama</p>
+                        <p>Laporan Bersama</p>
                     </a>
                 </li>
-                <li class="nav-item">
-                    <a href="{{ url('/laporan/riwayat') }}" class="nav-link">
-                        <i class="far fa-circle nav-icon"></i>
-                        <p>Riwayat Laporan</p>
-                    </a>
-                </li>
-                
             </ul>
         </li>
 
@@ -117,4 +110,4 @@
 <!-- /.sidebar-menu -->
 
  </div>
- <!-- /.sidebar -->
+ <!-- /.sidebar -->

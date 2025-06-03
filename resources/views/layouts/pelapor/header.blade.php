@@ -1,5 +1,5 @@
 <!-- Preloader -->
-<style>
+  <style>
     .preloader {
         position: fixed;
         top: 0;
@@ -18,6 +18,7 @@
         width: 281px;
         height: 77px;
         border-radius: 8px;
+        /* box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1); */
         animation: shake 1.2s infinite;
     }
 
