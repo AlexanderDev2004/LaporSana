@@ -70,9 +70,9 @@ class PelaporController extends Controller
     public function create()
     {
         $lantai = LantaiModel::all();
-        $ruangan = RuanganModel::all(); 
+        $ruangan = RuanganModel::all();
         $fasilitas = FasilitasModel::all();
-        
+
         return view('pelapor.create', compact('lantai', 'ruangan', 'fasilitas'));
     }
 
@@ -107,7 +107,7 @@ class PelaporController extends Controller
         if ($existingLaporan) {
             $existingLaporan->jumlah_pelapor += 1;
             $existingLaporan->save();
-            
+
             return response()->json(['status' => true, 'message' => 'Laporan serupa sudah ada. Anda telah ditambahkan sebagai pelapor.']);
         }
 

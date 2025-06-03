@@ -63,19 +63,7 @@ Route::get('logout', [AuthController::class, 'logout'])->middleware('auth')->nam
     });
 
 // Rute untuk Pelapor (role 2, 3, 4)
-Route::middleware(['authorize:2,3,4'])->group(function () {
-    Route::group(['prefix' => 'pelapor'], function () {
-        Route::get('/dashboard', [PelaporController::class, 'index'])->name('pelapor.dashboard');
-        Route::get('/laporan', [PelaporController::class, 'laporan'])->name('pelapor.laporan');
-        Route::POST('/laporan/list', [PelaporController::class, 'list'])->name('pelapor.list');
-        Route::get('/create', [PelaporController::class, 'create'])->name('pelapor.create');
-        Route::post('/store', [PelaporController::class, 'store'])->name('pelapor.store');
-        Route::get('/laporan/{laporan_id}', [PelaporController::class, 'show'])->name('pelapor.show');
-        Route::get('/laporan_bersama', [PelaporController::class, 'laporanBersama'])->name('pelapor.laporan_bersama');
-        Route::POST('/laporan/list_bersama', [PelaporController::class, 'listBersama'])->name('pelapor.list.bersama');
-        Route::get('/laporan_bersama/{laporan_id}', [PelaporController::class, 'showBersama'])->name('pelapor.show.bersama');
-    });
-});
+
 
 // // Rute untuk Dosen (role 3)
 // Route::middleware(['authorize:3'])->group(function () {
@@ -103,6 +91,18 @@ Route::middleware(['authorize:6'])->group(function () {
 });
 });
 // Rute untuk Pelapor (role 2)
-Route::middleware(['authorize:2,3,4'])->prefix('pelapor')->group(function () {
-    Route::get('/dashboard', [PelaporController::class, 'index'])->name('pelapor.dashboard');
+
+
+Route::middleware(['authorize:2,3,4'])->group(function () {
+    Route::group(['prefix' => 'pelapor'], function () {
+        Route::get('/dashboard', [PelaporController::class, 'index'])->name('pelapor.dashboard');
+        Route::get('/laporan', [PelaporController::class, 'laporan'])->name('pelapor.laporan');
+        Route::POST('/laporan/list', [PelaporController::class, 'list'])->name('pelapor.list');
+        Route::get('/create', [PelaporController::class, 'create'])->name('pelapor.create');
+        Route::post('/store', [PelaporController::class, 'store'])->name('pelapor.store');
+        Route::get('/laporan/{laporan_id}', [PelaporController::class, 'show'])->name('pelapor.show');
+        Route::get('/laporan_bersama', [PelaporController::class, 'laporanBersama'])->name('pelapor.laporan_bersama');
+        Route::POST('/laporan/list_bersama', [PelaporController::class, 'listBersama'])->name('pelapor.list.bersama');
+        Route::get('/laporan_bersama/{laporan_id}', [PelaporController::class, 'showBersama'])->name('pelapor.show.bersama');
+    });
 });
