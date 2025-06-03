@@ -7,6 +7,7 @@ use App\Models\TugasDetail;
 use App\Models\TugasModel;
 use App\Models\UserModel;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Yajra\DataTables\Facades\DataTables;
 
 class TeknisiController extends Controller
@@ -22,9 +23,10 @@ class TeknisiController extends Controller
         $active_menu = 'dashboard';
 
         // tugas terbaru yang aktif kecuali status_id != dibatalkan)
-        $tugasTerbaru = TugasModel::whereHas('status', function ($q) {
-            $q->where('status_nama', '!=', ['dibatalkan', 'selesai']);
-        })
+        $tugasTerbaru = TugasModel::where('user_id', Auth::user()->user_id)
+            ->whereHas('status', function ($q) {
+                $q->whereNotIn('status_nama', ['dibatalkan', 'selesai']);
+            })
             ->orderBy('tugas_mulai', 'desc')
             ->limit(2)
             ->get();
@@ -56,8 +58,9 @@ class TeknisiController extends Controller
         ];
 
         $tugas = TugasModel::with(['status', 'user'])
+            ->where('user_id', Auth::user()->user_id)
             ->whereHas('status', function ($query) {
-                $query->where('status_nama', '!=', 'selesai'); // kecuali yang selesai
+                $query->where('status_nama', '!=', 'selesai');
             });
 
         if ($request->filled('status')) {
@@ -74,6 +77,7 @@ class TeknisiController extends Controller
     public function list(Request $request)
     {
         $tugas = TugasModel::with(['status', 'user'])
+            ->where('user_id', Auth::user()->user_id) // filter user
             ->whereHas('status', function ($query) {
                 $query->where('status_nama', '!=', 'selesai');
             });
@@ -100,7 +104,12 @@ class TeknisiController extends Controller
 
     public function show($id)
     {
-        $tugas = TugasDetail::with(['tugas', 'fasilitas'])->find($id);
+        $tugas = TugasDetail::with(['tugas', 'fasilitas'])
+            ->whereHas('tugas', function ($q) {
+                $q->where('user_id', Auth::user()->user_id);
+            })
+            ->findOrFail($id);
+
         $breadcrumb = (object) [
             'title' => 'Detail Tugas',
             'list'  => ['Home', 'Tugas', 'Detail']
@@ -126,9 +135,11 @@ class TeknisiController extends Controller
     public function riwayatList(Request $request)
     {
         $tugas = TugasModel::with(['status', 'user'])
+            ->where('user_id', Auth::user()->user_id) // filter user
             ->whereHas('status', function ($query) {
-                $query->where('status_nama', 'selesai'); // hanya yang status selesai
+                $query->where('status_nama', 'selesai');
             });
+
 
         return DataTables::of($tugas->get())
             ->addIndexColumn()
