@@ -2,7 +2,7 @@
     <div id="modal-master" class="modal-dialog modal-lg" role="document">
         <div class="modal-content">
             <div class="modal-header">
-                <h5 class="modal-title" id="exampleModalLabel">Kesalahan</h5>
+                <h5 class="modal-title">Kesalahan</h5>
                 <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                     <span aria-hidden="true">&times;</span>
                 </button>
@@ -17,42 +17,45 @@
         </div>
     </div>
 @else
-        <div id="modal-master" class="modal-dialog modal-lg" role="document">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title" id="exampleModalLabel">Detail Data Tugas</h5>
-                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                        <span aria-hidden="true">&times;</span>
-                    </button>
-                </div>
-                <div class="modal-body">
-                    <table class="table table-sm table-bordered table-striped">
-                        <tr>
-                            <th class="text-right col-3">ID Tugas :</th>
-                            <td class="col-9">{{ $tugas->tugas_id }}</td>
-                        </tr>
-                        <tr>
-                            <th class="text-right col-3">Nama Teknisi :</th>
-                            <td class="col-9">{{ $tugas->user->name}}</td>
-                        </tr>
-                        <tr>
-                            <th class="text-right col-3">Status :</th>
-                            <td class="col-9">{{ $tugas->status->status_nama }}</td>
-                        </tr>
-                        <tr>
-                            <th class="text-right col-3">Jenis Tugas :</th>
-                            <td class="col-9">{{ $tugas->tugas_jenis }}</td>
-                        </tr>
-                        <tr>
-                            <th class="text-right col-3">Tanggal Pengerjaan :</th>
-                            <td class="col-9">{{ $tugas->tugas_mulai }}</td>
-                        </tr>
-                        <tr>
-                            <th class="text-right col-3">Tanggal Penyelesaian :</th>
-                            <td class="col-9">{{ $tugas->tugas_selesai }}</td>
-                        </tr>
-                    </table>
-                </div>
+    <div id="modal-master" class="modal-dialog modal-lg" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Detail Data Tugas</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+
+            <div class="modal-body">
+                <table class="table table-sm table-bordered table-striped mb-4">
+                    <tr>
+                        <th class="text-right col-3">ID Detail Tugas :</th>
+                        <td class="col-9">{{ $tugas->detail_id }}</td>
+                    </tr>
+                    <tr>
+                        <th class="text-right col-3">Fasilitas :</th>
+                        <td class="col-9">{{ $tugas->fasilitas->fasilitas_nama }}</td>
+                    </tr>
+                    <tr>
+                        <th class="text-right col-3">Gambar Bukti :</th>
+                        <td>
+                            @if ($tugas->tugas_image)
+                                <img src="{{ asset('storage/tugas/' . $tugas->tugas_image) }}" width="100"
+                                    alt="Gambar">
+                            @else
+                                <em>Tidak ada gambar</em>
+                            @endif
+                        </td>
+                    </tr>
+                     <tr>
+                        <th class="text-right col-3">Deskripsi:</th>
+                        <td class="col-9">{{ $tugas->deskripsi }}</td>
+                    </tr>
+                </table>
+                <div class="text-right mt-4">
+                        <a href="{{ url('/teknisi') }}" class="btn btn-secondary">Tutup</a>
+                    </div>
             </div>
         </div>
+    </div>
 @endempty

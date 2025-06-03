@@ -30,7 +30,7 @@
                  </a>
              </li>
              <li class="nav-item">
-                 <a href="{{ url('/teknisi/riwayat') }}" class="nav-link {{ $active_menu == 'riwayat' ? 'active' : '' }}">
+                 <a href="{{ route('teknisi.riwayat') }}" class="nav-link {{ $active_menu == 'riwayat' ? 'active' : '' }}">
                      <i class="nav-icon fas fa-business-time"></i>
                      <p>Riwayat Tugas</p>
                  </a>
