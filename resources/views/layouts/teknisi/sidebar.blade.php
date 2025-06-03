@@ -7,7 +7,7 @@
                  alt="User Image">
          </div>
          <div class="info">
-             <a href="#" class="d-block">Alexander Pierce -teknisi</a>
+             <a href="#" class="d-block"><strong>{{ Auth::user()->name }}</strong></a>
          </div>
      </div>
 
@@ -16,28 +16,29 @@
          <ul class="nav nav-pills nav-sidebar flex-column" data-widget="treeview" role="menu" data-accordion="false">
              <!-- Add icons to the links using the .nav-icon class
              with font-awesome or any other icon font library -->
-             <li class="nav-header">Opsi</li>
              <li class="nav-item">
-                 <a href="{{ url('/') }}" class="nav-link {{ $active_menu == 'dashboard' ? 'active' : '' }}">
+                 <a href="{{ route('teknisi.dashboard') }}" class="nav-link {{ $active_menu == 'dashboard' ? 'active' : '' }}">
                      <i class="nav-icon fas fa-tachometer-alt"></i>
                      <p>Dashboard</p>
                  </a>
              </li>
+            
              <li class="nav-item">
-                 <a href="{{ route('logout') }}" class="nav-icon fas fa-sign-out-alt">
-                     Logout
-                 </a>
-             </li>
-             <li class="nav-item">
-                 <a href="{{ url('/') }}" class="nav-link">
-                     <i class="nav-icon fas fa-tasks"></i>
+                  <a href="{{ route('teknisi.index') }}" class="nav-link {{ $active_menu == 'index'  ? 'active' : '' }}">
+                     <i class="nav-icon fas fa-layer-group"></i>
                      <p>Tugas</p>
                  </a>
              </li>
              <li class="nav-item">
-                 <a href="{{ url('/') }}" class="nav-link">
+                 <a href="{{ route('teknisi.riwayat') }}" class="nav-link {{ $active_menu == 'riwayat' ? 'active' : '' }}">
                      <i class="nav-icon fas fa-business-time"></i>
                      <p>Riwayat Tugas</p>
+                 </a>
+             </li> 
+             <li class="nav-item">
+                 <a href="{{ route('logout') }}" class="nav-link">
+                    <i class="nav-icon fas fa-sign-out-alt"></i>
+                     Logout
                  </a>
              </li>
          </ul>

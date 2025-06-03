@@ -5,114 +5,170 @@ namespace App\Http\Controllers;
 use App\Models\RoleModel;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Validator;
+use Yajra\DataTables\Facades\DataTables;
 
 class RoleController extends Controller
 {
     public function index()
     {
         $breadcrumb = (object) [
-            'title' => 'Manajemen Roles',
-            'list'  => ['Home', 'Roles']
+            'title' => 'Manajemen Role',
+            'list'  => ['Home', 'role']
         ];
 
         $active_menu = 'roles';
-        $roles = RoleModel::all();
+        $role = RoleModel::all();
 
-        return view('admin.roles.index', compact('breadcrumb', 'active_menu', 'roles'));
+        return view('admin.roles.index', compact('breadcrumb', 'active_menu', 'role'));
     }
+
+     public function list(Request $request)
+    {
+        $role = RoleModel::select('roles_id', 'roles_kode', 'roles_nama');
+
+        if ($request->rolea_id) {
+            $role->where('roles_id', $request->rolea_id);
+        }
+
+        return DataTables::of($role)
+            ->addIndexColumn()
+            ->addColumn('aksi', function ($role) {
+                // $btn = '<a href="' . url('/role/' . $role->role_id) . '" class="btn btn-info btn-sm">Detail</a> ';
+                // $btn .= '<a href="' . url('/role/' . $role->role_id . '/edit') . '" class="btn btn-warning btn-sm">Edit</a> ';
+                // $btn .= '<form class="d-inline-block" method="POST" action="' . url('/role/' . $role->role_id) . '">'
+                //     . csrf_field() . method_field('DELETE')
+                //     . '<button type="submit" class="btn btn-danger btn-sm" onclick="return confirm(\'Apakah anda yakin menghapus data ini?\');">Hapus</button></form>';
+
+                $btn = '<button onclick="modalAction(\''.route('admin.roles.show', $role->roles_id).'\')" class="btn btn-info btn-sm"><i class="fas fa-eye"></i></button>';
+                $btn .= '<button onclick="modalAction(\''.route('admin.roles.edit', $role->roles_id).'\')" class="btn btn-warning btn-sm"><i class="fas fa-edit"></i></button>';
+                $btn .= '<button onclick="modalAction(\''.route('admin.roles.confirm', $role->roles_id).'\')" class="btn btn-danger btn-sm"><i class="fas fa-trash"></i></button>';
+                return $btn;
+            })
+            ->rawColumns(['aksi'])
+            ->make(true);
+    }
+
 
     public function create()
     {
         $breadcrumb = (object) [
-            'title' => 'Tambah Role',
-            'list'  => ['Home', 'Roles', 'Tambah']
+            'title' => 'Tambah role',
+            'list'  => ['Home', 'role', 'Tambah']
         ];
 
         $active_menu = 'roles';
-
         return view('admin.roles.create', compact('breadcrumb', 'active_menu'));
     }
-
-    public function store(Request $request)
-    {
-        $request->validate([
-            'roles_nama' => 'required|unique:m_roles,roles_nama|string|max:50',
-            'roles_kode' => 'required|unique:m_roles,roles_kode|string|max:10',
-            'roles_deskripsi' => 'nullable|string|max:255'
-        ]);
-
-        try {
-            RoleModel::create([
-                'roles_nama' => $request->roles_nama,
-                'roles_kode' => $request->roles_kode,
-                'roles_deskripsi' => $request->roles_deskripsi
+  
+        public function store(Request $request)
+        {
+            // Validate the request
+            $validator = Validator::make($request->all(), [
+                'roles_kode' => 'required|string|max:5',
+                'roles_nama' => 'required|string|min:3|max:50'
             ]);
 
-            return redirect()->route('admin.roles.index')
-                ->with('success', 'Role berhasil ditambahkan');
-        } catch (\Exception $e) {
-            Log::error('Error creating role: ' . $e->getMessage());
-            return redirect()->back()
-                ->with('error', 'Gagal menambahkan role')
-                ->withInput();
+            // If validation fails, return with errors
+            if ($validator->fails()) {
+                return response()->json([
+                    'status' => false,
+                    'message' => 'Validasi gagal',
+                    'msgField' => $validator->errors()
+                ]);
+            }
+
+            // Create new role
+            try {
+                $role = new RoleModel();
+                $role->roles_kode = $request->roles_kode;
+                $role->roles_nama = $request->roles_nama;
+                $role->save();
+
+                return response()->json([
+                    'status' => true,
+                    'message' => 'Data role berhasil disimpan'
+                ]);
+            } catch (\Exception $e) {
+                return response()->json([
+                    'status' => false,
+                    'message' => 'Gagal menyimpan data: ' . $e->getMessage()
+                ]);
+            }
         }
+    public function edit(string $id) {
+            $role = RoleModel::find($id);
+
+            return view('admin.roles.edit', ['role' => $role]); 
+        }
+
+      public function update(Request $request, $id) {
+        if ($request->ajax() || $request->wantsJson()) {
+            $rules = [
+                'roles_kode' => 'required|string|max:5',
+                'roles_nama' => 'required|string|min:3|max:50'
+            ];
+
+            $validator = Validator::make($request->all(), $rules);
+
+            if ($validator->fails()) {
+                return response()->json([
+                    'status'   => false,
+                    'message'  => 'Validasi gagal.',
+                    'msgField' => $validator->errors()
+                ]);
+            }
+
+            $check = RoleModel::find($id);
+            if ($check) {
+                $check->update($request->all());
+                return response()->json([
+                    'status' => true,
+                    'message' => 'Data berhasil diupdate'
+                ]);
+            } else {
+                return response()->json([
+                    'status' => false,
+                    'message' => 'Data tidak ditemukan'
+                ]);
+            }
+        }
+        return redirect('/');
     }
 
-    public function edit(RoleModel $role)
-    {
-        $breadcrumb = (object) [
-            'title' => 'Edit Role',
-            'list'  => ['Home', 'Roles', 'Edit']
-        ];
+    public function confirm(string $id) {
+        $role = RoleModel::find($id);
 
-        $active_menu = 'roles';
-
-        return view('admin.roles.edit', compact('breadcrumb', 'active_menu', 'role'));
+        return view('admin.roles.confirm', ['role' => $role]);
     }
-
-    public function update(Request $request, RoleModel $role)
+    public function delete(Request $request, $id)
     {
-        $request->validate([
-            'roles_nama' => 'required|unique:m_roles,roles_nama,' . $role->roles_id . ',roles_id|string|max:50',
-            'roles_kode' => 'required|unique:m_roles,roles_kode,' . $role->roles_id . ',roles_id|string|max:10',
-            'roles_deskripsi' => 'nullable|string|max:255'
-        ]);
-
-        try {
-            $role->update([
-                'roles_nama' => $request->roles_nama,
-                'roles_kode' => $request->roles_kode,
-                'roles_deskripsi' => $request->roles_deskripsi
+        $role = RoleModel::find($id);
+        if (!$role) {
+            return response()->json([
+                'status' => false,
+                'message' => 'Data tidak ditemukan'
             ]);
-
-            return redirect()->route('admin.roles.index')
-                ->with('success', 'Role berhasil diperbarui');
-        } catch (\Exception $e) {
-            Log::error('Error updating role: ' . $e->getMessage());
-            return redirect()->back()
-                ->with('error', 'Gagal memperbarui role')
-                ->withInput();
         }
-    }
-
-    public function destroy(RoleModel $role)
-    {
         try {
             $role->delete();
-            return redirect()->route('admin.roles.index')
-                ->with('success', 'Role berhasil dihapus');
+            return response()->json([
+                'status' => true,
+                'message' => 'Data role berhasil dihapus'
+            ]);
         } catch (\Exception $e) {
-            Log::error('Error deleting role: ' . $e->getMessage());
-            return redirect()->route('admin.roles.index')
-                ->with('error', 'Gagal menghapus role');
+            return response()->json([
+                'status' => false,
+                'message' => 'Gagal menghapus data: ' . $e->getMessage()
+            ]);
         }
     }
 
     public function show(RoleModel $role)
     {
         $breadcrumb = (object) [
-            'title' => 'Detail Role',
-            'list'  => ['Home', 'Roles', 'Detail']
+            'title' => 'Detail role',
+            'list'  => ['Home', 'role', 'Detail']
         ];
 
         $active_menu = 'roles';

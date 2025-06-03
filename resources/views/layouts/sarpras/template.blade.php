@@ -44,14 +44,14 @@
     </a>
 
    <!-- Sidebar -->
-   @include('layouts.admin.sidebar')
+   @include('layouts.sarpras.sidebar')
    <!-- /.sidebar -->
   </aside>
 
   <!-- Content Wrapper. Contains page content -->
   <div class="content-wrapper">
     <!-- Content Header (Page header) -->
-    @include('layouts.admin.breadcrumb')
+    @include('layouts.sarpras.breadcrumb')
 
     <!-- Main content -->
     <section class="content">
@@ -60,7 +60,7 @@
     <!-- /.content -->
   </div>
   <!-- /.content-wrapper -->
-  @include('layouts.admin.footer')
+  @include('layouts.sarpras.footer')
 
   <!-- Control Sidebar -->
   <aside class="control-sidebar control-sidebar-dark">

@@ -3,8 +3,8 @@
      <!-- Sidebar user panel (optional) -->
      <div class="user-panel mt-3 pb-3 mb-3 d-flex">
          <div class="image">
-             <img src="{{ asset('LaporSana/dist/img/user2-160x160.jpg') }}" class="img-circle elevation-2"
-                 alt="User Image">
+             <img src="{{ asset('storage/' . Auth::user()->avatar) }}" class="img-circle elevation-2" width="150"
+                 alt="User Avatar">
          </div>
          <div class="info">
              <a href="#" class="d-block"><strong>{{ Auth::user()->name }}</strong>
@@ -16,9 +16,9 @@
          <ul class="nav nav-pills nav-sidebar flex-column" data-widget="treeview" role="menu" data-accordion="false">
              <!-- Add icons to the links using the .nav-icon class
              with font-awesome or any other icon font library -->
-             <li class="nav-header">Opsi</li>
              <li class="nav-item">
-                 <a href="{{ route('admin.dashboard') }}" class="nav-link {{ $active_menu == 'dashboard' ? 'active' : '' }}">
+                 <a href="{{ route('admin.dashboard') }}"
+                     class="nav-link {{ $active_menu == 'dashboard' ? 'active' : '' }}">
                      <i class="nav-icon fas fa-tachometer-alt"></i>
                      <p>Dashboard</p>
                  </a>
@@ -32,7 +32,7 @@
              <li class="nav-header">Manajemen Data Pengguna</li>
              <li class="nav-item">
                  <a href="{{ route('admin.roles.index') }}"
-                 class="nav-link" {{ $active_menu == 'roles' ? 'active' : '' }}">
+                 class="nav-link {{ $active_menu == 'roles' ? 'active' : '' }}">
                      <i class="nav-icon fas fa-layer-group"></i>
                      <p>Role User</p>
                  </a>
@@ -46,13 +46,22 @@
              </li>
              <li class="nav-header">Manajemen Data Fasilitas</li>
              <li class="nav-item">
-                 <a href="{{ url('/') }}" class="nav-link">
+                 <a href="{{ route('admin.lantai.index') }}"
+                     class="nav-link {{ $active_menu == 'lantai' ? 'active' : '' }}">
+                     <i class="nav-icon fas fa-square"></i>
+                     <p>Lantai</p>
+                 </a>
+             </li>
+             <li class="nav-item">
+                 <a href="{{ route('admin.ruangan.index') }}" 
+                     class="nav-link {{ $active_menu == 'ruangan' ? 'active' : '' }}">
                      <i class="nav-icon fas fa-home"></i>
                      <p>Ruangan</p>
                  </a>
              </li>
              <li class="nav-item">
-                 <a href="{{ url('/') }}" class="nav-link">
+                 <a href="{{ route('admin.fasilitas.index') }}" 
+                     class="nav-link {{ $active_menu == 'fasilitas' ? 'active' : '' }}">
                      <i class="nav-icon fas fa-plug"></i>
                      <p>Fasilitas</p>
                  </a>

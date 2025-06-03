@@ -1,45 +1,46 @@
-@extends('layouts.admin.template')
-
-@section('content')
-    <div class="card">
-        <div class="card-header">
-            <h3 class="card-title">Detail Role</h3>
-        </div>
-        <div class="card-body">
-            <table class="table table-bordered">
-                <tr>
-                    <th>ID</th>
-                    <td>{{ $role->roles_id }}</td>
-                </tr>
-                <tr>
-                    <th>Nama Role</th>
-                    <td>{{ $role->roles_nama }}</td>
-                </tr>
-                <tr>
-                    <th>Kode Role</th>
-                    <td>{{ $role->roles_kode }}</td>
-                </tr>
-                <tr>
-                    <th>Deskripsi</th>
-                    <td>{{ $role->roles_deskripsi ?? '-' }}</td>
-                </tr>
-                <tr>
-                    <th>Dibuat Pada</th>
-                    <td>{{ $role->created_at ? $role->created_at->format('d F Y H:i') : '-' }}</td>
-                </tr>
-                <tr>
-                    <th>Diupdate Terakhir</th>
-                    <td>{{ $role->updated_at ? $role->updated_at->format('d F Y H:i') : '-' }}</td>
-                </tr>
-            </table>
-        </div>
-        <div class="card-footer">
-            <a href="{{ route('admin.roles.index') }}" class="btn btn-default">
-                <i class="fas fa-arrow-left"></i> Kembali
-            </a>
-            <a href="{{ route('admin.roles.edit', $role->roles_id) }}" class="btn btn-primary float-right">
-                <i class="fas fa-edit"></i> Edit Role
-            </a>
+@empty($role)
+    <div id="modal-master" class="modal-dialog modal-lg" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="exampleModalLabel">Kesalahan</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div class="alert alert-danger">
+                    <h5><i class="icon fas fa-ban"></i> Kesalahan!!!</h5>
+                    Data yang anda cari tidak ditemukan
+                </div>
+                <a href="{{ url('/role') }}" class="btn btn-warning">Kembali</a>
+            </div>
         </div>
     </div>
-@endsection
+@else
+        <div id="modal-master" class="modal-dialog modal-lg" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="exampleModalLabel">Detail Data role</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <table class="table table-sm table-bordered table-striped">
+                        <tr>
+                            <th class="text-right col-3">ID role :</th>
+                            <td class="col-9">{{ $role->roles_id }}</td>
+                        </tr>
+                        <tr>
+                            <th class="text-right col-3">Kode role :</th>
+                            <td class="col-9">{{ $role->roles_kode }}</td>
+                        </tr>
+                        <tr>
+                            <th class="text-right col-3">Nama :</th>
+                            <td class="col-9">{{ $role->roles_nama }}</td>
+                        </tr>
+                    </table>
+                </div>
+            </div>
+        </div>
+@endempty

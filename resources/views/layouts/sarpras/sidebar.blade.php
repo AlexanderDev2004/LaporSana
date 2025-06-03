@@ -7,7 +7,7 @@
                  alt="User Image">
          </div>
          <div class="info">
-             <a href="#" class="d-block">Alexander Pierce -sarpras</a>
+             <a href="{{ route('sarpras.profile.show') }}" class="d-block"><strong>{{ Auth::user()->name }}</strong></a>
          </div>
      </div>
 
@@ -18,14 +18,15 @@
              with font-awesome or any other icon font library -->
              <li class="nav-header">Opsi</li>
              <li class="nav-item">
-                 <a href="{{ url('/') }}" class="nav-link {{ $active_menu == 'dashboard' ? 'active' : '' }}">
+                 <a href="{{ route('sarpras.dashboard') }}" class="nav-link {{ $active_menu == 'dashboard' ? 'active' : '' }}">
                      <i class="nav-icon fas fa-tachometer-alt"></i>
                      <p>Dashboard</p>
                  </a>
              </li>
              <li class="nav-item">
-                 <a href="{{ route('logout') }}" class="nav-icon fas fa-sign-out-alt">
-                     Logout
+                 <a href="{{ url('logout') }}" class="nav-link">
+                     <i class="nav-icon fas fa-sign-out-alt"></i>
+                     <p>Logout</p>
                  </a>
              </li>
              <li class="nav-header">Manajemen Data Pengguna</li>
