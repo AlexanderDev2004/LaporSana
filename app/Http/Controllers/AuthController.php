@@ -48,7 +48,7 @@ class AuthController extends Controller
             case 4:
                 return redirect('/pelapor/dashboard');
             case 5:
-                return redirect('/sarana/dashboard');
+                return redirect('/sarpras/dashboard');
             case 6:
                 return redirect('/teknis/dashboard');
             default:
