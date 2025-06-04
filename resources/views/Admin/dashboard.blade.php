@@ -15,7 +15,6 @@
                         alt="Profile Picture" class="rounded-circle border border-primary shadow-sm"
                         style="width: 120px; height: 120px; object-fit: cover;">
                     <h5 class="mt-2">{{ auth()->user()->name }}</h5>
-                    <small class="text-muted">Username: {{ auth()->user()->username }}</small> <br>
                     <a href="{{ route('admin.users.edit', auth()->user()->user_id) }}" class="btn btn-primary btn-sm mt-2"><b>Edit Profile</b></a>
                 </div>
                 <div class="col-md-8">
