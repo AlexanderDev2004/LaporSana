@@ -5,6 +5,7 @@ use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\FasilitasController;
 use App\Http\Controllers\LantaiController;
 use App\Http\Controllers\PelaporController;
+use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\RoleController;
 use App\Http\Controllers\RuanganController;
 use App\Http\Controllers\SarprasController;
@@ -39,7 +40,13 @@ Route::get('logout', [AuthController::class, 'logout'])->middleware('auth')->nam
 // Rute untuk Admin (role 1)
 Route::middleware(['auth', 'authorize:1'])->group(function () {
     Route::get('/admin/dashboard', [DashboardController::class, 'index'])->name('admin.dashboard');
-
+   
+    // Profile
+    Route::group(['prefix' => 'admin/profile'], function () {
+        Route::get('/profile', [ProfileController::class, 'show'])->name('admin.profile.show');
+        Route::get('/profile/edit', [ProfileController::class, 'edit'])->name('admin.profile.edit');
+        Route::put('/profile', [ProfileController::class, 'update'])->name('admin.profile.update');
+    });
     // User Management
     Route::group(['prefix' => 'admin/users'], function () {
         Route::get('/', [UserController::class, 'list'])->name('admin.users.index');
