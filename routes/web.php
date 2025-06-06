@@ -110,6 +110,7 @@ Route::middleware(['authorize:2,3,4'])->prefix('pelapor')->group(function () {
     Route::get('/dashboard', [PelaporController::class, 'index'])->name('pelapor.dashboard');
 });
 
+// Rute untuk Sarpras (role 5)
 Route::middleware(['authorize:5'])->group(callback: function () {
         Route::get('/sarpras/dashboard', [SarprasController::class, 'index'])->name('sarpras.dashboard');
         Route::get('/sarpras/profile', [SarprasController::class, 'show'])->name('sarpras.profile.show');
@@ -121,14 +122,23 @@ Route::middleware(['authorize:5'])->group(callback: function () {
 Route::middleware(['authorize:2,3,4'])->group(function () {
     Route::group(['prefix' => 'pelapor'], function () {
         Route::get('/dashboard', [PelaporController::class, 'index'])->name('pelapor.dashboard');
+
+        // laporan saya
         Route::get('/laporan', [PelaporController::class, 'laporan'])->name('pelapor.laporan');
         Route::POST('/laporan/list', [PelaporController::class, 'list'])->name('pelapor.list');
         Route::get('/create', [PelaporController::class, 'create'])->name('pelapor.create');
         Route::post('/store', [PelaporController::class, 'store'])->name('pelapor.store');
         Route::get('/laporan/{laporan_id}', [PelaporController::class, 'show'])->name('pelapor.show');
+
+        // laporan bersama
         Route::get('/laporan_bersama', [PelaporController::class, 'laporanBersama'])->name('pelapor.laporan_bersama');
         Route::POST('/laporan/list_bersama', [PelaporController::class, 'listBersama'])->name('pelapor.list.bersama');
         Route::get('/laporan_bersama/{laporan_id}', [PelaporController::class, 'showBersama'])->name('pelapor.show.bersama');
+        Route::post('/laporan-bersama/{laporan_id}/dukung', [PelaporController::class, 'dukungLaporan'])->name('pelapor.dukungLaporan');
+
+        // mengambil ruangan dan fasilitas untuk ajax chain
+        Route::get('/get-ruangan/{lantai_id}', [PelaporController::class, 'getRuangan'])->name('pelapor.getRuangan');
+        Route::get('/get-fasilitas/{ruangan_id}', [PelaporController::class, 'getFasilitas'])->name('pelapor.getFasilitas');
     });
 });
 

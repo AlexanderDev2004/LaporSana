@@ -29,6 +29,12 @@
                      <p>Logout</p>
                  </a>
              </li>
+             <li class="nav-item">
+                 <a href="{{ url('logout') }}" class="nav-link">
+                     <i class="nav-icon fas fa-file"></i>
+                     <p>Penugasan</p>
+                 </a>
+             </li>
              <li class="nav-header">Manajemen Data Pengguna</li>
              <li class="nav-item">
                  <a href="{{ url('/') }}" class="nav-link">

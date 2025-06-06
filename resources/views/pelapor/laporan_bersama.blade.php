@@ -5,23 +5,19 @@
     <div class="card-header">
         <h3 class="card-title">{{ $page->title }}</h3>
     </div>
-    <div class="card-body"> 
-        @if (session('success'))
-            <div class="alert alert-success">{{ session('success') }}</div>
-        @endif
-        @if (session('error'))
-            <div class="alert alert-danger">{{ session('error') }}</div>
-        @endif
-        <table class="table table-bordered table-striped table-hover table-sm" id="table_laporan"> 
-            <thead> 
+    <div class="card-body">
+        <table class="table table-bordered table-striped table-hover table-sm" id="table_laporan_bersama">
+            <thead>
                 <tr>
                     <th>No</th>
                     <th>Fasilitas</th>
                     <th>Ruangan</th>
                     <th>Lantai</th>
                     <th>Status</th>
+                    <th>Pelapor</th>
+                    <th>Jumlah Pelapor</th>
                     <th>Aksi</th>
-                </tr> 
+                </tr>
             </thead>
             <tbody></tbody>
         </table>
@@ -31,91 +27,100 @@
 <div class="modal fade" id="myModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true"></div>
 @endsection
 
-@push('css')
-<style>
-    #table_laporan {
-        border: 1px solid #ffffff;
-    }
-    #table_laporan th {
-        border-color: #ffffff;
-    }
-    .modal {
-        z-index: 1050;
-    }
-    .modal-backdrop {
-        z-index: 1040;
-    }
-    .content-wrapper {
-        z-index: 1;
-    }
-</style>
-@endpush
-
-@push('js') 
+@push('js')
 <script>
-    function modalAction(url = ''){ 
-        $('#myModal').load(url, function(){ 
-            $(this).modal('show'); 
-        }); 
+    function modalAction(url = ''){
+        $('#myModal').load(url, function(response, status, xhr){
+            if (status == "error") {
+                var msg = "Maaf, terjadi kesalahan saat memuat detail: ";
+                $(this).html('<div class="modal-dialog" role="document"><div class="modal-content"><div class="modal-body"><div class="alert alert-danger">' + msg + xhr.status + " " + xhr.statusText + '</div></div></div></div>');
+            }
+            $(this).modal('show');
+        });
     }
 
-    var dataLaporan; 
     $(document).ready(function(){
         $.ajaxSetup({
-            headers: {
-                'X-CSRF-TOKEN': '{{ csrf_token() }}'
-            }
-        }); 
+            headers: { 'X-CSRF-TOKEN': '{{ csrf_token() }}' }
+        });
 
-        dataLaporan = $('#table_laporan').DataTable({ 
-            processing: true, 
-            serverSide: true, 
-            ajax: { 
-                url: "{{ route('pelapor.list.bersama') }}", 
-                dataType: "json", 
+        var table = $('#table_laporan_bersama').DataTable({
+            processing: true,
+            serverSide: true,
+            ajax: {
+                url: "{{ route('pelapor.list.bersama') }}",
+                dataType: "json",
                 type: "POST",
-            }, 
+            },
             columns: [
                 { 
                     data: "DT_RowIndex", 
                     className: "text-center", 
-                    width: "5%", 
                     orderable: false, 
                     searchable: false 
                 },{ 
-                    data: "details.0.fasilitas.fasilitas_nama",
-                    width: "15%", 
+                    data: "details.0.fasilitas.fasilitas_nama", 
                     defaultContent: "-" 
                 },{ 
-                    data: "details.0.fasilitas.ruangan.ruangan_nama",
-                    width: "15%",  
+                    data: "details.0.fasilitas.ruangan.ruangan_nama", 
                     defaultContent: "-" 
-                },
-                { 
-                    data: "details.0.fasilitas.ruangan.lantai.lantai_nama",
-                    width: "15%",  
+                    className: "text-center"
+                },{ 
+                    data: "details.0.fasilitas.ruangan.lantai.lantai_nama", 
                     defaultContent: "-" 
-                },
-                { 
-                    data: "status.status_nama",
-                    width: "15%",  
+                    className: "text-center"
+                },{ 
+                    data: "status.status_nama", 
                     defaultContent: "-" 
-                },
-                { 
-                    data: "aksi",
+                    className: "text-center"
+                },{ 
+                    data: "user.name", 
+                    defaultContent: "-"
+                    className: "text-center" 
+                },{ 
+                    data: "jumlah_pelapor", 
+                    defaultContent: "-",
+                    className: "text-center"
+                },{ 
+                    data: "aksi", 
                     className: "text-center", 
-                    width: "15%", 
                     orderable: false, 
                     searchable: false 
                 }
-            ],
-            responsive: true,
-            columnDefs: [{
-                targets: -1,
-                data: null,
-                defaultContent: '<button class="btn btn-info btn-sm btn-detail"><i class="fas fa-eye"></i> Detail</button>'
-            }]
+            ]
         });
-    }); 
-</script> 
+
+        // Event listener untuk tombol "Ikut Melapor"
+        $('#table_laporan_bersama').on('click', '.btn-dukung', function() {
+            let laporanId = $(this).data('id');
+            let url = '{{ url("/pelapor/laporan-bersama") }}/' + laporanId + '/dukung';
+
+            Swal.fire({
+                title: 'Konfirmasi',
+                text: "Apakah Anda yakin ingin ikut melaporkan kerusakan ini?",
+                icon: 'question',
+                showCancelButton: true,
+                confirmButtonColor: '#0d6efd',
+                cancelButtonColor: '#ffc107',
+                confirmButtonText: 'Ya, Ikut Melapor!',
+                cancelButtonText: 'Batal'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    $.post(url)
+                        .done(function(response) {
+                            if (response.status) {
+                                Swal.fire('Berhasil!', response.message, 'success');
+                                table.ajax.reload(null, false); // Reload tabel
+                            } else {
+                                Swal.fire('Gagal!', response.message, 'error');
+                            }
+                        })
+                        .fail(function() {
+                            Swal.fire('Error!', 'Tidak dapat menghubungi server.', 'error');
+                        });
+                }
+            });
+        });
+    });
+</script>
 @endpush

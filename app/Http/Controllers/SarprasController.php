@@ -93,6 +93,8 @@ public function update(Request $request)
         Log::error('Gagal update profil: '.$e->getMessage());
         return back()->withErrors(['error' => 'Gagal memperbarui profil'])->withInput();
     }
+
+    
 }
 
 };
