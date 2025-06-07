@@ -29,6 +29,14 @@
                      <p>Logout</p>
                  </a>
              </li>
+             <li class="nav-header">Laporan</li>
+             <li class="nav-item">
+                 <a href="{{ route('sarpras.verifikasi') }}" class="nav-link {{ $active_menu == 'verifikasi laporan' ? 'active' : '' }}">
+                     <i class="nav-icon fas fa-file"></i>
+                     <p>Verifikasi Laporan</p>
+                 </a>
+             </li>
+
              <li class="nav-header">Manajemen Data Pengguna</li>
              <li class="nav-item">
                  <a href="{{ url('/') }}" class="nav-link">
@@ -53,13 +61,6 @@
                  <a href="{{ url('/') }}" class="nav-link">
                      <i class="nav-icon fas fa-plug"></i>
                      <p>Fasilitas</p>
-                 </a>
-             </li>
-             <li class="nav-header">Arsip</li>
-             <li class="nav-item">
-                 <a href="{{ url('/') }}" class="nav-link">
-                     <i class="nav-icon fas fa-file"></i>
-                     <p>Laporan</p>
                  </a>
              </li>
          </ul>

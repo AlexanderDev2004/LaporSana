@@ -8,6 +8,7 @@ use App\Http\Controllers\PelaporController;
 use App\Http\Controllers\RoleController;
 use App\Http\Controllers\RuanganController;
 use App\Http\Controllers\SarprasController;
+use App\Http\Controllers\SpkController;
 use App\Http\Controllers\TeknisiController;
 use App\Http\Controllers\UserController;
 use Illuminate\Auth\Middleware\Authorize;
@@ -110,13 +111,6 @@ Route::middleware(['authorize:2,3,4'])->prefix('pelapor')->group(function () {
     Route::get('/dashboard', [PelaporController::class, 'index'])->name('pelapor.dashboard');
 });
 
-Route::middleware(['authorize:5'])->group(callback: function () {
-        Route::get('/sarpras/dashboard', [SarprasController::class, 'index'])->name('sarpras.dashboard');
-        Route::get('/sarpras/profile', [SarprasController::class, 'show'])->name('sarpras.profile.show');
-        Route::get('/sarpras/profile/edit', [SarprasController::class, 'edit'])->name('sarpras.profile.edit');
-        Route::put('/sarpras/profile', [SarprasController::class, 'update'])->name('sarpras.profile.update');
-});
-
 // Rute untuk Pelapor (role 2, 3, 4)
 Route::middleware(['authorize:2,3,4'])->group(function () {
     Route::group(['prefix' => 'pelapor'], function () {
@@ -132,6 +126,18 @@ Route::middleware(['authorize:2,3,4'])->group(function () {
     });
 });
 
+Route::middleware(['authorize:5'])->group(callback: function () {
+        Route::get('/sarpras/dashboard', [SarprasController::class, 'index'])->name('sarpras.dashboard');
+        Route::get('/sarpras/profile', [SarprasController::class, 'show'])->name('sarpras.profile.show');
+        Route::get('/sarpras/profile/edit', [SarprasController::class, 'edit'])->name('sarpras.profile.edit');
+        Route::put('/sarpras/profile', [SarprasController::class, 'update'])->name('sarpras.profile.update');
+        Route::get('sarpras/verifikasi_laporan', [SarprasController::class, 'verifikasilaporan'])->name('sarpras.verifikasi');
+        Route::get('sarpras/laporan/list_laporan', [SarprasController::class, 'listLaporan'])->name('sarpras.list.Laporan');
+        Route::get('sarpras/laporan/{laporan_id}', [SarprasController::class, 'showLaporan'])->name('sarpras.show');
+        Route::post('sarpras/laporan/{laporan_id}/approve', [SarprasController::class, 'approve'])->name('sarpras.approve');
+        Route::post('sarpras/laporan/{laporan_id}/reject', [SarprasController::class, 'reject'])->name('sarpras.reject');
+
+});
 
 Route::group(['prefix' => 'teknisi', 'middleware' => 'authorize:6'], function () {
         Route::get('/dashboard', [TeknisiController::class, 'dashboard'])->name('teknisi.dashboard');

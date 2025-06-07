@@ -2,12 +2,14 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\LaporanModel;
 use App\Models\RoleModel;
 use App\Models\UserModel;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
+use Yajra\DataTables\Facades\DataTables;
 
 class SarprasController extends Controller
 {
@@ -93,6 +95,95 @@ public function update(Request $request)
         Log::error('Gagal update profil: '.$e->getMessage());
         return back()->withErrors(['error' => 'Gagal memperbarui profil'])->withInput();
     }
+}
+
+public function verifikasilaporan()
+    {
+        $breadcrumb = (object) [
+            'title' => 'Verifikasi Laporan Kerusakan',
+            'list'  => ['Home', 'Verifikasi Laporan']
+        ];
+
+        $page = (object) [
+            'title' => 'Daftar Laporan Kerusakan'
+        ];
+
+        $active_menu = 'verifikasi laporan';
+
+        return view('sarpras.verifikasi', compact('breadcrumb', 'page', 'active_menu'));
+    }
+    // ->where('status_id', 1) // hanya mengambil status yang sedang dalam proses
+    public function listLaporan(Request $request)
+{
+    $laporans = LaporanModel::with(['details.fasilitas.ruangan.lantai', 'status'])
+        ->orderBy('status_id', 'asc')
+        ->get();
+    
+    return DataTables::of($laporans)
+        ->addIndexColumn()
+        ->editColumn('status.status_nama', function ($laporan) {
+            $status = $laporan->status->status_nama ?? 'Tidak Diketahui';
+            switch ($laporan->status_id) {
+                case 1: return '<span class="badge badge-warning">' . $status . '</span>';
+                case 2: return '<span class="badge badge-danger">' . $status . '</span>';
+                case 3: return '<span class="badge badge-info">' . $status . '</span>';
+                case 4: return '<span class="badge badge-success">' . $status . '</span>';
+                default: return '<span class="badge badge-secondary">' . $status . '</span>';
+            }
+        })
+        ->addColumn('aksi', function ($laporan) {
+            $detailUrl = route('sarpras.show', ['laporan_id' => $laporan->laporan_id]);
+            $btn = '<button onclick="modalAction(\''.$detailUrl.'\')" class="btn btn-info btn-sm">Detail</button>';
+
+            // Tombol aksi hanya muncul jika status_id = 1 (dalam proses)
+            if ($laporan->status_id == 1) {
+                $approveUrl = route('sarpras.approve', ['laporan_id' => $laporan->laporan_id]);
+                $rejectUrl = route('sarpras.reject', ['laporan_id' => $laporan->laporan_id]);
+
+                $btn .= '
+                    <form action="'.$approveUrl.'" method="POST" style="display:inline; margin-left: 4px;">
+                        '.csrf_field().'
+                        <button type="submit" class="btn btn-success btn-sm">Setujui</button>
+                    </form>
+                    <form action="'.$rejectUrl.'" method="POST" style="display:inline; margin-left: 4px;">
+                        '.csrf_field().'
+                        <button type="submit" class="btn btn-danger btn-sm">Tolak</button>
+                    </form>';
+            } else {
+                $btn .= '<span class="text-muted ml-2">Sudah diverifikasi</span>';
+            }
+
+            return $btn;
+        })
+        ->rawColumns(['status.status_nama', 'aksi'])
+        ->make(true);
+}
+
+    public function showLaporan($laporan_id)
+    {
+        $laporan = LaporanModel::with(['details.fasilitas.ruangan.lantai', 'status'])
+            ->where('laporan_id', $laporan_id)
+            ->firstOrFail();
+
+        return view('sarpras.show', compact('laporan'));
+    }
+
+    public function approve($laporan_id)
+{
+    $laporan = LaporanModel::findOrFail($laporan_id);
+    $laporan->status_id = 3; // Misalnya 4 = Disetujui
+    $laporan->save();
+
+    return back()->with('success', 'Laporan telah disetujui.');
+}
+
+public function reject($laporan_id)
+{
+    $laporan = LaporanModel::findOrFail($laporan_id);
+    $laporan->status_id = 2; // Misalnya 2 = Ditolak
+    $laporan->save();
+
+    return back()->with('error', 'Laporan telah ditolak.');
 }
 
 };

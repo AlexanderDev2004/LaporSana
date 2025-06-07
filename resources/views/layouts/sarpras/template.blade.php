@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -28,6 +27,14 @@
   <link rel="stylesheet" href="{{ asset('LaporSana/plugins/daterangepicker/daterangepicker.css') }}">
   <!-- summernote -->
   <link rel="stylesheet" href="{{ asset('LaporSana/plugins/summernote/summernote-bs4.min.css') }}">
+  <!-- DataTables -->
+    <link rel="stylesheet" href="{{ asset('LaporSana/plugins/datatables-bs4/css/dataTables.bootstrap4.min.css') }}">
+    <link rel="stylesheet" href="{{ asset('LaporSana/plugins/datatables-responsive/css/responsive.bootstrap4.min.css') }}">
+    <link rel="stylesheet" href="{{ asset('LaporSana/plugins/datatables-buttons/css/buttons.bootstrap4.min.css') }}">
+    <!-- SweetAlert2 -->
+    <link rel="stylesheet" href="{{ asset('LaporSana/plugins/sweetalert2-theme-bootstrap-4/bootstrap-4.min.css') }}">
+
+    @stack('css')
 </head>
 <body class="hold-transition sidebar-mini layout-fixed">
 <div class="wrapper">
@@ -100,5 +107,31 @@
 <script src="{{ asset('LaporSana/plugins/overlayScrollbars/js/jquery.overlayScrollbars.min.js') }}"></script>
 <!-- AdminLTE App -->
 <script src="{{ asset('LaporSana/dist/js/adminlte.js') }}"></script>
+<!-- jQuery Validation -->
+    <script src="{{ asset('LaporSana/plugins/jquery-validation/jquery.validate.min.js') }}"></script>
+    <script src="{{ asset('LaporSana/plugins/jquery-validation/additional-methods.min.js') }}"></script>
+    <!-- DataTables & Plugins -->
+    <script src="{{ asset('LaporSana/plugins/datatables/jquery.dataTables.min.js') }}"></script>
+    <script src="{{ asset('LaporSana/plugins/datatables-bs4/js/dataTables.bootstrap4.min.js') }}"></script>
+    <script src="{{ asset('LaporSana/plugins/datatables-responsive/js/dataTables.responsive.min.js') }}"></script>
+    <script src="{{ asset('LaporSana/plugins/datatables-responsive/js/responsive.bootstrap4.min.js') }}"></script>
+    <script src="{{ asset('LaporSana/plugins/datatables-buttons/js/dataTables.buttons.min.js') }}"></script>
+    <script src="{{ asset('LaporSana/plugins/datatables-buttons/js/buttons.bootstrap4.min.js') }}"></script>
+    <script src="{{ asset('LaporSana/plugins/jszip/jszip.min.js') }}"></script>
+    <script src="{{ asset('LaporSana/plugins/pdfmake/pdfmake.min.js') }}"></script>
+    <script src="{{ asset('LaporSana/plugins/pdfmake/vfs_fonts.js') }}"></script>
+    <script src="{{ asset('LaporSana/plugins/datatables-buttons/js/buttons.html5.min.js') }}"></script>
+    <script src="{{ asset('LaporSana/plugins/datatables-buttons/js/buttons.print.min.js') }}"></script>
+    <script src="{{ asset('LaporSana/plugins/datatables-buttons/js/buttons.colVis.min.js') }}"></script>
+    <!-- SweetAlert2 -->
+    <script src="{{ asset('LaporSana/plugins/sweetalert2/sweetalert2.min.js') }}"></script>
+    <script>
+        $.ajaxSetup({
+            headers: {
+                'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+            }
+        });
+    </script>
+    @stack('js')
 </body>
 </html>
