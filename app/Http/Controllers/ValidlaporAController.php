@@ -4,7 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\{LaporanModel, TugasModel, TugasDetailModel, UserModel};
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\{Auth, DB};
+use Illuminate\Support\Facades\{Auth, DB, Log};
 use Yajra\DataTables\Facades\DataTables;
 
 class ValidlaporAController extends Controller
@@ -13,7 +13,7 @@ class ValidlaporAController extends Controller
     {
         $breadcrumb = (object) [
             'title' => 'Selamat Datang',
-            'list'  => ['Home', 'Welcome']
+            'list'  => ['Home', 'Validasi Laporan']
         ];
 
         $active_menu = 'validasi laporan';
@@ -24,22 +24,19 @@ class ValidlaporAController extends Controller
     {
         $laporans = LaporanModel::with(['user', 'status', 'details.fasilitas.ruangan.lantai'])
             ->select('m_laporan.*')
-            ->where('status_id', config('constants.status.pending'))
-            ->get();
+            ->where('status_id', config('constants.status.pending'));
 
         return DataTables::of($laporans)
             ->addColumn('pelapor', fn($laporan) => $laporan->user?->name ?? 'N/A')
-            ->addColumn('tanggal', fn($laporan) => $laporan->created_at->format('d/m/Y H:i'))
+            ->addColumn('tanggal', fn($laporan) => $laporan->created_at ? $laporan->created_at->format('d/m/Y H:i') : '-')
             ->addColumn('status', fn($laporan) => $laporan->status?->status_nama ?? 'N/A')
             ->addColumn('aksi', function ($laporan) {
                 $detailUrl = route('admin.validasi_laporan.show', $laporan->laporan_id);
                 $btn = '<button onclick="modalAction(\'' . $detailUrl . '\')" class="btn btn-info btn-sm me-2">Detail</button>';
-
                 if ($laporan->status_id == config('constants.status.pending')) {
                     $btn .= '<button onclick="setujuAction(' . $laporan->laporan_id . ')" class="btn btn-success btn-sm me-2">Setujui</button>';
                     $btn .= '<button onclick="tolakAction(' . $laporan->laporan_id . ')" class="btn btn-danger btn-sm">Tolak</button>';
                 }
-
                 return $btn;
             })
             ->rawColumns(['aksi'])
@@ -48,6 +45,15 @@ class ValidlaporAController extends Controller
 
     public function setuju(Request $request, $laporan_id)
     {
+        // Tambahkan pengecekan role admin
+        if (Auth::user()->roles_id != 1) {
+            return response()->json(['success' => false, 'message' => 'Akses ditolak. Hanya admin yang dapat melakukan aksi ini.'], 403);
+        }
+
+        $request->validate([
+            'laporan_id' => 'required|numeric'
+        ]);
+
         if (!is_numeric($laporan_id)) {
             return response()->json(['success' => false, 'message' => 'ID laporan tidak valid.']);
         }
@@ -102,12 +108,26 @@ class ValidlaporAController extends Controller
             return response()->json(['success' => true, 'message' => 'Laporan disetujui dan ditugaskan ke Sarana Prasarana.']);
         } catch (\Exception $e) {
             DB::rollBack();
+            Log::error('Error in setuju: ' . $e->getMessage(), ['laporan_id' => $laporan_id]);
             return response()->json(['success' => false, 'message' => 'Gagal: ' . $e->getMessage()]);
         }
     }
 
     public function tolak(Request $request, $laporan_id)
     {
+        // Tambahkan pengecekan role admin
+        if (Auth::user()->roles_id != 1) {
+            return response()->json(['success' => false, 'message' => 'Akses ditolak. Hanya admin yang dapat melakukan aksi ini.'], 403);
+        }
+
+        $request->validate([
+            'laporan_id' => 'required|numeric'
+        ]);
+
+        if (!is_numeric($laporan_id)) {
+            return response()->json(['success' => false, 'message' => 'ID laporan tidak valid.']);
+        }
+
         DB::beginTransaction();
         try {
             $laporan = LaporanModel::findOrFail($laporan_id);
@@ -124,6 +144,7 @@ class ValidlaporAController extends Controller
             return response()->json(['success' => true, 'message' => 'Laporan telah ditolak.']);
         } catch (\Exception $e) {
             DB::rollBack();
+            Log::error('Error in tolak: ' . $e->getMessage(), ['laporan_id' => $laporan_id]);
             return response()->json(['success' => false, 'message' => 'Gagal: ' . $e->getMessage()]);
         }
     }
@@ -137,6 +158,6 @@ class ValidlaporAController extends Controller
             ->where('laporan_id', $laporan_id)
             ->firstOrFail();
 
-        return view('pelapor.show', compact('laporan'));
+        return view('admin.validasi_laporan.show', compact('laporan'));
     }
 }

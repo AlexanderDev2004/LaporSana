@@ -11,21 +11,17 @@
             </div>
             <div class="card-body">
                 <div class="table-responsive">
-                    <table class="table table-bordered" id="laporanDataTable" width="100%" cellspacing="0">
-                        <table id="laporanTable" class="table table-bordered">
-                            <thead>
-                                <tr>
-                                    <th>ID Laporan</th>
-                                    <th>Pelapor</th>
-                                    <th>Tanggal Lapor</th>
-                                    <th>Status</th>
-                                    <th>Aksi</th>
-                                </tr>
-                            </thead>
-                        </table>
-
-                        <tbody>
-                        </tbody>
+                    <table id="laporanTable" class="table table-bordered" width="100%" cellspacing="0">
+                        <thead>
+                            <tr>
+                                <th>ID Laporan</th>
+                                <th>Pelapor</th>
+                                <th>Tanggal Lapor</th>
+                                <th>Status</th>
+                                <th>Aksi</th>
+                            </tr>
+                        </thead>
+                        <tbody></tbody>
                     </table>
                 </div>
             </div>
@@ -38,14 +34,14 @@
         <div class="modal-dialog modal-lg" role="document">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h5 class="modal-title">Detail Laporan</h5>
-                    <button type="button" class="close" data-dismiss="modal"><span>&times;</span></button>
+                    <h5 class="modal-title" id="detailLaporanModalLabel">Detail Laporan</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <div class="modal-body" id="modalContent">
                     <p>Memuat...</p>
                 </div>
                 <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Tutup</button>
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Tutup</button>
                 </div>
             </div>
         </div>
@@ -53,58 +49,95 @@
 @endsection
 
 @push('styles')
-    <link rel="stylesheet" href="https://cdn.datatables.net/1.11.5/css/dataTables.bootstrap4.min.css">
+    <link rel="stylesheet" href="https://cdn.datatables.net/1.13.6/css/dataTables.bootstrap5.min.css">
 @endpush
 
 @push('scripts')
-<script src="https://cdn.datatables.net/1.11.5/js/jquery.dataTables.min.js"></script>
-<script src="https://cdn.datatables.net/1.11.5/js/dataTables.bootstrap4.min.js"></script>
-<script>
-$(document).ready(function () {
-    var laporanTable = $('#laporanTable').DataTable({
-        processing: true,
-        serverSide: true,
-        ajax: '{{ route("admin.validasi_laporan.list") }}',
-        columns: [
-            { data: 'laporan_id', name: 'laporan_id' },
-            { data: 'pelapor', name: 'pelapor' },
-            { data: 'tanggal', name: 'tanggal' },
-            { data: 'status', name: 'status' },
-            { data: 'aksi', name: 'aksi', orderable: false, searchable: false },
-        ]
-    });
+    <script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
+    <script src="https://cdn.datatables.net/1.13.6/js/dataTables.bootstrap5.min.js"></script>
+    <script>
+        $(document).ready(function() {
+            var laporanTable = $('#laporanTable').DataTable({
+                processing: true,
+                serverSide: true,
+                ajax: '{{ route('admin.validasi_laporan.list') }}',
+                columns: [{
+                        data: 'laporan_id',
+                        name: 'laporan_id'
+                    },
+                    {
+                        data: 'pelapor',
+                        name: 'pelapor'
+                    },
+                    {
+                        data: 'tanggal',
+                        name: 'tanggal'
+                    },
+                    {
+                        data: 'status',
+                        name: 'status'
+                    },
+                    {
+                        data: 'aksi',
+                        name: 'aksi',
+                        orderable: false,
+                        searchable: false
+                    },
+                ]
+            });
 
-    window.modalAction = function(url) {
-        $('#modalContent').html('<p>Memuat...</p>');
-        $.get(url, function(res) {
-            $('#modalContent').html(res);
-            $('#detailLaporanModal').modal('show');
-        }).fail(function() {
-            $('#modalContent').html('<p>Gagal memuat detail laporan.</p>');
+            window.modalAction = function(url) {
+                $('#modalContent').html('<p>Memuat...</p>');
+                $.get(url, function(res) {
+                    $('#modalContent').html(res);
+                    $('#detailLaporanModal').modal('show');
+                }).fail(function() {
+                    $('#modalContent').html('<p>Gagal memuat detail laporan.</p>');
+                });
+            };
+
+            window.setujuAction = function(id) {
+                if (confirm('Setujui laporan ini?')) {
+                    var url = '{{ route('admin.validasi_laporan.setuju', ':laporan_id') }}'.replace(
+                        ':laporan_id', id);
+                    console.log('Request URL:', url); // Debug the URL
+                    $.ajax({
+                        url: url,
+                        type: 'POST',
+                        data: {
+                            _token: '{{ csrf_token() }}',
+                            laporan_id: id
+                        },
+                        success: function(res) {
+                            alert(res.message);
+                            laporanTable.ajax.reload();
+                        },
+                        error: function(xhr) {
+                            alert('Gagal: ' + (xhr.responseJSON?.message || 'Terjadi kesalahan'));
+                        }
+                    });
+                }
+            };
+            window.tolakAction = function(id) {
+                if (confirm('Tolak laporan ini?')) {
+                    $.ajax({
+                        url: '{{ route('admin.validasi_laporan.tolak', ':laporan_id') }}'.replace(
+                            ':laporan_id', id),
+                        type: 'POST',
+                        data: {
+                            _token: '{{ csrf_token() }}',
+                            laporan_id: id
+                        },
+                        success: function(res) {
+                            alert(res.message);
+                            laporanTable.ajax.reload();
+                        },
+                        error: function(xhr) {
+                            alert('Gagal: ' + (xhr.responseJSON?.message || 'Terjadi kesalahan'));
+                        }
+                    });
+                }
+            };
         });
-    };
-
-    window.setujuAction = function(id) {
-        if (confirm('Setujui laporan ini?')) {
-            $.post("{{ url('admin/validasi_laporan') }}/" + id + "/setuju", {
-                _token: '{{ csrf_token() }}'
-            }, function(res) {
-                alert(res.message);
-                laporanTable.ajax.reload();
-            });
-        }
-    };
-
-    window.tolakAction = function(id) {
-        if (confirm('Tolak laporan ini?')) {
-            $.post("{{ url('admin/validasi_laporan') }}/" + id + "/tolak", {
-                _token: '{{ csrf_token() }}'
-            }, function(res) {
-                alert(res.message);
-                laporanTable.ajax.reload();
-            });
-        }
-    };
-});
-</script>
+    </script>
 @endpush

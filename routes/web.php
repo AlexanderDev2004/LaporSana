@@ -110,13 +110,13 @@ Route::middleware(['auth', 'authorize:1'])->group(function () {
         Route::delete('/{fasilitas}/delete', [FasilitasController::class, 'delete'])->name('admin.fasilitas.delete');
     });
 
-    // Laporan Management
     Route::group(['prefix' => 'admin/validasi_laporan'], function () {
         Route::get('/', [ValidlaporAController::class, 'index'])->name('admin.validasi_laporan.index');
         Route::get('/list', [ValidlaporAController::class, 'list'])->name('admin.validasi_laporan.list');
         Route::get('/{laporan_id}/show', [ValidlaporAController::class, 'show'])->name('admin.validasi_laporan.show');
         Route::post('/{laporan_id}/setuju', [ValidlaporAController::class, 'setuju'])->name('admin.validasi_laporan.setuju');
         Route::post('/{laporan_id}/tolak', [ValidlaporAController::class, 'tolak'])->name('admin.validasi_laporan.tolak');
+        Route::get('/admin/validasi-laporan/list', [ValidlaporAController::class, 'list'])->name('admin.validasi_laporan.list');
     });
 });
 

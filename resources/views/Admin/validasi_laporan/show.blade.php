@@ -14,7 +14,7 @@
                         <p><strong>Jumlah Pelapor:</strong> {{ $laporan->jumlah_pelapor }}</p>
                         <p><strong>Tanggal Lapor:</strong> {{ \Carbon\Carbon::parse($laporan->tanggal_lapor)->format('d M Y H:i') }}</p>
                         <p><strong>Status:</strong>
-                            <span class="badge badge-{{ $laporan->status_id == 1 ? 'warning' : ($laporan->status_id == 2 ? 'success' : 'danger') }}">
+                            <span class="badge badge-{{ $laporan->status_id == config('constants.status.pending') ? 'warning' : ($laporan->status_id == config('constants.status.diproses') ? 'success' : 'danger') }}">
                                 {{ $laporan->status->status_nama ?? 'N/A' }}
                             </span>
                         </p>
@@ -33,8 +33,10 @@
                                 (Lantai {{ optional(optional($detail->fasilitas->ruangan)->lantai)->nama_lantai ?? 'N/A' }})
                             </p>
                             <p><strong>Deskripsi:</strong> {{ $detail->deskripsi }}</p>
-                            @if($detail->foto_bukti)
-                                <img src="{{ asset('storage/'.$detail->foto_bukti) }}" class="img-fluid" style="max-height: 200px;">
+                            @if($detail->foto_bukti && \Storage::exists($detail->foto_bukti))
+                                <img src="{{ asset('storage/' . $detail->foto_bukti) }}" class="img-fluid" style="max-height: 200px;" alt="Bukti Laporan">
+                            @else
+                                <p class="text-muted">Foto bukti tidak tersedia.</p>
                             @endif
                         </div>
                     </div>
