@@ -1,6 +1,6 @@
  <!-- Sidebar -->
  <div class="sidebar">
-     
+
      <!-- Sidebar Menu -->
      <nav class="mt-2">
          <ul class="nav nav-pills nav-sidebar flex-column" data-widget="treeview" role="menu" data-accordion="false">
@@ -37,14 +37,14 @@
                  </a>
              </li>
              <li class="nav-item">
-                 <a href="{{ route('admin.ruangan.index') }}" 
+                 <a href="{{ route('admin.ruangan.index') }}"
                      class="nav-link {{ $active_menu == 'ruangan' ? 'active' : '' }}">
                      <i class="nav-icon fas fa-home"></i>
                      <p>Ruangan</p>
                  </a>
              </li>
              <li class="nav-item">
-                 <a href="{{ route('admin.fasilitas.index') }}" 
+                 <a href="{{ route('admin.fasilitas.index') }}"
                      class="nav-link {{ $active_menu == 'fasilitas' ? 'active' : '' }}">
                      <i class="nav-icon fas fa-plug"></i>
                      <p>Fasilitas</p>
@@ -52,7 +52,8 @@
              </li>
              <li class="nav-header">Arsip</li>
              <li class="nav-item">
-                 <a href="{{ url('/') }}" class="nav-link">
+                 <a href="{{ route('admin.validasi_laporan.index') }}"
+                     class="nav-link {{ $active_menu == 'validasi_laporan' ? 'active' : '' }}">
                      <i class="nav-icon fas fa-file"></i>
                      <p>Laporan</p>
                  </a>

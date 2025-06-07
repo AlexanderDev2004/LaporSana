@@ -11,6 +11,7 @@ use App\Http\Controllers\RuanganController;
 use App\Http\Controllers\SarprasController;
 use App\Http\Controllers\TeknisiController;
 use App\Http\Controllers\UserController;
+use App\Http\Controllers\ValidlaporAController;
 use Illuminate\Auth\Middleware\Authorize;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Auth;
@@ -40,7 +41,7 @@ Route::get('logout', [AuthController::class, 'logout'])->middleware('auth')->nam
 // Rute untuk Admin (role 1)
 Route::middleware(['auth', 'authorize:1'])->group(function () {
     Route::get('/admin/dashboard', [DashboardController::class, 'index'])->name('admin.dashboard');
-   
+
     // Profile
     Route::group(['prefix' => 'admin/profile'], function () {
         Route::get('/profile', [ProfileController::class, 'show'])->name('admin.profile.show');
@@ -57,7 +58,7 @@ Route::middleware(['auth', 'authorize:1'])->group(function () {
         Route::put('/{user}', [UserController::class, 'update'])->name('admin.users.update');
         Route::delete('/{user}', [UserController::class, 'destroy'])->name('admin.users.destroy');
     });
-        // Role Management
+    // Role Management
     Route::group(['prefix' => 'admin/roles'], function (): void {
         Route::get('/', [RoleController::class, 'index'])->name('admin.roles.index');
         Route::get('/list', [RoleController::class, 'list'])->name('admin.roles.list');
@@ -71,7 +72,7 @@ Route::middleware(['auth', 'authorize:1'])->group(function () {
     });
 
     //Lantai Management
-        Route::group(['prefix' => 'admin/lantai'], function () {
+    Route::group(['prefix' => 'admin/lantai'], function () {
         Route::get('/', [LantaiController::class, 'index'])->name('admin.lantai.index');
         Route::get('/list', [LantaiController::class, 'list'])->name('admin.lantai.list');
         Route::get('/create', [LantaiController::class, 'create'])->name('admin.lantai.create');
@@ -83,8 +84,8 @@ Route::middleware(['auth', 'authorize:1'])->group(function () {
         Route::delete('/{lantai}/delete', [LantaiController::class, 'delete'])->name('admin.lantai.delete');
     });
 
-       //Ruangan Management
-        Route::group(['prefix' => 'admin/ruangan'], function () {
+    //Ruangan Management
+    Route::group(['prefix' => 'admin/ruangan'], function () {
         Route::get('/', [RuanganController::class, 'index'])->name('admin.ruangan.index');
         Route::get('/list', [RuanganController::class, 'list'])->name('admin.ruangan.list');
         Route::get('/create', [RuanganController::class, 'create'])->name('admin.ruangan.create');
@@ -96,8 +97,8 @@ Route::middleware(['auth', 'authorize:1'])->group(function () {
         Route::delete('/{ruangan}/delete', [RuanganController::class, 'delete'])->name('admin.ruangan.delete');
     });
 
-      //Fasilitas Management
-        Route::group(['prefix' => 'admin/fasilitas'], function () {
+    //Fasilitas Management
+    Route::group(['prefix' => 'admin/fasilitas'], function () {
         Route::get('/', [FasilitasController::class, 'index'])->name('admin.fasilitas.index');
         Route::get('/list', [FasilitasController::class, 'list'])->name('admin.fasilitas.list');
         Route::get('/create', [FasilitasController::class, 'create'])->name('admin.fasilitas.create');
@@ -109,7 +110,14 @@ Route::middleware(['auth', 'authorize:1'])->group(function () {
         Route::delete('/{fasilitas}/delete', [FasilitasController::class, 'delete'])->name('admin.fasilitas.delete');
     });
 
-
+    // Laporan Management
+    Route::group(['prefix' => 'admin/validasi_laporan'], function () {
+        Route::get('/', [ValidlaporAController::class, 'index'])->name('admin.validasi_laporan.index');
+        Route::get('/list', [ValidlaporAController::class, 'list'])->name('admin.validasi_laporan.list');
+        Route::get('/{laporan_id}/show', [ValidlaporAController::class, 'show'])->name('admin.validasi_laporan.show');
+        Route::post('/{laporan_id}/setuju', [ValidlaporAController::class, 'setuju'])->name('admin.validasi_laporan.setuju');
+        Route::post('/{laporan_id}/tolak', [ValidlaporAController::class, 'tolak'])->name('admin.validasi_laporan.tolak');
+    });
 });
 
 
@@ -137,22 +145,22 @@ Route::middleware(['authorize:2,3,4'])->group(function () {
 
 // Sarpras Management (role 5)
 Route::middleware(['authorize:5'])->group(callback: function () {
-        Route::get('/sarpras/dashboard', [SarprasController::class, 'index'])->name('sarpras.dashboard');
-        Route::get('/sarpras/profile', [SarprasController::class, 'show'])->name('sarpras.profile.show');
-        Route::get('/sarpras/profile/edit', [SarprasController::class, 'edit'])->name('sarpras.profile.edit');
-        Route::put('/sarpras/profile', [SarprasController::class, 'update'])->name('sarpras.profile.update');
+    Route::get('/sarpras/dashboard', [SarprasController::class, 'index'])->name('sarpras.dashboard');
+    Route::get('/sarpras/profile', [SarprasController::class, 'show'])->name('sarpras.profile.show');
+    Route::get('/sarpras/profile/edit', [SarprasController::class, 'edit'])->name('sarpras.profile.edit');
+    Route::put('/sarpras/profile', [SarprasController::class, 'update'])->name('sarpras.profile.update');
 });
 
 // Rute untuk Teknisi (role 6)
 Route::group(['prefix' => 'teknisi', 'middleware' => 'authorize:6'], function () {
-        Route::get('/dashboard', [TeknisiController::class, 'dashboard'])->name('teknisi.dashboard');
-        Route::get('/', [TeknisiController::class, 'index'])->name('teknisi.index');
-        Route::get('/list', [TeknisiController::class, 'list'])->name('teknisi.list');
-        Route::post('/', [TeknisiController::class, 'store'])->name('teknisi.store');
-        Route::get('/{teknisi}/edit', [TeknisiController::class, 'edit'])->name('teknisi.edit');
-        Route::get('/{teknisi}/show', [TeknisiController::class, 'show'])->name('teknisi.show');
-        Route::put('/{teknisi}/confirm', [TeknisiController::class, 'update'])->name('teknisi.update');
-        Route::delete('/{teknisi}/delete', [TeknisiController::class, 'destroy'])->name('teknisi.destroy');
-        Route::get('/teknisi/riwayat', [TeknisiController::class, 'riwayat'])->name('teknisi.riwayat');
-        Route::get('/teknisi/riwayat/list', [TeknisiController::class, 'riwayatList'])->name('teknisi.riwayat.list');
-    });
+    Route::get('/dashboard', [TeknisiController::class, 'dashboard'])->name('teknisi.dashboard');
+    Route::get('/', [TeknisiController::class, 'index'])->name('teknisi.index');
+    Route::get('/list', [TeknisiController::class, 'list'])->name('teknisi.list');
+    Route::post('/', [TeknisiController::class, 'store'])->name('teknisi.store');
+    Route::get('/{teknisi}/edit', [TeknisiController::class, 'edit'])->name('teknisi.edit');
+    Route::get('/{teknisi}/show', [TeknisiController::class, 'show'])->name('teknisi.show');
+    Route::put('/{teknisi}/confirm', [TeknisiController::class, 'update'])->name('teknisi.update');
+    Route::delete('/{teknisi}/delete', [TeknisiController::class, 'destroy'])->name('teknisi.destroy');
+    Route::get('/teknisi/riwayat', [TeknisiController::class, 'riwayat'])->name('teknisi.riwayat');
+    Route::get('/teknisi/riwayat/list', [TeknisiController::class, 'riwayatList'])->name('teknisi.riwayat.list');
+});

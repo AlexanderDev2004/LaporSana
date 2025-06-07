@@ -160,7 +160,7 @@ class PelaporController extends Controller
         $laporans = LaporanModel::with(['details.fasilitas.ruangan.lantai', 'status'])
         ->where('status_id', 3) // hanya mengambil status yang sedang dalam proses
         ->get();
-        
+
         return DataTables::of($laporans)
             ->addIndexColumn()
             ->editColumn('status.status_nama', function ($laporan) {

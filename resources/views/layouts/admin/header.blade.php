@@ -1,10 +1,10 @@
 <!-- Preloader -->
-  <div class="preloader flex-column justify-content-center align-items-center bg-blue">
-    <img class="animation__shake" src="{{ asset('LaporSana.png')}}" alt="AdminLTELogo" sm:auto>
-  </div>
+<div class="preloader flex-column justify-content-center align-items-center bg-blue">
+    <img class="animation__shake" src="{{ asset('LaporSana.png') }}" alt="AdminLTELogo" sm:auto>
+</div>
 
-  <!-- Navbar -->
-  {{-- <nav class="main-header navbar navbar-expand navbar-white navbar-light">
+<!-- Navbar -->
+{{-- <nav class="main-header navbar navbar-expand navbar-white navbar-light">
     <!-- Left navbar links -->
     <ul class="navbar-nav">
       <li class="nav-item">
@@ -136,44 +136,57 @@
 <nav class="main-header navbar navbar-expand navbar-white navbar-light">
     <!-- Left navbar links -->
     <ul class="navbar-nav">
-      <li class="nav-item">
-        <a class="nav-link" data-widget="pushmenu" href="#" role="button"><i class="fas fa-bars"></i></a>
-      </li>
+        <li class="nav-item">
+            <a class="nav-link" data-widget="pushmenu" href="#" role="button"><i class="fas fa-bars"></i></a>
+        </li>
     </ul>
 
     <!-- Right navbar links -->
     <ul class="navbar-nav ml-auto">
-      <!-- User Dropdown Menu -->
-      <li class="nav-item dropdown user-menu">
-        <a href="#" class="nav-link dropdown-toggle" data-toggle="dropdown">
-          <img src="{{ asset('LaporSana/dist/img/user2-160x160.jpg') }}" class="user-image img-circle elevation-2" alt="User Image">
-          <span class="d-none d-md-inline">{{ Auth::user()->name }}</span>
-        </a>
-        <ul class="dropdown-menu dropdown-menu-lg dropdown-menu-right">
-          <!-- User image -->
-          <li class="user-header bg-primary">
-            <img src="{{ asset('LaporSana/dist/img/user2-160x160.jpg') }}" class="img-circle elevation-2" alt="User Image">
-            <p>
-              {{ Auth::user()->name }}
-              <small>{{ Auth::user()->role->roles_nama }}</small>
-            </p>
-          </li>
-          <!-- Menu Footer-->
-          <li class="user-footer">
-            <a href="{{ route('admin.profile.show') }}" class="btn btn-primary btn-flat">Edit Profile</a>
-            <a href="{{ route('logout') }}" class="btn btn-danger btn-flat float-right">
-              Logout
+        <!-- User Dropdown Menu -->
+        <li class="nav-item dropdown user-menu">
+            <a href="#" class="nav-link dropdown-toggle" data-toggle="dropdown">
+                {{-- @if ($user->avatar)
+                    <img src="{{ asset('storage/' . $user->avatar) }}" class="user-image img-circle elevation-2"
+                        width="150" alt="User Avatar">
+                @else
+                    <img src="{{ asset('LaporSana/dist/img/user2-160x160.jpg') }}"
+                        class="user-image img-circle elevation-2" width="150" alt="Default Avatar">
+                @endif --}}
+                <span class="d-none d-md-inline">{{ Auth::user()->name }}</span>
+
             </a>
-            <form id="logout-form" action="{{ route('logout') }}" method="POST" class="d-none">
-              @csrf
-            </form>
-          </li>
-        </ul>
-      </li>
-      <li class="nav-item">
-        <a class="nav-link" data-widget="fullscreen" href="#" role="button">
-          <i class="fas fa-expand-arrows-alt"></i>
-        </a>
-      </li>
+            <ul class="dropdown-menu dropdown-menu-lg dropdown-menu-right">
+                <!-- User image -->
+                <li class="user-header bg-primary">
+                    {{-- @if ($user->avatar)
+                        <img src="{{ asset('storage/' . $user->avatar) }}" class="user-image img-circle elevation-2"
+                            width="50" alt="User Avatar">
+                    @else
+                        <img src="{{ asset('LaporSana/dist/img/user2-160x160.jpg') }}"
+                            class="user-image img-circle elevation-2" width="150" alt="Default Avatar">
+                    @endif --}}
+                    <p>
+                        {{ Auth::user()->name }}
+                        <small>{{ Auth::user()->role->roles_nama }}</small>
+                    </p>
+                </li>
+                <!-- Menu Footer-->
+                <li class="user-footer">
+                    <a href="{{ route('admin.profile.show') }}" class="btn btn-primary btn-flat">Edit Profile</a>
+                    <a href="{{ route('logout') }}" class="btn btn-danger btn-flat float-right">
+                        Logout
+                    </a>
+                    <form id="logout-form" action="{{ route('logout') }}" method="POST" class="d-none">
+                        @csrf
+                    </form>
+                </li>
+            </ul>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link" data-widget="fullscreen" href="#" role="button">
+                <i class="fas fa-expand-arrows-alt"></i>
+            </a>
+        </li>
     </ul>
 </nav>
