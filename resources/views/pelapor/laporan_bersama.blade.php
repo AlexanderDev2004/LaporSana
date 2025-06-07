@@ -64,23 +64,18 @@
                 },{ 
                     data: "details.0.fasilitas.ruangan.ruangan_nama", 
                     defaultContent: "-" 
-                    className: "text-center"
                 },{ 
                     data: "details.0.fasilitas.ruangan.lantai.lantai_nama", 
                     defaultContent: "-" 
-                    className: "text-center"
                 },{ 
                     data: "status.status_nama", 
                     defaultContent: "-" 
-                    className: "text-center"
                 },{ 
                     data: "user.name", 
-                    defaultContent: "-"
-                    className: "text-center" 
+                    defaultContent: "-" 
                 },{ 
                     data: "jumlah_pelapor", 
-                    defaultContent: "-",
-                    className: "text-center"
+                    defaultContent: "-" 
                 },{ 
                     data: "aksi", 
                     className: "text-center", 
