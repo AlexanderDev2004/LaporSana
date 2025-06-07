@@ -8,6 +8,7 @@ use App\Http\Controllers\PelaporController;
 use App\Http\Controllers\RoleController;
 use App\Http\Controllers\RuanganController;
 use App\Http\Controllers\SarprasController;
+use App\Http\Controllers\SpkController;
 use App\Http\Controllers\TeknisiController;
 use App\Http\Controllers\UserController;
 use Illuminate\Auth\Middleware\Authorize;
@@ -134,6 +135,7 @@ Route::middleware(['authorize:5'])->group(callback: function () {
         Route::get('/sarpras/profile', [SarprasController::class, 'show'])->name('sarpras.profile.show');
         Route::get('/sarpras/profile/edit', [SarprasController::class, 'edit'])->name('sarpras.profile.edit');
         Route::put('/sarpras/profile', [SarprasController::class, 'update'])->name('sarpras.profile.update');
+
 });
 
 // Rute untuk Teknisi (role 6)
@@ -144,8 +146,10 @@ Route::group(['prefix' => 'teknisi', 'middleware' => 'authorize:6'], function ()
         Route::post('/', [TeknisiController::class, 'store'])->name('teknisi.store');
         Route::get('/{teknisi}/edit', [TeknisiController::class, 'edit'])->name('teknisi.edit');
         Route::get('/{teknisi}/show', [TeknisiController::class, 'show'])->name('teknisi.show');
-        Route::put('/{teknisi}/confirm', [TeknisiController::class, 'update'])->name('teknisi.update');
-        Route::delete('/{teknisi}/delete', [TeknisiController::class, 'destroy'])->name('teknisi.destroy');
+        Route::put('/{teknisi}', [TeknisiController::class, 'update'])->name('teknisi.update');
         Route::get('/teknisi/riwayat', [TeknisiController::class, 'riwayat'])->name('teknisi.riwayat');
         Route::get('/teknisi/riwayat/list', [TeknisiController::class, 'riwayatList'])->name('teknisi.riwayat.list');
+         Route::get('/teknisi/profile', [TeknisiController::class, 'show'])->name('teknisi.profile.show');
+        Route::get('/teknisi/profile/edit', [TeknisiController::class, 'edit'])->name('steknisi.profile.edit');
+        Route::put('/teknisi/profile', [TeknisiController::class, 'update'])->name('teknisi.profile.update');
     });

@@ -8,6 +8,7 @@ use App\Models\TugasModel;
 use App\Models\UserModel;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Validator;
 use Yajra\DataTables\Facades\DataTables;
 
 class TeknisiController extends Controller
@@ -22,7 +23,7 @@ class TeknisiController extends Controller
 
         $active_menu = 'dashboard';
 
-        // tugas terbaru yang aktif kecuali status_id != dibatalkan)
+        // tugas terbaru yang aktif kecuali status_id != dibatalkan dan selesai)
         $tugasTerbaru = TugasModel::where('user_id', Auth::user()->user_id)
             ->whereHas('status', function ($q) {
                 $q->whereNotIn('status_nama', ['dibatalkan', 'selesai']);
@@ -39,7 +40,7 @@ class TeknisiController extends Controller
             ->orderBy('bulan')
             ->get();
 
-        //rray 12 bulan dengan default 0 jumlah
+        // array 12 bulan dengan default 0 jumlah
         $dataStatistik = array_fill(1, 12, 0);
         foreach ($statistik as $item) {
             $dataStatistik[(int)$item->bulan] = $item->jumlah;
@@ -47,6 +48,7 @@ class TeknisiController extends Controller
 
         return view('teknisi.dashboard', compact('breadcrumb', 'active_menu', 'tugasTerbaru', 'dataStatistik'));
     }
+
 
 
     public function index(Request $request)
@@ -91,15 +93,12 @@ class TeknisiController extends Controller
         return DataTables::of($tugas->get())
             ->addIndexColumn()
             ->addColumn('aksi', function ($tugas) {
-                // Gabungkan semua tombol aksi
-
-                $btn = '<button onclick="modalAction(\'' . route('teknisi.show', $tugas->tugas_id) . '\')" class="btn btn-info btn-sm"><i class="fas fa-eye"></i></button>';
+                $btn = '<button onclick="modalAction(\'' . route('teknisi.show', $tugas->tugas_id) . '\')" class="btn btn-info btn-sm mx-1"><i class="fas fa-eye"></i></button>';
                 $btn .= '<button onclick="modalAction(\'' . route('teknisi.edit', $tugas->tugas_id) . '\')" class="btn btn-warning btn-sm"><i class="fas fa-edit"></i></button>';
-                $btn .= '<button onclick="modalAction(\'' . route('teknisi.destroy', $tugas->tugas_id) . '\')" class="btn btn-danger btn-sm"><i class="fas fa-trash"></i></button>';
                 return $btn;
             })
-            ->rawColumns(['aksi']) // Kolom aksi mengandung HTML
-            ->toJson(); // Pastikan mengembalikan JSON
+            ->rawColumns(['aksi']) 
+            ->toJson();
     }
 
     public function show($id)
@@ -149,5 +148,62 @@ class TeknisiController extends Controller
             })
             ->rawColumns(['aksi'])
             ->toJson();
+    }
+
+
+    public function edit($id)
+    {
+        $tugas = TugasModel::with(['status', 'user'])
+            ->where('user_id', Auth::user()->user_id)
+            ->findOrFail($id);
+
+        $breadcrumb = (object) [
+            'title' => 'Edit Tugas',
+            'list'  => ['Home', 'Tugas', 'Edit']
+        ];
+        $active_menu = 'tugas';
+
+        return view('teknisi.edit', compact('breadcrumb', 'active_menu', 'tugas'));
+    }
+
+    public function update(Request $request, $id)
+    {
+        // Cari status_id berdasarkan status_nama
+        $status = StatusModel::where('status_nama', $request->status_nama)->first();
+
+        if (!$status) {
+            return response()->json([
+                'status' => false,
+                'message' => 'Status tidak ditemukan.',
+                'msgField' => ['status_nama' => ['Status tidak valid.']]
+            ]);
+        }
+
+        // Validasi input
+        $validator = Validator::make($request->all(), [
+            'tugas_jenis' => 'required|in:pemeriksaan,perbaikan',
+            'tugas_selesai' => 'nullable|datetime|after_or_equal:tugas_mulai',
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json([
+                'status' => false,
+                'message' => 'Validasi gagal.',
+                'msgField' => $validator->errors()
+            ]);
+        }
+
+        // Proses update
+        $tugas = TugasModel::findOrFail($id);
+        $tugas->update([
+            'status_id' => $status->status_id,
+            'tugas_jenis' => $request->tugas_jenis,
+            'tugas_selesai' => $request->tugas_selesai,
+        ]);
+
+        return response()->json([
+            'status' => true,
+            'message' => 'Data tugas berhasil diperbarui.'
+        ]);
     }
 }

@@ -39,8 +39,8 @@
                         <th>Nama Teknisi</th>
                         <th>Status</th>
                         <th>Jenis Tugas</th>
-                        <th>Tanggal Pengerjaan</th>
-                        <th>Tanggal Selesai</th>
+                        <th>Tanggal Penugasan</th>
+                        <th>Tanggal Penyelesaian</th>
                         <th>Aksi</th>
                     </tr>
                 </thead>
