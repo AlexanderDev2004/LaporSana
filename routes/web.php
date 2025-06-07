@@ -112,14 +112,6 @@ Route::middleware(['auth', 'authorize:1'])->group(function () {
 
 });
 
-
-// Rute untuk Pelapor (role 2,3,4 : Mahasiswa, Dosen, Teknisi)
-Route::middleware(['authorize:2,3,4'])->prefix('pelapor')->group(function () {
-    Route::get('/dashboard', [PelaporController::class, 'index'])->name('pelapor.dashboard');
-});
-
-
-
 // Rute untuk Pelapor (role 2, 3, 4 : Mahasiswa, Dosen, Teknisi)
 Route::middleware(['authorize:2,3,4'])->group(function () {
     Route::group(['prefix' => 'pelapor'], function () {
@@ -146,10 +138,18 @@ Route::middleware(['authorize:2,3,4'])->group(function () {
 
 // Sarpras Management (role 5)
 Route::middleware(['authorize:5'])->group(callback: function () {
-        Route::get('/sarpras/dashboard', [SarprasController::class, 'index'])->name('sarpras.dashboard');
-        Route::get('/sarpras/profile', [SarprasController::class, 'show'])->name('sarpras.profile.show');
-        Route::get('/sarpras/profile/edit', [SarprasController::class, 'edit'])->name('sarpras.profile.edit');
-        Route::put('/sarpras/profile', [SarprasController::class, 'update'])->name('sarpras.profile.update');
+    Route::group(['prefix' => 'sarpras'], function () {
+        Route::get('/dashboard', [SarprasController::class, 'index'])->name('sarpras.dashboard');
+        Route::get('/profile', [SarprasController::class, 'show'])->name('sarpras.profile.show');
+        Route::get('/profile/edit', [SarprasController::class, 'edit'])->name('sarpras.profile.edit');
+        Route::put('/profile', [SarprasController::class, 'update'])->name('sarpras.profile.update');
+        Route::get('/penugasan', [SarprasController::class, 'penugasan'])->name('sarpras.penugasan');
+        Route::get('/list', [SarprasController::class, 'list'])->name('sarpras.list');
+        Route::get('/create', [SarprasController::class, 'create'])->name('sarpras.create');
+        Route::post('/', [SarprasController::class, 'store'])->name('sarpras.store');
+        Route::get('/{sarpras}/edit', [SarprasController::class, 'edit'])->name('sarpras.edit');
+        Route::get('/{sarpras}/show', [SarprasController::class, 'show'])->name('sarpras.show');
+    });
 });
 
 // Rute untuk Teknisi (role 6)
