@@ -132,29 +132,28 @@ public function verifikasilaporan()
             }
         })
         ->addColumn('aksi', function ($laporan) {
-            $detailUrl = route('sarpras.show', ['laporan_id' => $laporan->laporan_id]);
-            $btn = '<button onclick="modalAction(\''.$detailUrl.'\')" class="btn btn-info btn-sm">Detail</button>';
+        $detailUrl = route('sarpras.show', ['laporan_id' => $laporan->laporan_id]);
+        $btn = '<button onclick="modalAction(\''.$detailUrl.'\')" class="btn btn-info btn-sm">Detail</button>';
 
-            // Tombol aksi hanya muncul jika status_id = 1 (dalam proses)
-            if ($laporan->status_id == 1) {
-                $approveUrl = route('sarpras.approve', ['laporan_id' => $laporan->laporan_id]);
-                $rejectUrl = route('sarpras.reject', ['laporan_id' => $laporan->laporan_id]);
+        if ($laporan->status_id == 1) {
+            $approveUrl = route('sarpras.approve', ['laporan_id' => $laporan->laporan_id]);
+            $rejectUrl = route('sarpras.reject', ['laporan_id' => $laporan->laporan_id]);
 
-                $btn .= '
-                    <form action="'.$approveUrl.'" method="POST" style="display:inline; margin-left: 4px;">
-                        '.csrf_field().'
-                        <button type="submit" class="btn btn-success btn-sm">Setujui</button>
-                    </form>
-                    <form action="'.$rejectUrl.'" method="POST" style="display:inline; margin-left: 4px;">
-                        '.csrf_field().'
-                        <button type="submit" class="btn btn-danger btn-sm">Tolak</button>
-                    </form>';
-            } else {
-                $btn .= '<span class="text-muted ml-2">Sudah diverifikasi</span>';
-            }
+            $btn .= '
+                <form action="'.$approveUrl.'" method="POST" class="d-inline form-approve" style="margin-left:4px;">
+                    '.csrf_field().'
+                    <button type="button" class="btn btn-success btn-sm btn-approve">Setujui</button>
+                </form>
+                <form action="'.$rejectUrl.'" method="POST" class="d-inline form-reject" style="margin-left:4px;">
+                    '.csrf_field().'
+                    <button type="button" class="btn btn-danger btn-sm btn-reject">Tolak</button>
+                </form>';
+        } else {
+            $btn .= '<span class="text-muted ml-2">Sudah diverifikasi</span>';
+        }
 
-            return $btn;
-        })
+        return $btn;
+    })
         ->rawColumns(['status.status_nama', 'aksi'])
         ->make(true);
 }

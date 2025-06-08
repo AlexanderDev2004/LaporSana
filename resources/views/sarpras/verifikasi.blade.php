@@ -51,71 +51,109 @@
 </style>
 @endpush
 
-@push('js') 
+@push('js')
+<!-- SweetAlert2 -->
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
 <script>
-    function modalAction(url = ''){ 
-        $('#myModal').load(url, function(){ 
-            $(this).modal('show'); 
-        }); 
-    }
+function modalAction(url = '') { 
+    $('#myModal').load(url, function() { 
+        $(this).modal('show'); 
+    }); 
+}
 
-    var dataLaporan; 
-    $(document).ready(function(){
-        $.ajaxSetup({
-            headers: {
-                'X-CSRF-TOKEN': '{{ csrf_token() }}'
-            }
-        }); 
+var dataLaporan; 
+$(document).ready(function(){
+    $.ajaxSetup({
+        headers: {
+            'X-CSRF-TOKEN': '{{ csrf_token() }}'
+        }
+    }); 
 
-        dataLaporan = $('#table_laporan').DataTable({ 
-            processing: true, 
-            serverSide: true, 
-            ajax: { 
+    dataLaporan = $('#table_laporan').DataTable({ 
+        processing: true, 
+        serverSide: true, 
+        ajax: { 
             url: "{{ route('sarpras.list.Laporan') }}", 
             dataType: "json", 
             type: "GET",
         }, 
-            columns: [
-                { 
-                    data: "DT_RowIndex", 
-                    className: "text-center", 
-                    width: "5%", 
-                    orderable: false, 
-                    searchable: false 
-                },{ 
-                    data: "details.0.fasilitas.fasilitas_nama",
-                    width: "15%", 
-                    defaultContent: "-" 
-                },{ 
-                    data: "details.0.fasilitas.ruangan.ruangan_nama",
-                    width: "15%",  
-                    defaultContent: "-" 
-                },
-                { 
-                    data: "details.0.fasilitas.ruangan.lantai.lantai_nama",
-                    width: "15%",  
-                    defaultContent: "-" 
-                },
-                { 
-                    data: "status.status_nama",
-                    width: "15%",  
-                    defaultContent: "-" 
-                },
-                { 
-                    data: "aksi",
-                    className: "text-center", 
-                    width: "15%", 
-                    orderable: false, 
-                    searchable: false 
-                }
-            ],
-            responsive: true,
-            columnDefs: [{
-                targets: -1,
-                data: null,
-                defaultContent: '<button class="btn btn-info btn-sm btn-detail"><i class="fas fa-eye"></i> Detail</button>'
-            }]
+        columns: [
+            { 
+                data: "DT_RowIndex", 
+                className: "text-center", 
+                width: "5%", 
+                orderable: false, 
+                searchable: false 
+            },{ 
+                data: "details.0.fasilitas.fasilitas_nama",
+                width: "15%", 
+                defaultContent: "-" 
+            },{ 
+                data: "details.0.fasilitas.ruangan.ruangan_nama",
+                width: "15%",  
+                defaultContent: "-" 
+            },
+            { 
+                data: "details.0.fasilitas.ruangan.lantai.lantai_nama",
+                width: "15%",  
+                defaultContent: "-" 
+            },
+            { 
+                data: "status.status_nama",
+                width: "15%",  
+                defaultContent: "-" 
+            },
+            { 
+                data: "aksi",
+                className: "text-center", 
+                width: "15%", 
+                orderable: false, 
+                searchable: false 
+            }
+        ],
+        responsive: true
+    });
+
+    // SweetAlert konfirmasi untuk Setujui
+    $(document).on('click', '.btn-approve', function(e) {
+        e.preventDefault();
+        const form = $(this).closest('form');
+        Swal.fire({
+            title: 'Apakah Anda yakin?',
+            text: "Laporan akan disetujui!",
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#28a745',
+            cancelButtonColor: '#d33',
+            confirmButtonText: 'Ya, Setujui!',
+            cancelButtonText: 'Batal'
+        }).then((result) => {
+            if (result.isConfirmed) {
+                form.submit();
+            }
         });
-    }); 
+    });
+
+    // SweetAlert konfirmasi untuk Tolak
+    $(document).on('click', '.btn-reject', function(e) {
+        e.preventDefault();
+        const form = $(this).closest('form');
+        Swal.fire({
+            title: 'Apakah Anda yakin?',
+            text: "Laporan akan ditolak!",
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#d33',
+            cancelButtonColor: '#6c757d',
+            confirmButtonText: 'Ya, Tolak!',
+            cancelButtonText: 'Batal'
+        }).then((result) => {
+            if (result.isConfirmed) {
+                form.submit();
+            }
+        });
+    });
+});
 </script> 
 @endpush
