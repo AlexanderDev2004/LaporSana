@@ -121,6 +121,9 @@ Route::middleware(['authorize:2,3,4'])->prefix('pelapor')->group(function () {
 Route::middleware(['authorize:2,3,4'])->group(function () {
     Route::group(['prefix' => 'pelapor'], function () {
         Route::get('/dashboard', [PelaporController::class, 'index'])->name('pelapor.dashboard');
+        Route::get('/pelapor/profile', [PelaporController::class, 'showProfile'])->name('pelapor.profile.show');
+        Route::get('/pelapor/profile/edit', [PelaporController::class, 'edit'])->name('pelapor.profile.edit');
+        Route::put('/pelapor/profile', [PelaporController::class, 'update'])->name('pelapor.profile.update');
         Route::get('/laporan', [PelaporController::class, 'laporan'])->name('pelapor.laporan');
         Route::POST('/laporan/list', [PelaporController::class, 'list'])->name('pelapor.list');
         Route::get('/create', [PelaporController::class, 'create'])->name('pelapor.create');
