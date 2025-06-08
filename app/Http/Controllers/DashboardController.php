@@ -15,6 +15,6 @@ class DashboardController extends Controller
 
         $active_menu = 'dashboard';
 
-        return view('admin.dashboard', compact('breadcrumb', 'active_menu'));
+        return view('Admin.dashboard', compact('breadcrumb', 'active_menu'));
     }
 }
