@@ -2,13 +2,16 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\FasilitasModel;
 use App\Models\LaporanDetail;
 use App\Models\LaporanModel;
+use App\Models\StatusModel;
 use App\Models\TugasModel;
 use App\Models\TugasDetail;
 use App\Models\UserModel;
 use Illuminate\Http\Request;
 use Yajra\DataTables\Facades\DataTables;
+use Illuminate\Support\Facades\Log;
 
 class LaporanController extends Controller
 {
@@ -20,45 +23,49 @@ class LaporanController extends Controller
         ];
 
         $active_menu = 'laporan';
+        $user = UserModel::all();
+        $status = StatusModel::all();
+        $details = LaporanDetail::all();
+      
 
-        return view('admin.laporan.index', compact('breadcrumb', 'active_menu'));   
+
+        return view('admin.laporan.index', compact('breadcrumb', 'active_menu', 'user', 'status', 'details'));
     }
 
     public function list(Request $request)
     {
-        $laporan = LaporanModel::with(['user', 'status', 'details.fasilitas'])
-            ->where('status_id', config('constants.status_menunggu'));
+        $laporan = LaporanModel::select('laporan_id', 'user_id', 'status_id', 'tanggal_lapor', 'jumlah_pelapor')
+            ->with('user', 'status');
+        if ($request->user_id) {
+            $laporan->where('user_id', $request->user_id);
+        }
+        if ($request->status_id) {
+            $laporan->where('status_id', $request->status_id);
+        }
 
         return DataTables::of($laporan)
             ->addIndexColumn()
-            ->addColumn('nama_user', function ($item) {
-                return $item->user->nama ?? '-';
-            })
-            ->addColumn('nama_fasilitas', function ($item) {
-                $detail = $item->details->first();
-                return $detail ? ($detail->fasilitas->fasilitas_nama ?? '-') : '-';
-            })
-            ->addColumn('status', function ($item) {
-                return $item->status->status_nama ?? '-';
-            })
-            ->addColumn('tanggal_lapor', function ($item) {
-                return $item->tanggal_lapor ? $item->tanggal_lapor->format('d-m-Y H:i') : '-';
-            })
-            ->addColumn('aksi', function ($item) {
-                $btn = '<button onclick="modalAction(\'' . route('admin.laporan.show', $item->laporan_id) . '\')" class="btn btn-primary btn-sm"><i class="fas fa-eye"></i> Detail</button> ';
-                $btn .= '<button onclick="verifyLaporan(\'' . $item->laporan_id . '\', \'setujui\')" class="btn btn-success btn-sm"><i class="fas fa-check"></i> Setujui</button> ';
-                $btn .= '<button onclick="verifyLaporan(\'' . $item->laporan_id . '\', \'tolak\')" class="btn btn-danger btn-sm"><i class="fas fa-times"></i> Tolak</button>';
+            ->addColumn('aksi', function ($laporan) {
+                $btn = '<button onclick="modalAction(\'' . route('admin.laporan.show', $laporan->laporan_id) . '\')" class="btn btn-info btn-sm mr-1"><i class="fas fa-eye"></i></button>';
+
+                // Only show edit and delete buttons if appropriate
+                if ($laporan->status_id == 1) { // Status Menunggu
+                    $btn .= '<button onclick="modalAction(\'' . route('admin.laporan.edit', $laporan->laporan_id) . '\')" class="btn btn-warning btn-sm mr-1"><i class="fas fa-edit"></i></button>';
+                    $btn .= '<button onclick="modalAction(\'' . route('admin.laporan.confirm', $laporan->laporan_id) . '\')" class="btn btn-danger btn-sm"><i class="fas fa-trash"></i></button>';
+                }
+
                 return $btn;
             })
             ->rawColumns(['aksi'])
             ->make(true);
     }
 
-    public function show($laporan_id)
-    {
-        $laporan = LaporanModel::with(['details.fasilitas', 'user', 'status'])->findOrFail($laporan_id);
-        return view('admin.laporan.show', compact('laporan'));
-    }
+   
+public function show($laporan_id)
+{
+    $laporan = LaporanModel::with(['details.fasilitas.ruangan', 'user', 'status'])->find($laporan_id);
+    return view('admin.laporan.show', compact('laporan'));
+}
 
     public function verify(Request $request, $laporan_id)
     {

@@ -4,6 +4,7 @@ use App\Http\Controllers\AuthController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\FasilitasController;
 use App\Http\Controllers\LantaiController;
+use App\Http\Controllers\LaporanController;
 use App\Http\Controllers\PelaporController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\RoleController;
@@ -111,6 +112,21 @@ Route::middleware(['auth', 'authorize:1'])->group(function () {
         Route::get('/{fasilitas}/show', [FasilitasController::class, 'show'])->name('admin.fasilitas.show');
         Route::get('/{fasilitas}/confirm', [FasilitasController::class, 'confirm'])->name('admin.fasilitas.confirm');
         Route::delete('/{fasilitas}/delete', [FasilitasController::class, 'delete'])->name('admin.fasilitas.delete');
+    });
+
+    
+      //Laporan Verifikasi
+        Route::group(['prefix' => 'admin/laporan'], function () {
+        Route::get('/', [LaporanController::class, 'index'])->name('admin.laporan.index');
+        Route::get('/list', [LaporanController::class, 'list'])->name('admin.laporan.list');
+        Route::get('/create', [LaporanController::class, 'create'])->name('admin.laporan.create');
+        Route::post('/', [LaporanController::class, 'store'])->name('admin.laporan.store');
+        Route::get('/{laporan}/edit', [LaporanController::class, 'edit'])->name('admin.laporan.edit');
+        Route::put('/{laporan}', [LaporanController::class, 'update'])->name('admin.laporan.update');
+        Route::get('/{laporan}/show', [LaporanController::class, 'show'])->name('admin.laporan.show');
+        Route::get('/{laporan}/confirm', [LaporanController::class, 'confirm'])->name('admin.laporan.confirm');
+        Route::delete('/{laporan}/delete', [LaporanController::class, 'delete'])->name('admin.laporan.delete');
+        Route::post('/{laporan}/verify', [LaporanController::class, 'verify'])->name('admin.laporan.verify');
     });
 
 

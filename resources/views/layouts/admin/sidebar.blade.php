@@ -52,7 +52,8 @@
              </li>
              <li class="nav-header">Arsip</li>
              <li class="nav-item">
-                 <a href="{{ url('/') }}" class="nav-link">
+                 <a href="{{ route('admin.laporan.index') }}" 
+                 class="nav-link  {{ $active_menu == 'laporan' ? 'active' : '' }}">
                      <i class="nav-icon fas fa-file"></i>
                      <p>Laporan</p>
                  </a>
