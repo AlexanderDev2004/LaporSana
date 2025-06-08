@@ -30,7 +30,7 @@
                  </a>
              </li>
              <li class="nav-item">
-                 <a href="{{ url('logout') }}" class="nav-link">
+                 <a href="{{ route('sarpras.penugasan') }}" class="nav-link {{ $active_menu == 'penugasan' ? 'active' : '' }}">
                      <i class="nav-icon fas fa-file"></i>
                      <p>Penugasan</p>
                  </a>
@@ -63,7 +63,7 @@
              </li>
              <li class="nav-header">Arsip</li>
              <li class="nav-item">
-                 <a href="{{ url('/') }}" class="nav-link">
+                 <a href="{{ route('sarpras.laporan') }}" class="nav-link {{ $active_menu == 'laporan' ? 'active' : '' }}">
                      <i class="nav-icon fas fa-file"></i>
                      <p>Laporan</p>
                  </a>

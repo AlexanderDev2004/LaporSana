@@ -11,20 +11,19 @@
             </div>
             <div class="card-body">
                 <div class="table-responsive">
-                    <table class="table table-bordered" id="laporanDataTable" width="100%" cellspacing="0">
-                        <table id="laporanTable" class="table table-bordered">
-                            <thead>
-                                <tr>
-                                    <th>ID Laporan</th>
-                                    <th>Pelapor</th>
-                                    <th>Tanggal Lapor</th>
-                                    <th>Status</th>
-                                    <th>Aksi</th>
-                                </tr>
-                            </thead>
-                        </table>
-
+                    {{-- Perbaikan: Hanya ada satu tag <table> --}}
+                    <table class="table table-bordered" id="laporanTable" width="100%" cellspacing="0">
+                        <thead>
+                            <tr>
+                                <th>ID Laporan</th>
+                                <th>Pelapor</th>
+                                <th>Tanggal Lapor</th>
+                                <th>Status</th>
+                                <th>Aksi</th>
+                            </tr>
+                        </thead>
                         <tbody>
+                            {{-- DataTables akan mengisi bagian ini secara otomatis --}}
                         </tbody>
                     </table>
                 </div>
@@ -32,7 +31,6 @@
         </div>
     </div>
 
-    <!-- Modal Detail Laporan -->
     <div class="modal fade" id="detailLaporanModal" tabindex="-1" role="dialog" aria-labelledby="detailLaporanModalLabel"
         aria-hidden="true">
         <div class="modal-dialog modal-lg" role="document">
@@ -52,13 +50,14 @@
     </div>
 @endsection
 
-@push('styles')
+{{-- Hapus @push('styles') dan @push('scripts') yang memuat CDN DataTables karena sudah dimuat di template utama --}}
+{{-- @push('styles')
     <link rel="stylesheet" href="https://cdn.datatables.net/1.11.5/css/dataTables.bootstrap4.min.css">
-@endpush
+@endpush --}}
 
 @push('scripts')
-<script src="https://cdn.datatables.net/1.11.5/js/jquery.dataTables.min.js"></script>
-<script src="https://cdn.datatables.net/1.11.5/js/dataTables.bootstrap4.min.js"></script>
+{{-- <script src="https://cdn.datatables.net/1.11.5/js/jquery.dataTables.min.js"></script> --}}
+{{-- <script src="https://cdn.datatables.net/1.11.5/js/dataTables.bootstrap4.min.js"></script> --}}
 <script>
 $(document).ready(function () {
     var laporanTable = $('#laporanTable').DataTable({
@@ -66,10 +65,10 @@ $(document).ready(function () {
         serverSide: true,
         ajax: '{{ route("admin.validasi_laporan.list") }}',
         columns: [
-            { data: 'laporan_id', name: 'laporan_id' },
-            { data: 'pelapor', name: 'pelapor' },
-            { data: 'tanggal', name: 'tanggal' },
-            { data: 'status', name: 'status' },
+            { data: 'laporan_id', defaultContent: "-"},
+            { data: 'pelapor', defaultContent: "-"},
+            { data: 'tanggal', defaultContent: "-"},
+            { data: 'status', defaultContent: "-"},
             { data: 'aksi', name: 'aksi', orderable: false, searchable: false },
         ]
     });
@@ -86,11 +85,13 @@ $(document).ready(function () {
 
     window.setujuAction = function(id) {
         if (confirm('Setujui laporan ini?')) {
-            $.post("{{ url('admin/validasi_laporan') }}/" + id + "/setuju", {
+            $.post("{{ url('admin/validasi_lapor an') }}/" + id + "/setuju", {
                 _token: '{{ csrf_token() }}'
             }, function(res) {
                 alert(res.message);
                 laporanTable.ajax.reload();
+            }).fail(function(jqXHR, textStatus, errorThrown) {
+                alert('Terjadi kesalahan saat menyetujui laporan: ' + jqXHR.responseJSON.message);
             });
         }
     };
@@ -102,6 +103,8 @@ $(document).ready(function () {
             }, function(res) {
                 alert(res.message);
                 laporanTable.ajax.reload();
+            }).fail(function(jqXHR, textStatus, errorThrown) {
+                alert('Terjadi kesalahan saat menolak laporan: ' + jqXHR.responseJSON.message);
             });
         }
     };

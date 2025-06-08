@@ -146,10 +146,31 @@ Route::middleware(['authorize:2,3,4'])->group(function () {
 
 // Sarpras Management (role 5)
 Route::middleware(['authorize:5'])->group(callback: function () {
-    Route::get('/sarpras/dashboard', [SarprasController::class, 'index'])->name('sarpras.dashboard');
-    Route::get('/sarpras/profile', [SarprasController::class, 'show'])->name('sarpras.profile.show');
-    Route::get('/sarpras/profile/edit', [SarprasController::class, 'edit'])->name('sarpras.profile.edit');
-    Route::put('/sarpras/profile', [SarprasController::class, 'update'])->name('sarpras.profile.update');
+    Route::group(['prefix' => 'sarpras'], function () {
+        Route::get('/dashboard', [SarprasController::class, 'index'])->name('sarpras.dashboard');
+        Route::get('/profile', [SarprasController::class, 'show'])->name('sarpras.profile.show');
+        Route::get('/profile/edit', [SarprasController::class, 'edit'])->name('sarpras.profile.edit');
+        Route::put('/profile', [SarprasController::class, 'update'])->name('sarpras.profile.update');
+
+        // penugasan teknisi
+        Route::get('/penugasan', [SarprasController::class, 'penugasan'])->name('sarpras.penugasan');
+        Route::get('/penugasan/list', [SarprasController::class, 'tugasList'])->name('sarpras.penugasan.list');
+        Route::get('/penugasan/{tugas_id}', [SarprasController::class, 'tugasShow'])->name('sarpras.penugasan.show');
+        Route::get('/create_tugas', [SarprasController::class, 'tugasCreate'])->name('sarpras.penugasan.create');
+        Route::post('/penugasan/store', [SarprasController::class, 'tugasStore'])->name('sarpras.penugasan.store');
+        Route::get('/penugasan/{tugas_id}/edit', [SarprasController::class, 'tugasEdit'])->name('sarpras.penugasan.edit');
+        Route::put('/penugasan/{tugas_id}', [SarprasController::class, 'tugasUpdate'])->name('sarpras.penugasan.update');
+        Route::delete('/penugasan/{tugas_id}', [SarprasController::class, 'tugasDestroy'])->name('sarpras.penugasan.destroy');
+
+        // ajax chain
+        Route::get('get-ruangan/{lantai_id}', [SarprasController::class, 'getRuangan'])->name('sarpras.getRuangan');
+        Route::get('get-fasilitas/{ruangan_id}', [SarprasController::class, 'getFasilitas'])->name('sarpras.getFasilitas');
+
+        // laporan
+        Route::get('/laporan', [SarprasController::class, 'laporan'])->name('sarpras.laporan');
+        Route::POST('/laporan/list', [SarprasController::class, 'list'])->name('sarpras.laporan.list');
+        Route::get('/laporan/{laporan_id}', [SarprasController::class, 'showLaporan'])->name('sarpras.laporan.show');
+    });
 });
 
 // Rute untuk Teknisi (role 6)

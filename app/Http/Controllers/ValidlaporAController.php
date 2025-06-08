@@ -29,7 +29,7 @@ class ValidlaporAController extends Controller
 
         return DataTables::of($laporans)
             ->addColumn('pelapor', fn($laporan) => $laporan->user?->name ?? 'N/A')
-            ->addColumn('tanggal', fn($laporan) => $laporan->created_at->format('d/m/Y H:i'))
+            ->addColumn('tanggal', fn($laporan) => $laporan->created_at->format('d/m/Y H:i')) // Ini adalah kolom 'tanggal' yang akan diakses di DataTables
             ->addColumn('status', fn($laporan) => $laporan->status?->status_nama ?? 'N/A')
             ->addColumn('aksi', function ($laporan) {
                 $detailUrl = route('admin.validasi_laporan.show', $laporan->laporan_id);
