@@ -4,6 +4,7 @@ use App\Http\Controllers\AuthController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\FasilitasController;
 use App\Http\Controllers\LantaiController;
+use App\Http\Controllers\LaporanController;
 use App\Http\Controllers\PelaporController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\RoleController;
@@ -48,21 +49,19 @@ Route::middleware(['auth', 'authorize:1'])->group(function () {
         Route::get('/profile/edit', [ProfileController::class, 'edit'])->name('admin.profile.edit');
         Route::put('/profile', [ProfileController::class, 'update'])->name('admin.profile.update');
     });
+
     // User Management
-    Route::group(['prefix' => 'admin/users'], function () {
-        Route::get('/', [UserController::class, 'list'])->name('admin.users.index');
+        Route::group(['prefix' => 'admin/users'], function (): void {
+        Route::get('/', [UserController::class, 'index'])->name('admin.users.index');
+        Route::get('/list', [UserController::class, 'list'])->name('admin.users.list');
         Route::get('/create', [UserController::class, 'create'])->name('admin.users.create');
         Route::post('/', [UserController::class, 'store'])->name('admin.users.store');
-        Route::get('/{user}', [UserController::class, 'show'])->name('admin.users.show');
         Route::get('/{user}/edit', [UserController::class, 'edit'])->name('admin.users.edit');
         Route::put('/{user}', [UserController::class, 'update'])->name('admin.users.update');
         Route::delete('/{user}', [UserController::class, 'destroy'])->name('admin.users.destroy');
-        Route::get('/import', [UserController::class, 'import'])->name('admin.users.import');
-        Route::post('/import_ajax', [UserController::class, 'import_ajax'])->name('admin.users.import_ajax');  
-        Route::get('/export_excel', [UserController::class, 'export_excel'])->name('admin.users.export_excel'); 
-        Route::get('export_pdf', [UserController::class, 'export_pdf'])->name('admin.users.export_pdf');      
     });
-        // Role Management
+    
+    // Role Management
     Route::group(['prefix' => 'admin/roles'], function (): void {
         Route::get('/', [RoleController::class, 'index'])->name('admin.roles.index');
         Route::get('/list', [RoleController::class, 'list'])->name('admin.roles.list');
@@ -128,6 +127,21 @@ Route::middleware(['auth', 'authorize:1'])->group(function () {
         Route::post('/import_ajax', [FasilitasController::class, 'import_ajax'])->name('admin.fasilitas.import_ajax');   
         Route::get('/export_excel', [FasilitasController::class, 'export_excel'])->name('admin.fasilitas.export_excel');  
         Route::get('export_pdf', [FasilitasController::class, 'export_pdf'])->name('admin.fasilitas.export_pdf');       
+    });
+
+    
+      //Laporan Verifikasi
+        Route::group(['prefix' => 'admin/laporan'], function () {
+        Route::get('/', [LaporanController::class, 'index'])->name('admin.laporan.index');
+        Route::get('/list', [LaporanController::class, 'list'])->name('admin.laporan.list');
+        Route::get('/create', [LaporanController::class, 'create'])->name('admin.laporan.create');
+        Route::post('/', [LaporanController::class, 'store'])->name('admin.laporan.store');
+        Route::get('/{laporan}/edit', [LaporanController::class, 'edit'])->name('admin.laporan.edit');
+        Route::put('/{laporan}', [LaporanController::class, 'update'])->name('admin.laporan.update');
+        Route::get('/{laporan}/show', [LaporanController::class, 'show'])->name('admin.laporan.show');
+        Route::get('/{laporan}/confirm', [LaporanController::class, 'confirm'])->name('admin.laporan.confirm');
+        Route::delete('/{laporan}/delete', [LaporanController::class, 'delete'])->name('admin.laporan.delete');
+        Route::post('/{laporan}/verify', [LaporanController::class, 'verify'])->name('admin.laporan.verify');
     });
 
 

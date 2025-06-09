@@ -27,7 +27,7 @@ class RoleController extends Controller
 
      public function list(Request $request)
     {
-        $role = RoleModel::select('roles_id', 'roles_kode', 'roles_nama');
+        $role = RoleModel::select('roles_id', 'roles_kode', 'roles_nama', 'poin_roles');
 
         if ($request->rolea_id) {
             $role->where('roles_id', $request->rolea_id);
@@ -68,7 +68,8 @@ class RoleController extends Controller
             // Validate the request
             $validator = Validator::make($request->all(), [
                 'roles_kode' => 'required|string|max:5',
-                'roles_nama' => 'required|string|min:3|max:50'
+                'roles_nama' => 'required|string|min:3|max:50',
+                'poin_roles' => 'nullable|integer|min:0'
             ]);
 
             // If validation fails, return with errors
@@ -85,6 +86,7 @@ class RoleController extends Controller
                 $role = new RoleModel();
                 $role->roles_kode = $request->roles_kode;
                 $role->roles_nama = $request->roles_nama;
+                $role->poin_roles = $request->poin_roles; 
                 $role->save();
 
                 return response()->json([
@@ -108,7 +110,8 @@ class RoleController extends Controller
         if ($request->ajax() || $request->wantsJson()) {
             $rules = [
                 'roles_kode' => 'required|string|max:5',
-                'roles_nama' => 'required|string|min:3|max:50'
+                'roles_nama' => 'required|string|min:3|max:50',
+                'poin_roles' => 'nullable|integer|min:0'
             ];
 
             $validator = Validator::make($request->all(), $rules);

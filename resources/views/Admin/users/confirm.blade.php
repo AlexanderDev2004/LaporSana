@@ -1,4 +1,4 @@
-@empty($role)
+@empty($user)
     <div id="modal-master" class="modal-dialog modal-lg" role="document">
         <div class="modal-content">
             <div class="modal-header">
@@ -12,18 +12,18 @@
                     <h5><i class="icon fas fa-ban"></i> Kesalahan!!!</h5>
                     Data yang anda cari tidak ditemukan
                 </div>
-                <a href="{{ url('/role') }}" class="btn btn-warning">Kembali</a>
+                <a href="{{ route('admin.users.index') }}" class="btn btn-warning">Kembali</a>
             </div>
         </div>
     </div>
 @else
-    <form action="{{ route('admin.roles.delete', $role->roles_id) }}" method="POST" id="form-delete">
+    <form action="{{ route('admin.users.delete', $user->user_id) }}" method="POST" id="form-delete">
         @csrf
         @method('DELETE')
         <div id="modal-master" class="modal-dialog modal-lg" role="document">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h5 class="modal-title" id="exampleModalLabel">Hapus Data role</h5>
+                    <h5 class="modal-title" id="exampleModalLabel">Hapus Data User</h5>
                     <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                         <span aria-hidden="true">&times;</span>
                     </button>
@@ -31,26 +31,49 @@
                 <div class="modal-body">
                     <div class="alert alert-warning">
                         <h5><i class="icon fas fa-ban"></i> Konfirmasi !!!</h5>
-                        Apakah Anda ingin menghapus data seperti di bawah ini?
+                        Apakah Anda ingin menghapus data user seperti di bawah ini?
+                    </div>
+                    <div class="row mb-3">
+                        <div class="col-12 text-center">
+                            @if ($user->avatar)
+                                <img src="{{ asset('storage/' . $user->avatar) }}" class="img-circle elevation-2" width="100" 
+                                    height="100" alt="User Avatar">
+                            @else
+                                <img src="{{ asset('LaporSana/dist/img/user2-160x160.jpg') }}" class="img-circle elevation-2" 
+                                    width="100" height="100" alt="Default Avatar">
+                            @endif
+                        </div>
                     </div>
                     <table class="table table-sm table-bordered table-striped">
                         <tr>
-                            <th class="text-right col-3">Kode role:</th>
-                            <td class="col-9">{{ $role->roles_kode }}</td>
+                            <th class="text-right col-3">ID User :</th>
+                            <td class="col-9">{{ $user->user_id }}</td>
                         </tr>
                         <tr>
-                            <th class="text-right col-3">Nama role :</th>
-                            <td class="col-9">{{ $role->roles_nama }}</td>
+                            <th class="text-right col-3">Username :</th>
+                            <td class="col-9">{{ $user->username }}</td>
                         </tr>
                         <tr>
-                            <th class="text-right col-3">Poin :</th>
-                            <td class="col-9">{{ $role->poin_roles }}</td>
+                            <th class="text-right col-3">Nama Lengkap :</th>
+                            <td class="col-9">{{ $user->name }}</td>
+                        </tr>
+                        <tr>
+                            <th class="text-right col-3">Role :</th>
+                            <td class="col-9">{{ $user->role->roles_nama }}</td>
+                        </tr>
+                        <tr>
+                            <th class="text-right col-3">NIM :</th>
+                            <td class="col-9">{{ $user->NIM ?? '-' }}</td>
+                        </tr>
+                        <tr>
+                            <th class="text-right col-3">NIP :</th>
+                            <td class="col-9">{{ $user->NIP ?? '-' }}</td>
                         </tr>
                     </table>
                 </div>
                 <div class="modal-footer">
                     <button type="button" data-dismiss="modal" class="btn btn-warning">Batal</button>
-                    <button type="submit" class="btn btn-primary">Ya, Hapus</button>
+                    <button type="submit" class="btn btn-danger">Ya, Hapus</button>
                 </div>
             </div>
         </div>
@@ -72,7 +95,7 @@
                                     title: 'Berhasil',
                                     text: response.message
                                 });
-                                dataRoles.ajax.reload();
+                                dataUsers.ajax.reload();
                             } else {
                                 $('.error-text').text('');
                                 $.each(response.msgField, function(prefix, val) {

@@ -25,6 +25,7 @@
                         <th>ID</th>
                         <th>Kode role</th>
                         <th>Nama role</th>
+                        <th>Poin role</th>
                         <th>Aksi</th>
                     </tr>
                 </thead>
@@ -59,6 +60,7 @@
                     {data: 'DT_RowIndex', className: 'text-center', orderable: false, searchable: false},
                     {data: 'roles_kode', className: '', orderable: true, searchable: true},
                     {data: 'roles_nama', className: '', orderable: true, searchable: true},
+                    {data: 'poin_roles', className: '', orderable: true, searchable: true},
                     {data: 'aksi', className: '', orderable: false, searchable: false}
                 ]
             });

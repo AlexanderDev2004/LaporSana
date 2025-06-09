@@ -12,7 +12,7 @@ class RoleModel extends Model
     protected $table = 'm_roles';
     protected $primaryKey = 'roles_id';
     public $incrementing = true;
-    protected $fillable = ['roles_kode', 'roles_nama'];
+    protected $fillable = ['roles_kode', 'roles_nama', 'poin_roles'];
 
     public function users()
     {
