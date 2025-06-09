@@ -1,99 +1,67 @@
-@extends('layouts.admin.template')
-@section('content')
-<div class="modal-header">
-    <h5 class="modal-title">Detail Laporan #{{ $laporan->laporan_id }}</h5>
-    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-        <span aria-hidden="true">×</span>
-    </button>
-</div>
-
-<div class="modal-body">
-    <p><strong>Nama Pelapor:</strong> {{ $laporan->user->nama ?? '-' }}</p>
-    <p><strong>Status:</strong> {{ $laporan->status->status_nama ?? '-' }}</p>
-    <p><strong>Tanggal Lapor:</strong> {{ $laporan->tanggal_lapor->format('d-m-Y H:i') }}</p>
-
-    <hr>
-    <h6>Detail Kerusakan</h6>
-    <table class="table table-sm table-bordered">
-        <thead>
-            <tr>
-                <th>Fasilitas</th>
-                <th>Deskripsi</th>
-                <th>Foto</th>
-            </tr>
-        </thead>
-        <tbody>
-            @foreach ($laporan->details as $detail)
-                <tr>
-                    <td>{{ $detail->fasilitas->fasilitas_nama ?? '-' }}</td>
-                    <td>{{ $detail->deskripsi }}</td>
-                    <td>
-                        @if($detail->foto_bukti)
-                            <img src="{{ asset('storage/' . $detail->foto_bukti) }}" width="100" alt="Foto Bukti">
-                        @else
-                            <em>Tidak ada foto</em>
-                        @endif
-                    </td>
-                </tr>
-            @endforeach
-        </tbody>
-    </table>
-</div>
-
-<div class="modal-footer">
-    @if($laporan->status_id == config('constants.status_menunggu'))
-        <button type="button" class="btn btn-success" onclick="verifyLaporan('{{ $laporan->laporan_id }}', 'setujui')">Setujui</button>
-        <button type="button" class="btn btn-danger" onclick="verifyLaporan('{{ $laporan->laporan_id }}', 'tolak')">Tolak</button>
-    @endif
-    <button type="button" class="btn btn-secondary" data-dismiss="modal">Tutup</button>
-</div>
-
-<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-<script>
-    function verifyLaporan(laporanId, action) {
-        Swal.fire({
-            title: `Apakah Anda yakin ingin ${action == 'setujui' ? 'menyetujui' : 'menolak'} laporan ini?`,
-            icon: 'warning',
-            showCancelButton: true,
-            confirmButtonText: 'Ya',
-            cancelButtonText: 'Batal'
-        }).then((result) => {
-            if (result.isConfirmed) {
-                $.ajax({
-                    url: '{{ url("admin/laporan/verify") }}/' + laporanId,
-                    method: 'POST',
-                    data: {
-                        verifikasi: action,
-                        _token: '{{ csrf_token() }}'
-                    },
-                    success: function(res) {
-                        if (res.status) {
-                            Swal.fire({
-                                icon: 'success',
-                                title: 'Berhasil',
-                                text: res.message,
-                            }).then(() => {
-                                $('#laporanModal').modal('hide');
-                                $('#laporanTable').DataTable().ajax.reload();
-                            });
-                        } else {
-                            Swal.fire({
-                                icon: 'error',
-                                title: 'Gagal',
-                                text: res.message,
-                            });
-                        }
-                    },
-                    error: function() {
-                        Swal.fire({
-                            icon: 'error',
-                            title: 'Gagal',
-                            text: 'Terjadi kesalahan saat memproses laporan.',
-                        });
-                    }
-                });
-            }
-        });
-    }
-</script>
-@endsection
+@empty($laporan)
+    <div id="modal-master" class="modal-dialog modal-xl" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="exampleModalLabel">Kesalahan</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div class="alert alert-danger">
+                    <h5><i class="icon fas fa-ban"></i> Kesalahan!!!</h5>
+                    Data yang anda cari tidak ditemukan
+                </div>
+                <a href="{{ url('/laporan') }}" class="btn btn-warning">Kembali</a>
+            </div>
+        </div>
+    </div>
+@else
+    <div id="modal-master" class="modal-dialog modal-lg" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="exampleModalLabel">Detail Data Laporan</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <table class="table table-sm table-bordered table-striped">
+                    <tr>
+                        <th class="text-right col-3">ID laporan :</th>
+                        <td class="col-9">{{ $laporan->laporan_id }}</td>
+                    </tr>
+                    <tr>
+                        <th class="text-right col-3">Pelapor :</th>
+                        <td class="col-9">{{ $laporan->user->name }}</td>
+                    </tr>
+                    <tr>
+                        <th class="text-right col-3">Status :</th>
+                        <td>
+                            @php
+                                $badgeClass = 'badge badge-secondary';
+                                if ($laporan->status_id == 1)
+                                    $badgeClass = 'badge badge-warning';
+                                else if ($laporan->status_id == 2)
+                                    $badgeClass = 'badge badge-danger';
+                                else if ($laporan->status_id == 3)
+                                    $badgeClass = 'badge badge-primary';
+                                else if ($laporan->status_id == 4)
+                                    $badgeClass = 'badge badge-success';
+                            @endphp
+                            <span class="{{ $badgeClass }}">{{ $laporan->status->status_nama ?? '-' }}</span>
+                        </td>
+                    </tr>
+                    <tr>
+                        <th class="text-right col-3">Tanggal Melapor :</th>
+                        <td class="col-9">{{ $laporan->tanggal_lapor }}</td>
+                    </tr>
+                    <tr>
+                        <th class="text-right col-3">Jumlah Pelapor :</th>
+                        <td class="col-9">{{ $laporan->jumlah_pelapor }}</td>
+                    </tr>
+                </table>
+            </div>
+        </div>
+    </div>
+@endempty

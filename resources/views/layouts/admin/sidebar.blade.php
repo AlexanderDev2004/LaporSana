@@ -52,8 +52,8 @@
              </li>
              <li class="nav-header">Arsip</li>
              <li class="nav-item">
-                 <a href="{{ route('admin.validasi_laporan.index') }}"
-                     class="nav-link {{ $active_menu == 'validasi_laporan' ? 'active' : '' }}">
+                 <a href="{{ route('admin.laporan.index') }}"
+                 class="nav-link  {{ $active_menu == 'laporan' ? 'active' : '' }}">
                      <i class="nav-icon fas fa-file"></i>
                      <p>Laporan</p>
                  </a>

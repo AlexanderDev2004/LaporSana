@@ -39,6 +39,10 @@
                             <th class="text-right col-3">Nama :</th>
                             <td class="col-9">{{ $role->roles_nama }}</td>
                         </tr>
+                          <tr>
+                            <th class="text-right col-3">Poin :</th>
+                            <td class="col-9">{{ $role->poin_roles }}</td>
+                        </tr>
                     </table>
                 </div>
             </div>

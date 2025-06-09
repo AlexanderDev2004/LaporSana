@@ -19,6 +19,11 @@
                     <input type="text" name="roles_nama" id="roles_nama" class="form-control" required>
                     <small id="error-roles_nama" class="error-text form-text text-danger"></small>
                 </div>
+                 <div class="form-group">
+                    <label>Poin roles</label>
+                    <input type="text" name="poin_roles" id="poin_roles" class="form-control" required>
+                    <small id="error-poin_roles" class="error-text form-text text-danger"></small>
+                </div>
             </div>
             <div class="modal-footer">
                 <button type="button" data-dismiss="modal" class="btn btn-warning">Batal</button>
@@ -32,7 +37,8 @@
         $("#form-tambah").validate({
             rules: {
                 roles_kode: {required: true, maxlength: 5 },
-                roles_nama: {required: true, minlength: 3, maxlength: 50}
+                roles_nama: {required: true, minlength: 3, maxlength: 50},
+                poin_roles: {required: true, number: true, min: 0}
             },
             submitHandler: function(form) {
                 $.ajax({
