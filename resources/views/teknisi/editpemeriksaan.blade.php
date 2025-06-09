@@ -24,7 +24,7 @@
         <div id="modal-master" class="modal-dialog modal-lg" role="document">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h5 class="modal-title">Edit Data Perbaikan Tugas</h5>
+                    <h5 class="modal-title">Edit Data Pemeriksaan</h5>
                     <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                         <span aria-hidden="true">&times;</span>
                     </button>
@@ -40,17 +40,12 @@
 
                     <div class="form-group">
                         <label>Status</label>
-                        <select name="status_nama" id="status_nama" class="form-control" required>
-                            <option value="diproses" {{ $tugas->status->status_nama == 'diproses' ? 'selected' : '' }}>
-                                Diproses</option>
-                            <option value="selesai" {{ $tugas->status->status_nama == 'selesai' ? 'selected' : '' }}>Selesai
-                            </option>
-                        </select>
-                        <small id="error-status_nama" class="error-text form-text text-danger"></small>
+                        <input type="text" class="form-control" value="{{ ($tugas->status->status_nama) }}"
+                            readonly>
                     </div>
 
 
-                     <div class="form-group">
+                    <div class="form-group">
                         <label>Jenis Tugas</label>
                         <input type="text" class="form-control" value="{{ $tugas->tugas_jenis }}" readonly>
                     </div>
@@ -63,11 +58,44 @@
                     </div>
 
                     <div class="form-group">
-                        <label>Tanggal Selesai</label>
-                        <input value="{{ $tugas->tugas_selesai }}" type="date" name="tugas_selesai" id="tugas_selesai"
-                            class="form-control">
-                        <small id="error-tugas_selesai" class="error-text form-text text-danger"></small>
+                        <label>Tingkat Kerusakan</label>
+                        <select name="tingkat_kerusakan" id="tingkat_kerusakan" class="form-control" required>
+                            <option value="">-- Pilih Tingkat Kerusakan --</option>
+                            <option value="1" {{ $tugas->tingkat_kerusakan == 1 ? 'selected' : '' }}>1 - Tidak Parah
+                            </option>
+                            <option value="2" {{ $tugas->tingkat_kerusakan == 2 ? 'selected' : '' }}>2 - Sedikit Parah
+                            </option>
+                            <option value="3" {{ $tugas->tingkat_kerusakan == 3 ? 'selected' : '' }}>3 - Cukup Parah
+                            </option>
+                            <option value="4" {{ $tugas->tingkat_kerusakan == 4 ? 'selected' : '' }}>4 - Parah
+                            </option>
+                            <option value="5" {{ $tugas->tingkat_kerusakan == 5 ? 'selected' : '' }}>5 - Sangat Parah
+                            </option>
+                        </select>
+                        <small id="error-tingkat_kerusakan" class="error-text form-text text-danger"></small>
                     </div>
+
+
+                    <div class="form-group">
+                        <label>Foto Bukti</label>
+                        <input type="file" name="tugas_image" id="tugas_image" class="form-control" accept="image/*">
+                        @if ($tugas->tugas_image)
+                            <div class="mt-2">
+                                <img src="{{ asset('storage/' . $tugas->tugas_image) }}" alt="Foto Bukti"
+                                    style="max-width:120px;">
+                            </div>
+                        @endif
+                        <small id="error-tugas_image" class="error-text form-text text-danger"></small>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Biaya Perbaikan</label>
+                        <input value="{{ $tugas->biaya_perbaikan }}" type="text" name="biaya_perbaikan"
+                            id="biaya_perbaikan" class="form-control" onkeyup="formatRupiah(this)">
+                        <small id="error-biaya_perbaikan" class="error-text form-text text-danger"></small>
+                    </div>
+
+
                 </div>
 
                 <div class="modal-footer">
@@ -84,15 +112,14 @@
         $(document).ready(function() {
             $('#form-edit').validate({
                 rules: {
-                    status_nama: {
-                        required: true
+                    tingkat_kerusakan: {
+                        required: true,
                     },
-                    tugas_jenis: {
-                        required: true
-                    },
-                    tugas_selesai: {
+                    foto_bukti: {
                         required: false,
-                        datetime: true
+                    },
+                    foto_bukti: {
+                        required: false,
                     }
                 },
                 submitHandler: function(form) {
@@ -137,5 +164,20 @@
                 }
             });
         });
+
+        function formatRupiah(input) {
+            let value = input.value.replace(/[^,\d]/g, '').toString();
+            let split = value.split(',');
+            let sisa = split[0].length % 3;
+            let rupiah = split[0].substr(0, sisa);
+            let ribuan = split[0].substr(sisa).match(/\d{3}/gi);
+
+            if (ribuan) {
+                let separator = sisa ? '.' : '';
+                rupiah += separator + ribuan.join('.');
+            }
+            rupiah = split[1] !== undefined ? rupiah + ',' + split[1] : rupiah;
+            input.value = rupiah ? 'Rp ' + rupiah : '';
+        }
     </script>
 @endempty

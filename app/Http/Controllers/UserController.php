@@ -8,7 +8,10 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Facades\Validator;
+use PhpOffice\PhpSpreadsheet\IOFactory;
 use Yajra\DataTables\Facades\DataTables;
+use Barryvdh\DomPDF\Facade\Pdf;
 
 class UserController extends Controller
 {
@@ -34,7 +37,7 @@ class UserController extends Controller
         $users = $query->paginate(10);
         $roles = RoleModel::all();
 
-        return view('admin.users.index', compact( 'users', 'roles'));
+        return view('admin.users.index', compact('users', 'roles'));
     }
 
 
@@ -193,5 +196,151 @@ class UserController extends Controller
         $active_menu = 'users';
 
         return view('admin.users.show', compact('user', 'active_menu', 'breadcrumb'));
+    }
+
+    public function import()
+    {
+        return view('admin.users.import');
+    }
+
+    public function import_ajax(Request $request)
+    {
+        if ($request->ajax() || $request->wantsJson()) {
+            $rules = [
+                // validasi file harus xls atau xlsx, max 1MB
+                'file_users' => ['required', 'mimes:xlsx', 'max:1024']
+            ];
+
+            $validator = Validator::make($request->all(), $rules);
+
+            if ($validator->fails()) {
+                return response()->json([
+                    'status' => false,
+                    'message' => 'Validasi Gagal',
+                    'msgField' => $validator->errors()
+                ]);
+            }
+
+            $file = $request->file('file_users'); // ambil file dari request
+
+            $reader = IOFactory::createReader('Xlsx'); // load reader file excel
+            $reader->setReadDataOnly(true); // hanya membaca data
+            $spreadsheet = $reader->load($file->getRealPath()); // load file excel
+            $sheet = $spreadsheet->getActiveSheet(); // ambil sheet yang aktif
+
+            $data = $sheet->toArray(null, false, true, true); // ambil data excel
+
+            $insert = [];
+
+            if (count($data) > 1) { // jika data lebih dari 1 baris
+                foreach ($data as $baris => $value) {
+                    if ($baris > 1) { // baris ke 1 adalah header, maka lewati
+                        $insert[] = [
+                            'roles_id'      => $value['A'],
+                            'username'      => $value['B'],
+                            'name'          => $value['C'],
+                            'password'      => $value['D'],
+                            'NIM'           => $value['E'],
+                            'NIP'           => $value['F'],
+                            'avatar'        => $value['G'] ?? null, // jika ada avatar, jika tidak ada maka null
+                            'created_at'     => now(),
+                        ];
+                    }
+                }
+
+                if (count($insert) > 0) {
+                    // insert data ke database, jika data sudah ada, maka diabaikan
+                    UserModel::insertOrIgnore($insert);
+                }
+
+                return response()->json([
+                    'status'  => true,
+                    'message' => 'Data berhasil diimport'
+                ]);
+            } else {
+                return response()->json([
+                    'status'  => false,
+                    'message' => 'Tidak ada data yang diimport'
+                ]);
+            }
+        }
+
+        return redirect('/');
+    }
+
+    public function export_excel()
+    {
+        //ambil data user yang akan di export
+        $user = UserModel::select('roles_id', 'username', 'name', 'NIM', 'NIP', 'avatar')
+            ->orderBy('roles_id')
+            ->with('roles')
+            ->get();
+
+        // load library excel
+        $spreadsheet = new \PhpOffice\PhpSpreadsheet\Spreadsheet();
+        $sheet = $spreadsheet->getActiveSheet(); // ambil sheet yang aktif
+
+        $sheet->setCellValue('A1', 'No');
+        $sheet->setCellValue('B1', 'Avatar');
+        $sheet->setCellValue('C1', 'Nama Role');
+        $sheet->setCellValue('D1', 'Username');
+        $sheet->setCellValue('E1', 'Nama');
+        $sheet->setCellValue('F1', 'NIM');
+        $sheet->setCellValue('G1', 'NIP');
+
+        $sheet->getStyle('A1:G1')->getFont()->setBold(true); // bold header
+
+        $no = 1;        // nomor data dimulai dari 1
+        $baris = 2;     //baris data dimulai dari baris ke 2
+        foreach ($user as $key => $value) {
+            $sheet->setCellValue('A' . $baris, $no);
+             if ($value->avatar) {
+                $sheet->setCellValue('B' . $baris, asset('storage/' . $value->avatar));
+            } else {
+                $sheet->setCellValue('B' . $baris, 'Tidak ada avatar');
+            }
+            $sheet->setCellValue('C' . $baris, $value->roles->roles_nama);
+            $sheet->setCellValue('D' . $baris, $value->username);
+            $sheet->setCellValue('E' . $baris, $value->name);
+            $sheet->setCellValue('F' . $baris, $value->NIM);
+            $sheet->setCellValue('G' . $baris, $value->NIP);
+           
+            $baris++;
+            $no++;
+        }
+
+        foreach (range('A', 'G') as $columnID) {
+            $sheet->getColumnDimension($columnID)->setAutoSize(true); //set auto size untuk kolom
+        }
+
+        $sheet->setTitle('Data User'); // set title sheet
+        $writer = IOFactory::createWriter($spreadsheet, 'Xlsx');
+        $filename = 'Data User ' . date('Y-m-d H:i:s') . '.xlsx';
+        header('Content-Type: application/vnd. openxmlformats-officedocument.spreadsheetml.sheet');
+        header('Content-Disposition: attachment; filename="' . $filename . '"');
+        header('Cache-Control: max-age=0');
+        header('Cache-Control: max-age=1');
+        header('Expires: Mon, 26 Jul 1997 05:00:00 GMT');
+        header('Last-Modified: ' . gmdate('D, d M Y H:i:s') . ' GMT');
+        header('Cache-Control: cache, must-revalidate');
+        header('Pragma: public');
+        $writer->save('php://output');
+        exit;
+    } // end function export_excel
+
+    public function export_pdf()
+    {
+         $user = UserModel::select('roles_id', 'username', 'name', 'NIM', 'NIP', 'avatar')
+            ->orderBy('roles_id')
+            ->with('roles')
+            ->get();
+
+        //use Barryvdh\DomPDF\Facade\Pdf;
+        $pdf = Pdf::loadView('admin.users.export_pdf', ['user' => $user]);
+        $pdf->setPaper('a4', 'potrait'); //Set ukuran kertas dan orientasi
+        $pdf->setOption('isRemoteEnabled', true); // set true jika ada gambar dari url
+        $pdf->render();
+
+        return $pdf->stream('Data User ' . date('Y-m-d H:i:s') . '.pdf');
     }
 }

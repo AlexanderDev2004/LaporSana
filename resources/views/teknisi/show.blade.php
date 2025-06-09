@@ -48,8 +48,16 @@
                         </td>
                     </tr>
                      <tr>
-                        <th class="text-right col-3">Deskripsi:</th>
+                        <th class="text-right col-3">Deskripsi Kerusakan:</th>
                         <td class="col-9">{{ $tugas->deskripsi }}</td>
+                    </tr>
+                    <tr>
+                        <th class="text-right col-3">Tingkat Kerusakan:</th>
+                        <td class="col-9">{{ $tugas->tingkat_kerusakan}}</td>
+                    </tr>
+                     <tr>
+                        <th class="text-right col-3">Biaya Perbaikan:</th>
+                        <td class="col-9">{{ $tugas->biaya_perbaikan}}</td>
                     </tr>
                 </table>
                 <div class="text-right mt-4">

@@ -57,6 +57,10 @@ Route::middleware(['auth', 'authorize:1'])->group(function () {
         Route::get('/{user}/edit', [UserController::class, 'edit'])->name('admin.users.edit');
         Route::put('/{user}', [UserController::class, 'update'])->name('admin.users.update');
         Route::delete('/{user}', [UserController::class, 'destroy'])->name('admin.users.destroy');
+        Route::get('/import', [UserController::class, 'import'])->name('admin.users.import');
+        Route::post('/import_ajax', [UserController::class, 'import_ajax'])->name('admin.users.import_ajax');  
+        Route::get('/export_excel', [UserController::class, 'export_excel'])->name('admin.users.export_excel'); 
+        Route::get('export_pdf', [UserController::class, 'export_pdf'])->name('admin.users.export_pdf');      
     });
         // Role Management
     Route::group(['prefix' => 'admin/roles'], function (): void {
@@ -69,6 +73,10 @@ Route::middleware(['auth', 'authorize:1'])->group(function () {
         Route::get('/{role}/show', [RoleController::class, 'show'])->name('admin.roles.show');
         Route::get('/{role}/confirm', [RoleController::class, 'confirm'])->name('admin.roles.confirm');
         Route::delete('/{role}/delete', [RoleController::class, 'delete'])->name('admin.roles.delete');
+        Route::get('/import', [RoleController::class, 'import'])->name('admin.roles.import');
+        Route::post('/import_ajax', [RoleController::class, 'import_ajax'])->name('admin.roles.import_ajax');   
+        Route::get('/export_excel', [RoleController::class, 'export_excel'])->name('admin.roles.export_excel');  
+        Route::get('export_pdf', [RoleController::class, 'export_pdf'])->name('admin.roles.export_pdf');       
     });
 
     //Lantai Management
@@ -82,6 +90,10 @@ Route::middleware(['auth', 'authorize:1'])->group(function () {
         Route::get('/{lantai}/show', [LantaiController::class, 'show'])->name('admin.lantai.show');
         Route::get('/{lantai}/confirm', [LantaiController::class, 'confirm'])->name('admin.lantai.confirm');
         Route::delete('/{lantai}/delete', [LantaiController::class, 'delete'])->name('admin.lantai.delete');
+        Route::get('/import', [LantaiController::class, 'import'])->name('admin.lantai.import');
+        Route::post('/import_ajax', [LantaiController::class, 'import_ajax'])->name('admin.lantai.import_ajax');   
+        Route::get('/export_excel', [LantaiController::class, 'export_excel'])->name('admin.lantai.export_excel');  
+        Route::get('export_pdf', [LantaiController::class, 'export_pdf'])->name('admin.lantai.export_pdf');       
     });
 
        //Ruangan Management
@@ -95,6 +107,10 @@ Route::middleware(['auth', 'authorize:1'])->group(function () {
         Route::get('/{ruangan}/show', [RuanganController::class, 'show'])->name('admin.ruangan.show');
         Route::get('/{ruangan}/confirm', [RuanganController::class, 'confirm'])->name('admin.ruangan.confirm');
         Route::delete('/{ruangan}/delete', [RuanganController::class, 'delete'])->name('admin.ruangan.delete');
+        Route::get('/import', [RuanganController::class, 'import'])->name('admin.ruangan.import');
+        Route::post('/import_ajax', [RuanganController::class, 'import_ajax'])->name('admin.ruangan.import_ajax');  
+        Route::get('/export_excel', [RuanganController::class, 'export_excel'])->name('admin.ruangan.export_excel'); 
+        Route::get('export_pdf', [RuanganController::class, 'export_pdf'])->name('admin.ruangan.export_pdf');      
     });
 
       //Fasilitas Management
@@ -108,6 +124,10 @@ Route::middleware(['auth', 'authorize:1'])->group(function () {
         Route::get('/{fasilitas}/show', [FasilitasController::class, 'show'])->name('admin.fasilitas.show');
         Route::get('/{fasilitas}/confirm', [FasilitasController::class, 'confirm'])->name('admin.fasilitas.confirm');
         Route::delete('/{fasilitas}/delete', [FasilitasController::class, 'delete'])->name('admin.fasilitas.delete');
+        Route::get('/import', [FasilitasController::class, 'import'])->name('admin.fasilitas.import');
+        Route::post('/import_ajax', [FasilitasController::class, 'import_ajax'])->name('admin.fasilitas.import_ajax');   
+        Route::get('/export_excel', [FasilitasController::class, 'export_excel'])->name('admin.fasilitas.export_excel');  
+        Route::get('export_pdf', [FasilitasController::class, 'export_pdf'])->name('admin.fasilitas.export_pdf');       
     });
 
 
@@ -147,16 +167,18 @@ Route::middleware(['authorize:5'])->group(callback: function () {
 
 // Rute untuk Teknisi (role 6)
 Route::group(['prefix' => 'teknisi', 'middleware' => 'authorize:6'], function () {
-        Route::get('/dashboard', [TeknisiController::class, 'dashboard'])->name('teknisi.dashboard');
+        Route::get('/dashboard', [TeknisiController::class, 'dashboard'])->name('teknisi.dashboard'); 
+        Route::get('/profile', [TeknisiController::class, 'showProfile'])->name('teknisi.profile.show');
+        Route::get('/profile/edit', [TeknisiController::class, 'editProfile'])->name('teknisi.profile.edit');
+        Route::put('/profile', [TeknisiController::class, 'updateProfile'])->name('teknisi.profile.update');
         Route::get('/', [TeknisiController::class, 'index'])->name('teknisi.index');
         Route::get('/list', [TeknisiController::class, 'list'])->name('teknisi.list');
         Route::post('/', [TeknisiController::class, 'store'])->name('teknisi.store');
         Route::get('/{teknisi}/edit', [TeknisiController::class, 'edit'])->name('teknisi.edit');
+        Route::get('/{teknisi}/editpemeriksaan', [TeknisiController::class, 'edit'])->name('teknisi.editPemeriksaan');
         Route::get('/{teknisi}/show', [TeknisiController::class, 'show'])->name('teknisi.show');
         Route::put('/{teknisi}', [TeknisiController::class, 'update'])->name('teknisi.update');
         Route::get('/teknisi/riwayat', [TeknisiController::class, 'riwayat'])->name('teknisi.riwayat');
         Route::get('/teknisi/riwayat/list', [TeknisiController::class, 'riwayatList'])->name('teknisi.riwayat.list');
-         Route::get('/teknisi/profile', [TeknisiController::class, 'show'])->name('teknisi.profile.show');
-        Route::get('/teknisi/profile/edit', [TeknisiController::class, 'edit'])->name('steknisi.profile.edit');
-        Route::put('/teknisi/profile', [TeknisiController::class, 'update'])->name('teknisi.profile.update');
+        
     });

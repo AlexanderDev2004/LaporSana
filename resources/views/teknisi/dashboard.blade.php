@@ -27,31 +27,36 @@
                                                 <tr>
                                                     <th class="py-2">Fasilitas</th>
                                                     <th class="py-2">Tanggal Penugasan</th>
-                                                    <th class="py-2">Detail</th>
+                                                    <th class="py-2">Detail Tugas</th>
                                                 </tr>
                                             </thead>
                                             <tbody>
                                                 @forelse ($tugasTerbaru as $tugas)
-                                                    <td>
-                                                        @forelse ($tugas->details as $detail)
-                                                            <li>{{ $detail->fasilitas->fasilitas_nama ?? 'Tidak ada fasilitas' }}
-                                                            </li>
-                                                        @empty
-                                                            <li>Tidak ada fasilitas</li>
-                                                        @endforelse
-                                                    </td>
-                                                    <td class="py-2">
-                                                        {{ \Carbon\Carbon::parse($tugas->tugas_mulai)->format('d-m-Y') }}
-                                                    </td>
-                                                    <td class="py-2">
-                                                        <a href="{{ route('teknisi.show', $tugas->tugas_id) }}"
-                                                            class="text-primary small">Detail Laporan</a>
-                                                    </td>
+                                                    <tr>
+                                                        <td>
+                                                            @if($tugas->details->count())
+                                                                <ul class="mb-0 list-unstyled">
+                                                                    @foreach ($tugas->details as $detail)
+                                                                        <li>{{ $detail->fasilitas->fasilitas_nama ?? 'Tidak ada fasilitas' }}</li>
+                                                                    @endforeach
+                                                                </ul>
+                                                            @else
+                                                                <span class="text-muted">Tidak ada fasilitas</span>
+                                                            @endif
+                                                        </td>
+                                                        <td class="py-2">
+                                                            {{ \Carbon\Carbon::parse($tugas->tugas_mulai)->format('d-m-Y') }}
+                                                        </td>
+                                                        <td class="py-2">
+                                                            <a href="#" class="text-primary medium"
+                                                               onclick="modalAction('{{ route('teknisi.show', $tugas->tugas_id) }}'); return false;">
+                                                                Detail Tugas
+                                                            </a>
+                                                        </td>
                                                     </tr>
                                                 @empty
                                                     <tr>
-                                                        <td colspan="3" class="text-center py-2">Belum ada tugas terbaru.
-                                                        </td>
+                                                        <td colspan="3" class="text-center py-2">Belum ada tugas terbaru.</td>
                                                     </tr>
                                                 @endforelse
                                             </tbody>
@@ -79,10 +84,20 @@
             </div>
         </div>
     </div>
+    <!-- Modal untuk AJAX -->
+    <div id="myModal" class="modal fade animate shake" tabindex="-1" role="dialog" data-backdrop="static" data-keyboard="false" data-width="75%" aria-hidden="true"></div>
 
     <!-- Chart.js -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script>
+        // Fungsi untuk load detail tugas ke modal
+        function modalAction(url = '') {
+            $('#myModal').load(url, function() {
+                $('#myModal').modal('show');
+            });
+        }
+
+        // Grafik Kerusakan Bulanan
         const dataStatistik = @json(array_values($dataStatistik)); // array 12 bulan
 
         const ctx = document.getElementById('damageChart').getContext('2d');
