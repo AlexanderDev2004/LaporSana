@@ -14,7 +14,10 @@ class TugasDetail extends Model
         'tugas_id',
         'fasilitas_id',
         'tugas_image',
-        'deskripsi'
+        'deskripsi',
+        'tingkat_kerusakan',    
+        'biaya_perbaikan' 
+
     ];
 
     // Relasi dengan tugas

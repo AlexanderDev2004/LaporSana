@@ -97,7 +97,12 @@ class TeknisiController extends Controller
             ->addIndexColumn()
             ->addColumn('aksi', function ($tugas) {
                 $btn = '<button onclick="modalAction(\'' . route('teknisi.show', $tugas->tugas_id) . '\')" class="btn btn-info btn-sm mx-1"><i class="fas fa-eye"></i></button>';
-                $btn .= '<button onclick="modalAction(\'' . route('teknisi.edit', $tugas->tugas_id) . '\')" class="btn btn-warning btn-sm"><i class="fas fa-edit"></i></button>';
+                $btn .= '';
+                if ($tugas->tugas_jenis === 'pemeriksaan') {
+                    $btn .= '<button onclick="modalAction(\'' . route('teknisi.editpemeriksaan', $tugas->tugas_id) . '\')" class="btn btn-warning btn-sm"><i class="fas fa-edit"></i></button>';
+                } else {
+                    $btn .= '<button onclick="modalAction(\'' . route('teknisi.edit', $tugas->tugas_id) . '\')" class="btn btn-warning btn-sm"><i class="fas fa-edit"></i></button>';
+                }
                 return $btn;
             })
             ->rawColumns(['aksi'])
@@ -158,6 +163,7 @@ class TeknisiController extends Controller
     {
         $tugas = TugasModel::with(['status', 'user'])
             ->where('user_id', Auth::user()->user_id)
+            ->where('tugas_jenis', 'perbaikan')
             ->findOrFail($id);
 
         $breadcrumb = (object) [
@@ -165,14 +171,23 @@ class TeknisiController extends Controller
             'list'  => ['Home', 'Tugas', 'Edit']
         ];
         $active_menu = 'tugas';
+        return view('teknisi.edit', compact('breadcrumb', 'active_menu', 'tugas'));
+    }
 
-        // Pilih view sesuai jenis tugas
-        if ($tugas->tugas_jenis === 'pemeriksaan') {
-            return view('teknisi.editpemeriksaan', compact('breadcrumb', 'active_menu', 'tugas'));
-        } else {
-            // Default ke edit.blade.php untuk perbaikan atau jenis lain
-            return view('teknisi.edit', compact('breadcrumb', 'active_menu', 'tugas'));
-        }
+    public function editPemeriksaan($id)
+    {
+        $tugas = TugasModel::with(['status', 'user'])
+            ->where('user_id', Auth::user()->user_id)
+            ->where('tugas_jenis', 'pemeriksaan')
+            ->findOrFail($id);
+
+        $breadcrumb = (object) [
+            'title' => 'Edit Pemeriksaan',
+            'list'  => ['Home', 'Tugas', 'Edit Pemeriksaan']
+        ];
+        $active_menu = 'tugas';
+
+        return view('teknisi.editPemeriksaan', compact('breadcrumb', 'active_menu', 'tugas'));
     }
 
     public function update(Request $request, $id)
@@ -191,7 +206,6 @@ class TeknisiController extends Controller
         // Validasi input
         $validator = Validator::make($request->all(), [
             'tugas_selesai' => 'nullable|date|after_or_equal:tugas_mulai',
-            // validasi lain sesuai kebutuhan
         ]);
 
         if ($validator->fails()) {
@@ -212,7 +226,6 @@ class TeknisiController extends Controller
             'status_id' => $status->status_id,
             'tugas_jenis' => $jenis_tugas_baru,
             'tugas_selesai' => $request->tugas_selesai,
-            // tambahkan field lain jika perlu
         ]);
 
         return response()->json([
@@ -222,77 +235,124 @@ class TeknisiController extends Controller
     }
 
 
-    // HALAMAN
-  public function showProfile()
-{
-    // Ambil user yang sedang login dan relasi role-nya
-    $user = auth()->user()->load('role');
+    public function updatePemeriksaan(Request $request, $id)
+    {
+        // Validasi input untuk TugasDetail
+        $validator = Validator::make($request->all(), [
+            'tingkat_kerusakan' => 'required|integer|min:1|max:5',
+            'biaya_perbaikan' => 'nullable|numeric|min:0',
+            'tugas_image' => 'nullable|image|mimes:jpeg,png,jpg,gif,svg|max:2048',
+            // Jika ada validasi untuk TugasModel, misalnya status atau tugas_selesai, tambahkan di sini
+        ]);
 
-    // Buat breadcrumb
-    $breadcrumb = (object) [
-        'title' => 'Profil Saya',
-        'list'  => ['Home', 'Profil']
-    ];
+        if ($validator->fails()) {
+            return response()->json([
+                'status' => false,
+                'message' => 'Validasi gagal.',
+                'msgField' => $validator->errors()
+            ], 422);
+        }
 
-    // Aktifkan menu sidebar
-    $active_menu = 'profile';
+        // Update jenis tugas 
+        $tugas = TugasModel::findOrFail($id);
+        $tugas->update([
+            'tugas_jenis' => $tugas->tugas_jenis === 'pemeriksaan' ? 'perbaikan' : $tugas->tugas_jenis,
+        ]);
 
-    // Tampilkan view
-    return view('teknisi.profile.show', compact('user', 'breadcrumb', 'active_menu'));
-}
-
-public function editProfile()
-{
-    $user = auth()->user();
-
-    $breadcrumb = (object) [
-        'title' => 'Edit Profil Saya',
-        'list'  => ['Home', 'Profil', 'Edit']
-    ];
-
-    $active_menu = 'profile';
-
-    return view('teknisi.profile.edit', compact('user', 'active_menu', 'breadcrumb'));
-}
-
-public function updateProfile(Request $request)
-{
-    $user = auth()->user();
-
-    $validated = $request->validate([
-        // Username tidak diubah sendiri, jadi skip validasi unique username
-        'name' => 'required|string|max:100',
-        'NIM' => 'nullable|string|max:20',
-        'NIP' => 'nullable|string|max:20',
-        'avatar' => 'nullable|image|mimes:jpeg,png,jpg,gif,svg|max:2048',
-        'password' => 'nullable|string|min:6',
-    ]);
-
-    try {
-        $data = [
-            'name' => $validated['name'],
-            'NIM' => $validated['NIM'] ?? null,
-            'NIP' => $validated['NIP'] ?? null,
+       
+        $tugasDetail = TugasDetail::where('tugas_id', $tugas->tugas_id)->firstOrFail();
+        $dataDetail = [
+            'tingkat_kerusakan' => $request->tingkat_kerusakan,
+            'biaya_perbaikan' => $request->biaya_perbaikan,
         ];
 
-        if ($request->filled('password')) {
-            $data['password'] = Hash::make($validated['password']);
-        }
-
-        if ($request->hasFile('avatar')) {
-            if ($user->avatar && Storage::exists('public/' . $user->avatar)) {
-                Storage::delete('public/' . $user->avatar);
+        if ($request->hasFile('tugas_image')) {
+            if ($tugasDetail->tugas_image && Storage::exists('public/' . $tugasDetail->tugas_image)) {
+                Storage::delete('public/' . $tugasDetail->tugas_image);
             }
-            $data['avatar'] = $request->file('avatar')->store('avatars', 'public');
+            $imagePath = $request->file('tugas_image')->store('tugas_images', 'public');
+            $dataDetail['tugas_image'] = $imagePath;
         }
 
-        $user->update($data);
+        // Update data pada TugasDetail
+        $tugasDetail->update($dataDetail);
 
-        return redirect()->route('teknisi.profile.show')->with('success', 'Profil berhasil diperbarui.');
-    } catch (\Exception $e) {
-        Log::error('Gagal update profil: '.$e->getMessage());
-        return back()->withErrors(['error' => 'Gagal memperbarui profil'])->withInput();
+        return response()->json([
+            'status' => true,
+            'message' => 'Data pemeriksaan berhasil diperbarui. Silakan lanjutkan ke perbaikan.',
+        ]);
     }
-}
 
+    // HALAMAN PROFIL
+    public function showProfile()
+    {
+        // Ambil user yang sedang login dan relasi role-nya
+        $user = auth()->user()->load('role');
+
+        // Buat breadcrumb
+        $breadcrumb = (object) [
+            'title' => 'Profil Saya',
+            'list'  => ['Home', 'Profil']
+        ];
+
+        // Aktifkan menu sidebar
+        $active_menu = 'profile';
+
+        // Tampilkan view
+        return view('teknisi.profile.show', compact('user', 'breadcrumb', 'active_menu'));
+    }
+
+    public function editProfile()
+    {
+        $user = auth()->user();
+
+        $breadcrumb = (object) [
+            'title' => 'Edit Profil Saya',
+            'list'  => ['Home', 'Profil', 'Edit']
+        ];
+
+        $active_menu = 'profile';
+
+        return view('teknisi.profile.edit', compact('user', 'active_menu', 'breadcrumb'));
+    }
+
+    public function updateProfile(Request $request)
+    {
+        $user = auth()->user();
+
+        $validated = $request->validate([
+            // Username tidak diubah sendiri, jadi skip validasi unique username
+            'name' => 'required|string|max:100',
+            'NIM' => 'nullable|string|max:20',
+            'NIP' => 'nullable|string|max:20',
+            'avatar' => 'nullable|image|mimes:jpeg,png,jpg,gif,svg|max:2048',
+            'password' => 'nullable|string|min:6',
+        ]);
+
+        try {
+            $data = [
+                'name' => $validated['name'],
+                'NIM' => $validated['NIM'] ?? null,
+                'NIP' => $validated['NIP'] ?? null,
+            ];
+
+            if ($request->filled('password')) {
+                $data['password'] = Hash::make($validated['password']);
+            }
+
+            if ($request->hasFile('avatar')) {
+                if ($user->avatar && Storage::exists('public/' . $user->avatar)) {
+                    Storage::delete('public/' . $user->avatar);
+                }
+                $data['avatar'] = $request->file('avatar')->store('avatars', 'public');
+            }
+
+            $user->update($data);
+
+            return redirect()->route('teknisi.profile.show')->with('success', 'Profil berhasil diperbarui.');
+        } catch (\Exception $e) {
+            Log::error('Gagal update profil: ' . $e->getMessage());
+            return back()->withErrors(['error' => 'Gagal memperbarui profil'])->withInput();
+        }
+    }
 }

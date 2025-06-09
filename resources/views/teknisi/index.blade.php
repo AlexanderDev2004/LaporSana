@@ -32,7 +32,7 @@
             @endif
 
             {{-- Tabel Tugas --}}
-            <table id="table_tugas" class="table table-bordered table-striped table-sm table-hover">
+            <table id="table-tugas" class="table table-bordered table-striped table-sm table-hover">
                 <thead>
                     <tr>
                         <th>No</th>
@@ -62,7 +62,7 @@
         var tableTugas;
 
         $(document).ready(function() {
-            tableTugas = $('#table_tugas').DataTable({
+            tableTugas = $('#table-tugas').DataTable({
                 processing: true,
                 serverSide: true,
                 ajax: {

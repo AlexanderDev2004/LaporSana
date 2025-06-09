@@ -58,7 +58,13 @@ Route::middleware(['auth', 'authorize:1'])->group(function () {
         Route::post('/', [UserController::class, 'store'])->name('admin.users.store');
         Route::get('/{user}/edit', [UserController::class, 'edit'])->name('admin.users.edit');
         Route::put('/{user}', [UserController::class, 'update'])->name('admin.users.update');
-        Route::delete('/{user}', [UserController::class, 'destroy'])->name('admin.users.destroy');
+        Route::get('/{user}/show', [UserController::class, 'show'])->name('admin.users.show');
+        Route::get('/{user}/confirm', [UserController::class, 'confirm'])->name('admin.users.confirm');
+        Route::delete('/{user}/delete', [UserController::class, 'delete'])->name('admin.users.delete');
+         Route::get('/import', [UserController::class, 'import'])->name('admin.users.import');
+        Route::post('/import_ajax', [UserController::class, 'import_ajax'])->name('admin.users.import_ajax');   
+        Route::get('/export_excel', [UserController::class, 'export_excel'])->name('admin.users.export_excel');  
+        Route::get('export_pdf', [UserController::class, 'export_pdf'])->name('admin.users.export_pdf');  
     });
     
     // Role Management
@@ -189,9 +195,10 @@ Route::group(['prefix' => 'teknisi', 'middleware' => 'authorize:6'], function ()
         Route::get('/list', [TeknisiController::class, 'list'])->name('teknisi.list');
         Route::post('/', [TeknisiController::class, 'store'])->name('teknisi.store');
         Route::get('/{teknisi}/edit', [TeknisiController::class, 'edit'])->name('teknisi.edit');
-        Route::get('/{teknisi}/editpemeriksaan', [TeknisiController::class, 'edit'])->name('teknisi.editPemeriksaan');
+        Route::get('/{teknisi}/editpemeriksaan', [TeknisiController::class, 'editPemeriksaan'])->name('teknisi.editpemeriksaan');
         Route::get('/{teknisi}/show', [TeknisiController::class, 'show'])->name('teknisi.show');
         Route::put('/{teknisi}', [TeknisiController::class, 'update'])->name('teknisi.update');
+        Route::put('/{teknisi}/updatepemeriksaan', [TeknisiController::class, 'updatePemeriksaan'])->name('teknisi.updatepemeriksaan');
         Route::get('/teknisi/riwayat', [TeknisiController::class, 'riwayat'])->name('teknisi.riwayat');
         Route::get('/teknisi/riwayat/list', [TeknisiController::class, 'riwayatList'])->name('teknisi.riwayat.list');
         

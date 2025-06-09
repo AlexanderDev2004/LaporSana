@@ -97,27 +97,25 @@
             <thead>
                 <tr>
                     <th class="text-center">No</th>
-                    <th>Avatar</th>
                     <th>Nama Role</th>
                     <th>Username</th>
                     <th>Nama</th>
                     <th>NIM</th>
                     <th>NIP</th>
-                    
 
-                    
+
+
                 </tr>
             </thead>
             <tbody>
                 @foreach ($user as $u)
                     <tr>
                         <td class="text-center">{{ $loop->iteration }}</td>
-                        <td>{{ $u->avatar}}</td>
-                        <td>{{ $u->roles->roles_nama }}</td>
-                        <td>{{ $u->username}}</td>
+                        <td>{{ $u->role->roles_nama }}</td>
+                        <td>{{ $u->username }}</td>
                         <td>{{ $u->name }}</td>
-                        <td>{{ $u->nim }}</td>
-                        <td>{{ $u->nip }}</td>
+                        <td>{{ $u->NIM ?? '-' }}</td>
+                        <td>{{ $u->NIP ?? '-' }}</td>
                     </tr>
                 @endforeach
             </tbody>

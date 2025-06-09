@@ -11,6 +11,7 @@ use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Validator;
 use PhpOffice\PhpSpreadsheet\IOFactory;
 use Yajra\DataTables\Facades\DataTables;
+use Barryvdh\DomPDF\Facade\Pdf;
 
 class UserController extends Controller
 {
@@ -18,7 +19,7 @@ class UserController extends Controller
     {
 
 
-        $active_menu = 'dashboard';
+        $active_menu = 'users';
         $query = UserModel::with('role');
 
         if ($request->filled('role')) {
@@ -36,7 +37,11 @@ class UserController extends Controller
         $users = $query->paginate(10);
         $roles = RoleModel::all();
 
-        return view('admin.users.index', compact( 'users', 'roles'));
+        return view('admin.users.index', compact( 'users', 'roles', 'active_menu'))
+            ->with('breadcrumb', (object) [
+                'title' => 'Manajemen User',
+                'list'  => ['Home', 'User']
+            ]);
     }
 
 
@@ -125,13 +130,6 @@ class UserController extends Controller
             ]);
         }
     }
-
-    public function create()
-    {
-        $roles = RoleModel::all();
-        return view('Admin.users.create', compact('roles'));
-    }
-
 
     public function edit(UserModel $user, Request $request)
     {
@@ -395,10 +393,9 @@ class UserController extends Controller
                             'roles_id'      => $value['A'],
                             'username'      => $value['B'],
                             'name'          => $value['C'],
-                            'password'      => $value['D'],
+                            'password'      => Hash::make($value['D']),
                             'NIM'           => $value['E'],
                             'NIP'           => $value['F'],
-                            'avatar'        => $value['G'] ?? null, // jika ada avatar, jika tidak ada maka null
                             'created_at'     => now(),
                         ];
                     }
@@ -427,9 +424,9 @@ class UserController extends Controller
     public function export_excel()
     {
         //ambil data user yang akan di export
-        $user = UserModel::select('roles_id', 'username', 'name', 'NIM', 'NIP', 'avatar')
+        $user = UserModel::select('roles_id', 'username', 'name', 'NIM', 'NIP')
             ->orderBy('roles_id')
-            ->with('roles')
+            ->with('role')
             ->get();
 
         // load library excel
@@ -437,35 +434,28 @@ class UserController extends Controller
         $sheet = $spreadsheet->getActiveSheet(); // ambil sheet yang aktif
 
         $sheet->setCellValue('A1', 'No');
-        $sheet->setCellValue('B1', 'Avatar');
-        $sheet->setCellValue('C1', 'Nama Role');
-        $sheet->setCellValue('D1', 'Username');
-        $sheet->setCellValue('E1', 'Nama');
-        $sheet->setCellValue('F1', 'NIM');
-        $sheet->setCellValue('G1', 'NIP');
+        $sheet->setCellValue('B1', 'Nama Role');
+        $sheet->setCellValue('C1', 'Username');
+        $sheet->setCellValue('D1', 'Nama');
+        $sheet->setCellValue('E1', 'NIM');
+        $sheet->setCellValue('F1', 'NIP');
 
-        $sheet->getStyle('A1:G1')->getFont()->setBold(true); // bold header
+        $sheet->getStyle('A1:F1')->getFont()->setBold(true); // bold header
 
         $no = 1;        // nomor data dimulai dari 1
         $baris = 2;     //baris data dimulai dari baris ke 2
         foreach ($user as $key => $value) {
-            $sheet->setCellValue('A' . $baris, $no);
-             if ($value->avatar) {
-                $sheet->setCellValue('B' . $baris, asset('storage/' . $value->avatar));
-            } else {
-                $sheet->setCellValue('B' . $baris, 'Tidak ada avatar');
-            }
-            $sheet->setCellValue('C' . $baris, $value->roles->roles_nama);
-            $sheet->setCellValue('D' . $baris, $value->username);
-            $sheet->setCellValue('E' . $baris, $value->name);
-            $sheet->setCellValue('F' . $baris, $value->NIM);
-            $sheet->setCellValue('G' . $baris, $value->NIP);
+            $sheet->setCellValue('A' . $baris, $value->role->roles_nama);
+            $sheet->setCellValue('B' . $baris, $value->username);
+            $sheet->setCellValue('C' . $baris, $value->name);
+            $sheet->setCellValue('D' . $baris, $value->NIM);
+            $sheet->setCellValue('E' . $baris, $value->NIP);
            
             $baris++;
             $no++;
         }
 
-        foreach (range('A', 'G') as $columnID) {
+        foreach (range('A', 'E') as $columnID) {
             $sheet->getColumnDimension($columnID)->setAutoSize(true); //set auto size untuk kolom
         }
 
@@ -486,9 +476,9 @@ class UserController extends Controller
 
     public function export_pdf()
     {
-         $user = UserModel::select('roles_id', 'username', 'name', 'NIM', 'NIP', 'avatar')
+         $user = UserModel::select('roles_id', 'username', 'name', 'NIM', 'NIP')
             ->orderBy('roles_id')
-            ->with('roles')
+            ->with('role')
             ->get();
 
         //use Barryvdh\DomPDF\Facade\Pdf;
