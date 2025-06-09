@@ -4,11 +4,7 @@
     <div class="card">
         <div class="card-header">
             <h3 class="card-title">Daftar Laporan</h3>
-            <div class="card-tools">
-                <button onclick="modalAction('{{ route('admin.laporan.create') }}')" class="btn btn-primary">
-                    <i class="fas fa-plus"></i> Tambah Lantai
-                </button>
-            </div>
+    
         </div>
         <div class="card-body">
             @if (session('success'))
@@ -57,7 +53,7 @@
                     </select>
                 </div>
             `);
-            
+
             dataLaporan = $('#table_laporan').DataTable({
                 processing: true,
                 serverSide: true,
@@ -74,19 +70,19 @@
                     {data: 'DT_RowIndex', className: 'text-center', orderable: false, searchable: false},
                     {data: 'user.username', className: '', orderable: true, searchable: true},
                     {
-                        data: 'status.status_nama', 
-                        className: '', 
-                        orderable: true, 
+                        data: 'status.status_nama',
+                        className: '',
+                        orderable: true,
                         searchable: true,
                         render: function(data, type, row) {
                             let badgeClass = 'badge badge-secondary';
-                            
+
                             // Assign badge colors based on status_id
                             if (row.status_id == 1) badgeClass = 'badge badge-warning';
                             else if (row.status_id == 2) badgeClass = 'badge badge-danger';
                             else if (row.status_id == 3) badgeClass = 'badge badge-primary';
                             else if (row.status_id == 4) badgeClass = 'badge badge-success';
-                            
+
                             return '<span class="' + badgeClass + '">' + data + '</span>';
                         }
                     },
@@ -95,7 +91,7 @@
                     {data: 'aksi', className: '', orderable: false, searchable: false}
                 ]
             });
-            
+
             // Reload table when status filter changes
             $('#status_filter').on('change', function(){
                 dataLaporan.ajax.reload();

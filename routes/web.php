@@ -7,6 +7,7 @@ use App\Http\Controllers\LantaiController;
 use App\Http\Controllers\LaporanController;
 use App\Http\Controllers\PelaporController;
 use App\Http\Controllers\ProfileController;
+use App\Http\Controllers\RekomendasiPerbaikan;
 use App\Http\Controllers\RoleController;
 use App\Http\Controllers\RuanganController;
 use App\Http\Controllers\SarprasController;
@@ -186,3 +187,6 @@ Route::group(['prefix' => 'teknisi', 'middleware' => 'authorize:6'], function ()
     Route::get('/teknisi/riwayat', [TeknisiController::class, 'riwayat'])->name('teknisi.riwayat');
     Route::get('/teknisi/riwayat/list', [TeknisiController::class, 'riwayatList'])->name('teknisi.riwayat.list');
 });
+
+
+Route::get('/python', [RekomendasiPerbaikan::class, 'hitungSPK'])->name('calculate');
