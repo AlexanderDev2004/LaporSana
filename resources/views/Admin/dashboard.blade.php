@@ -153,7 +153,8 @@
                                 @foreach ($spkData as $i => $item)
                                     <tr>
                                         <td>{{ $i + 1 }}</td>
-                                        <td>{{ $fasilitasList[$item->fasilitas_id->fasilitas_nama] ?? 'Nama Tidak Ditemukan' }}</td>
+                                        <td>{{ $fasilitasList[$item->fasilitas_id] ?? $item->fasilitas->fasilitas_nama ?? 'Nama Tidak Ditemukan' }}
+                                        </td>
                                         <td>{{ number_format($item->score_ranking, 4) }}</td>
                                         <td>{{ $item->rank }}</td>
                                     </tr>
@@ -177,7 +178,7 @@
         <script src="https://cdn.jsdelivr.net/npm/chart.js@3.9.1/dist/chart.min.js"></script>
         <script>
             // Drag functionality for cards
-            document.addEventListener('DOMContentLoaded', function() {
+            document.addEventListener('DOMContentLoaded', function () {
                 const cardWrapper = document.getElementById('card-wrapper');
                 const container = document.getElementById('card-container');
                 const monthlyDamageData = @json($monthly_damage_data);
@@ -252,7 +253,7 @@
                         },
                         tooltip: {
                             callbacks: {
-                                title: function(context) {
+                                title: function (context) {
                                     const monthNames = ['Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni',
                                         'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember'
                                     ];

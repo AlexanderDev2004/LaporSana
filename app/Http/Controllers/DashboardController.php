@@ -6,6 +6,7 @@ use App\Models\LaporanModel;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Http;
+use Illuminate\Support\Facades\Log;
 
 class DashboardController extends Controller
 {
@@ -77,13 +78,14 @@ class DashboardController extends Controller
     private function getSPKData()
     {
         try {
-            $response = Http::timeout(10)->get(url('/admin/dashboard/spk'));
-            if ($response->successful()) {
-                return $response->json()['data'] ?? [];
-            }
+            // Directly query the database instead of making HTTP requests
+            return \App\Models\RekomperbaikanModel::with('fasilitas')
+                ->orderBy('rank', 'asc')
+                ->limit(5)
+                ->get();
         } catch (\Exception $e) {
+            Log::error('Error retrieving SPK data: ' . $e->getMessage());
             return [];
         }
-        return [];
     }
 }
