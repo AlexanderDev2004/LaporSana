@@ -46,7 +46,8 @@
             </table>
         </div>
     </div>
-    <div id="myModal" class="modal fade animate shake" tabindex="-1" role="dialog" data-backdrop="static" data-keyboard="false" data-width="75%" aria-hidden="true"></div>
+    <div id="myModal" class="modal fade animate shake" tabindex="-1" role="dialog" data-backdrop="static"
+        data-keyboard="false" data-width="75%" aria-hidden="true"></div>
 @endsection
 
 @push('css')
@@ -83,35 +84,38 @@
                 },
                 columns: [
                     { data: 'DT_RowIndex', className: 'text-center', orderable: false, searchable: false },
-                    { 
-                        data: 'avatar_img', 
-                        className: 'text-center', 
-                        orderable: false, 
-                        searchable: false 
+                    {
+                        data: 'avatar_img',
+                        className: 'text-center',
+                        orderable: false,
+                        searchable: false
                     },
                     { data: 'username', className: '', orderable: true, searchable: true },
                     { data: 'name', className: '', orderable: true, searchable: true },
                     { data: 'role_nama', className: '', orderable: false, searchable: true },
-                    { 
-                        data: null, 
-                        className: '', 
-                        orderable: false, 
+                    {
+                        data: null,
+                        className: '',
+                        orderable: false,
                         searchable: true,
-                        render: function(data) {
+                        render: function (data) {
+                            // Add console log to debug the value
+                            console.log('User data:', data);
+
                             if (data.NIM) return 'NIM: ' + data.NIM;
                             if (data.NIP) return 'NIP: ' + data.NIP;
                             return '-';
                         }
                     },
-                    { 
-                        data: 'aksi', 
-                        className: 'text-center', 
-                        orderable: false, 
-                        searchable: false 
+                    {
+                        data: 'aksi',
+                        className: 'text-center',
+                        orderable: false,
+                        searchable: false
                     }
                 ]
             });
-            
+
             // Filter by role
             $('#roles_id').on('change', function () {
                 dataUsers.ajax.reload();
