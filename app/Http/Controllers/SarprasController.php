@@ -112,11 +112,12 @@ public function verifikasilaporan()
 
         return view('sarpras.verifikasi', compact('breadcrumb', 'page', 'active_menu'));
     }
-    // ->where('status_id', 1) // hanya mengambil status yang sedang dalam proses
+    
     public function listLaporan(Request $request)
 {
     $laporans = LaporanModel::with(['details.fasilitas.ruangan.lantai', 'status'])
         ->orderBy('status_id', 'asc')
+        ->where('status_id', 1) // hanya mengambil status yang sedang dalam proses
         ->get();
     
     return DataTables::of($laporans)
@@ -158,6 +159,7 @@ public function verifikasilaporan()
         ->make(true);
 }
 
+
     public function showLaporan($laporan_id)
     {
         $laporan = LaporanModel::with(['details.fasilitas.ruangan.lantai', 'status'])
@@ -185,4 +187,50 @@ public function reject($laporan_id)
     return back()->with('error', 'Laporan telah ditolak.');
 }
 
+public function riwayatlaporan()
+    {
+        $breadcrumb = (object) [
+            'title' => 'Riwayat Laporan Kerusakan',
+            'list'  => ['Home', 'Riwayat Laporan']
+        ];
+
+        $page = (object) [
+            'title' => 'Daftar Riwayat Laporan Kerusakan'
+        ];
+
+        $active_menu = 'riwayat laporan';
+
+        return view('sarpras.riwayat', compact('breadcrumb', 'page', 'active_menu'));
+    }
+
+    public function listRiwayat(Request $request)
+{
+    $laporans = LaporanModel::with(['details.fasilitas.ruangan.lantai', 'status'])
+        ->where('status_id', '!=', 1) // hanya status selain 1
+        ->orderBy('status_id', 'asc')
+        ->get();
+
+    return DataTables::of($laporans)
+        ->addIndexColumn()
+        ->editColumn('status.status_nama', function ($laporan) {
+            $status = $laporan->status->status_nama ?? 'Tidak Diketahui';
+            switch ($laporan->status_id) {
+                case 2: return '<span class="badge badge-danger">' . $status . '</span>';
+                case 3: return '<span class="badge badge-info">' . $status . '</span>';
+                case 4: return '<span class="badge badge-success">' . $status . '</span>';
+                default: return '<span class="badge badge-secondary">' . $status . '</span>';
+            }
+        })
+        ->addColumn('aksi', function ($laporan) {
+            $detailUrl = route('sarpras.show', ['laporan_id' => $laporan->laporan_id]);
+            $btn = '<button onclick="modalAction(\''.$detailUrl.'\')" class="btn btn-info btn-sm">Detail</button>';
+
+            // Tambahan teks "Sudah dikonfirmasi" di samping tombol Detail
+            $btn .= '<span class="text-success ml-2">Sudah diverivikasi</span>';
+
+            return $btn;
+        })
+        ->rawColumns(['status.status_nama', 'aksi'])
+        ->make(true);
+}
 };

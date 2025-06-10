@@ -36,7 +36,12 @@
                      <p>Verifikasi Laporan</p>
                  </a>
              </li>
-
+             <li class="nav-item">
+                 <a href="{{ route('sarpras.riwayat') }}" class="nav-link {{ $active_menu == 'riwayat laporan' ? 'active' : '' }}">
+                     <i class="nav-icon fas fa-history"></i>
+                     <p>Riwayat Laporan</p>
+                 </a>
+             </li>
              <li class="nav-header">Manajemen Data Pengguna</li>
              <li class="nav-item">
                  <a href="{{ url('/') }}" class="nav-link">
