@@ -158,4 +158,40 @@ class RekomendasiPerbaikan extends Controller
 
         return view('Admin.dashboard', compact('spkData', 'fasilitasList'));
     }
+
+    // Fungsi untuk tombol "Perbarui Data"
+    public function perbaruiData(Request $request)
+{
+    try {
+        // Jalankan proses hitungSPK untuk memperbarui data ranking
+        $response = $this->hitungSPK();
+
+        // Cek jika proses hitungSPK menghasilkan error
+        if ($response instanceof \Illuminate\Http\JsonResponse) {
+            $responseData = $response->getData(true);
+            if (isset($responseData['status']) && $responseData['status'] === 'error') {
+                return redirect()->route('dashboard')->with([
+                    'error' => $responseData['message'] ?? 'Terjadi kesalahan saat memperbarui data!',
+                ]);
+            }
+        }
+
+        // Ambil data terbaru setelah update
+        $fasilitasList = FasilitasModel::pluck('fasilitas_nama', 'fasilitas_id')->toArray();
+        $spkData = RekomperbaikanModel::orderBy('rank')->get();
+
+        // Redirect ke dashboard dengan data terbaru
+        return redirect()->route('admin.dashboard')->with([
+            'spkData' => $spkData,
+            'fasilitasList' => $fasilitasList,
+            'success' => 'Data berhasil diperbarui!'
+        ]);
+
+    } catch (\Exception $e) {
+        return redirect()->route('admin.dashboard')->with([
+            'error' => 'Terjadi kesalahan: ' . $e->getMessage()
+        ]);
+    }
+}
+
 }

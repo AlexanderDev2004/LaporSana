@@ -46,7 +46,7 @@ Route::middleware(['auth', 'authorize:1'])->group(function () {
     Route::get('/admin/dashboard/spk', [DashboardController::class, 'hitungSPK']);
     // Route::get('/admin/dashboard/py', [RekomendasiPerbaikan::class, 'hitungSPK'])->name('calculate');
     Route::get('/admin/spk', [RekomendasiPerbaikan::class, 'tampilkanSPK'])->name('admin.spk');
-
+    Route::post('admin/perbarui-data', [RekomendasiPerbaikan::class, 'perbaruiData'])->name('perbarui.data');
 
     // Profile
     Route::group(['prefix' => 'admin/profile'], function () {
