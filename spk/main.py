@@ -104,54 +104,67 @@ import pandas as pd
 import numpy as np
 
 app = Flask(__name__)
-
 # ------------------- KONFIGURASI -------------------
 # Menentukan tipe kriteria: benefit atau cost
 # Mewakili asal data dari tabel-tabel di database Laravel
 kriteria_info = {
-    'Urgensi': 'benefit',           # m_fasilitas.tingkat_urgensi
-    'Kerusakan': 'benefit',         # m_tugas_detail.tingkat_kerusakan
-    'Jumlah Pelapor': 'benefit',    # jumlah laporan untuk fasilitas tersebut
-    'Biaya Perbaikan': 'cost',      # m_tugas_detail.biaya_perbaikan
-    'Poin Derajat': 'benefit'       # m_roles.poin_roles dari pelapor
+    'Urgensi': 'benefit',           # m_laporan_detail  (fasilitas_id -> tingkat_urgensi)
+    'Kerusakan': 'benefit',         # m_tugas_detail (tingkat_kerusakan)
+    'Jumlah Pelapor': 'benefit',    # m_laporan  (jumlah_pelapor)
+    'Biaya Perbaikan': 'cost',      # m_tugas_detail  (biaya_perbaikan)
+    'Poin Derajat': 'benefit'       # m_laporan  (user_id -> role -> poin_roles)
 }
 
 # ------------------- FUNGSI PSI -------------------
 # Fungsi untuk menghitung bobot kriteria berdasarkan metode PSI
 def hitung_bobot_psi(data, kriteria_info):
-    # 1. Normalisasi matriks keputusan
-    norm_matrix = data.copy()
-    for col in kriteria_info:
-        total = norm_matrix[col].sum()
-        norm_matrix[col] = norm_matrix[col] / total if total != 0 else 0
+    A = data.copy()
+    m, n = A.shape
+    print("1. Matriks Keputusan (A):\n", A)
 
-    # 2. Menghitung nilai rata-rata setiap kriteria (opsional untuk analisis)
-    rata_rata = norm_matrix.mean()
+    # 2. Normalisasi
+    R = pd.DataFrame(index=A.index, columns=A.columns)
+    for col in A.columns:
+        if kriteria_info[col] == 'benefit':
+            R[col] = A[col] / A[col].max()
+        else:
+            R[col] = A[col].min() / A[col]
 
-    # 3. Menghitung variasi preferensi (opsional)
-    variasi = norm_matrix.var(ddof=0)
+    print("\n2. Matriks Normalisasi (R):\n", R)
 
-    # 4. Deviasi nilai preferensi (standar deviasi)
-    deviasi = norm_matrix.std(ddof=0)
+    # 🔢 Total per kolom setelah normalisasi
+    R_total_per_kriteria = R.sum()
+    print("\n2b. Total per Kriteria (Jumlah Normalisasi Kolom):\n", R_total_per_kriteria)
 
-    # 5. Bobot dihitung berdasarkan proporsi deviasi
-    total_deviasi = deviasi.sum()
-    bobot = deviasi / total_deviasi if total_deviasi != 0 else np.zeros(len(deviasi))
+    # 3. Mean tiap kriteria
+    R_mean = R.mean()
+    print("\n3. Rata-rata (Ēₖ):\n", R_mean)
 
-    return dict(zip(kriteria_info.keys(), bobot))
+    # 4. Preference Variation PVj
+    PV = ((R - R_mean) ** 2).sum()
+    print("\n4. Preference Variation (PVₖ):\n", PV)
 
-# ------------------- FUNGSI EDAS -------------------
-# Fungsi untuk menghitung perangkingan menggunakan metode EDAS
+    # 5. Deviation Φj = 1 - PVj
+    PHI = 1 - PV
+    print("\n5. Deviation (Φₖ):\n", PHI)
+
+    # 6. Preference Index ψj = Φj / ΣΦ
+    psi = PHI / PHI.sum()
+    print("\n6. Overall Preference (ψₖ) - Bobot Kriteria:\n", psi)
+
+    return psi.to_dict()
 def perangkingan_edas(kriteria_data, bobot, kriteria_info, alternatif_list):
-    # 1. Matriks keputusan sudah diterima dari Laravel
     matrix = kriteria_data.copy()
+    print("\n=== [1] Matriks Keputusan ===")
+    print(matrix)
 
-    # 2. Menghitung solusi rata-rata (average solution)
+    # 2. Menghitung Solusi Rata-rata (AVG)
     avg = matrix.mean()
+    print("\n=== [2] Solusi Rata-rata (AVG) per Kriteria ===")
+    print(avg)
 
-    # 3. Hitung Positive Distance (PDA) dan Negative Distance (NDA)
+    # 3. Hitung PDA dan NDA
     pda, nda = [], []
-
     for _, row in matrix.iterrows():
         pi, ni = [], []
         for col in kriteria_info:
@@ -164,27 +177,61 @@ def perangkingan_edas(kriteria_data, bobot, kriteria_info, alternatif_list):
         pda.append(pi)
         nda.append(ni)
 
-    pda = np.array(pda)
-    nda = np.array(nda)
+    pda_df = pd.DataFrame(pda, columns=kriteria_info.keys(), index=alternatif_list)
+    nda_df = pd.DataFrame(nda, columns=kriteria_info.keys(), index=alternatif_list)
 
-    # 4. SP dan SN: total nilai positif dan negatif yang sudah diberi bobot
-    sp = pda * np.array(list(bobot.values()))
-    sn = nda * np.array(list(bobot.values()))
+    print("\n=== [3] Positive Distance from Average (PDA) ===")
+    print(pda_df)
+    print("\n=== [4] Negative Distance from Average (NDA) ===")
+    print(nda_df)
+
+    # 4. SP dan SN: Total nilai positif dan negatif yang sudah diberi bobot
+    bobot_array = np.array(list(bobot.values()))
+    sp = pda_df.values * bobot_array
+    sn = nda_df.values * bobot_array
+
+    sp_df = pd.DataFrame(sp, columns=kriteria_info.keys(), index=alternatif_list)
+    sn_df = pd.DataFrame(sn, columns=kriteria_info.keys(), index=alternatif_list)
+
+    print("\n=== [5] SP (Weighted PDA) ===")
+    print(sp_df)
+    print("\n=== [6] SN (Weighted NDA) ===")
+    print(sn_df)
+
     sum_sp = sp.sum(axis=1)
     sum_sn = sn.sum(axis=1)
 
-    # 5. Normalisasi nilai SP (NSP) dan SN (NSN)
-    nsp = sum_sp / max(sum_sp) if max(sum_sp) != 0 else sum_sp
-    nsn = 1 - (sum_sn / max(sum_sn)) if max(sum_sn) != 0 else 1 - sum_sn
+    print("\n=== [7] Total SP per Alternatif ===")
+    print(pd.Series(sum_sp, index=alternatif_list))
+    print("\n=== [8] Total SN per Alternatif ===")
+    print(pd.Series(sum_sn, index=alternatif_list))
 
-    # 6. Appraisal Score: rata-rata dari NSP dan NSN
+    # 5. Normalisasi nilai SP (NSP) dan SN (NSN)
+    max_sp = max(sum_sp) if max(sum_sp) != 0 else 1
+    max_sn = max(sum_sn) if max(sum_sn) != 0 else 1
+
+    nsp = sum_sp / max_sp
+    nsn = 1 - (sum_sn / max_sn)
+
+    print("\n=== [9] Normalized SP (NSP) ===")
+    print(pd.Series(nsp, index=alternatif_list))
+    print("\n=== [10] Normalized SN (NSN) ===")
+    print(pd.Series(nsn, index=alternatif_list))
+
+    # 6. Appraisal Score
     appraisal_score = 0.5 * nsp + 0.5 * nsn
 
-    # 7. Ranking akhir berdasarkan Appraisal Score
+    print("\n=== [11] Appraisal Score ===")
+    print(pd.Series(appraisal_score, index=alternatif_list))
+
+    # 7. Hasil akhir ranking
     results = pd.DataFrame({
         'Alternatif': alternatif_list,
         'Appraisal Score': appraisal_score
     }).sort_values(by='Appraisal Score', ascending=False)
+
+    print("\n=== [12] Hasil Perangkingan Akhir ===")
+    print(results)
 
     return results
 
@@ -195,11 +242,28 @@ def calculate_spk():
     try:
         # Terima data JSON dari Laravel
         content = request.json
+
+        # Debug isi payload
+        print("== Payload dari Laravel ==")
+        print(content)
+
+        # Pastikan kunci 'data' ada
+        if 'data' not in content:
+            return jsonify({'error': "Payload tidak mengandung kunci 'data'"}), 400
+
         data = pd.DataFrame(content['data'])
+
+        # Debug isi DataFrame awal
+        print("== DataFrame Diterima ==")
+        print(data.head())
+
+        # Cek apakah kolom 'Alternatif' ada
+        if 'Alternatif' not in data.columns:
+            return jsonify({'error': "Kolom 'Alternatif' tidak ditemukan di data"}), 400
 
         # Pisahkan nama alternatif dan data kriteria
         alternatif_list = data['Alternatif']
-        kriteria_data = data.drop(columns=['Alternatif'])
+        kriteria_data = data.drop(columns=['Alternatif', 'fasilitas_id'], errors='ignore')
 
         # 1. Hitung bobot otomatis menggunakan metode PSI
         bobot_kriteria = hitung_bobot_psi(kriteria_data, kriteria_info)
