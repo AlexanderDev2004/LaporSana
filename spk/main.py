@@ -227,9 +227,11 @@ def perangkingan_edas(kriteria_data, bobot, kriteria_info, alternatif_list):
     # 7. Hasil akhir ranking
     results = pd.DataFrame({
         'Alternatif': alternatif_list,
-        'Appraisal Score': appraisal_score
-    }).sort_values(by='Appraisal Score', ascending=False)
-
+        'AppraisalScore': appraisal_score,
+        # 'Ranking': (-appraisal_score).aegsort().argsort() + 1
+    }).sort_values(by='AppraisalScore', ascending=False)
+    results['Ranking'] = results['AppraisalScore'].rank(ascending=False, method='min').astype(int)
+    results = results.sort_values(by='AppraisalScore', ascending=False)
     print("\n=== [12] Hasil Perangkingan Akhir ===")
     print(results)
 

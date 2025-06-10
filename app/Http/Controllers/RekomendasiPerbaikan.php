@@ -2,6 +2,8 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\FasilitasModel;
+use App\Models\RekomperbaikanModel;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -102,7 +104,7 @@ class RekomendasiPerbaikan extends Controller
             $data = $fasilitasData->map(function ($item) {
                 return [
                     'fasilitas_id' => $item->fasilitas_id,
-                    'Alternatif' => $item->Alternatif,
+                    'Alternatif' => $item->fasilitas_id,
                     'Urgensi' => (float) $item->Urgensi,
                     'Kerusakan' => (float) $item->Kerusakan,
                     'Jumlah Pelapor' => (float) $item->{'Jumlah_Pelapor'},
@@ -111,16 +113,23 @@ class RekomendasiPerbaikan extends Controller
                 ];
             })->toArray();
 
-            // 4. Kirim ke Flask API
             $response = Http::timeout(10)->post('http://127.0.0.1:5001/spk/calculate', [
                 'data' => $data
             ]);
 
             if ($response->successful()) {
-                return response()->json([
-                    'status' => 'success',
-                    'data' => $response->json()
-                ]);
+                // Ambil response sebagai object, bukan array
+                $responseObject = json_decode($response->body());
+                RekomperbaikanModel::truncate();
+                // Dump hasilnya untuk debugging
+                foreach ($responseObject->ranking as $i => $item) {
+                    RekomperbaikanModel::create([
+                        'fasilitas_id' => $item->Alternatif,
+                        'rank' => $item->Ranking,
+                        'score_ranking' => $item->AppraisalScore
+                    ]);
+                }
+                // dd($responseObject->ranking);
             } else {
                 return response()->json([
                     'status' => 'error',
@@ -135,5 +144,18 @@ class RekomendasiPerbaikan extends Controller
                 'error' => $e->getMessage()
             ], 500);
         }
+
+        return response()->json([
+            'status' => 'success',
+            'data' => $response->json()
+        ]);
+    }
+
+    public function tampilkanSPK()
+    {
+        $spkData = RekomperbaikanModel::orderBy('rank')->get(); // Ambil ranking urut
+        $fasilitasList = FasilitasModel::pluck('fasilitas_nama', 'fasilitas_id')->toArray();
+
+        return view('Admin.dashboard', compact('spkData', 'fasilitasList'));
     }
 }

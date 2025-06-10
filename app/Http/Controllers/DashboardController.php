@@ -21,7 +21,17 @@ class DashboardController extends Controller
         $monthly_damage_data = $this->getMonthlyDamageData();
         $spk_data = $this->getSPKData(); // Tambahkan ini
 
-        return view('admin.dashboard', compact('breadcrumb', 'active_menu', 'card_data', 'monthly_damage_data', 'spk_data'));
+        // Ambil daftar fasilitas (id => nama)
+        $fasilitasList = \App\Models\FasilitasModel::pluck('fasilitas_nama', 'fasilitas_id')->toArray();
+
+        return view('admin.dashboard', [
+            'breadcrumb' => $breadcrumb,
+            'active_menu' => $active_menu,
+            'card_data' => $card_data,
+            'monthly_damage_data' => $monthly_damage_data,
+            'spkData' => collect($spk_data), // pastikan ini collection/array
+            'fasilitasList' => $fasilitasList
+        ]);
     }
 
     private function getCardData()
@@ -36,7 +46,7 @@ class DashboardController extends Controller
         return $data;
     }
 
-      private function getMonthlyDamageData()
+    private function getMonthlyDamageData()
     {
         $currentYear = date('Y');
         $monthlyData = [];
@@ -65,15 +75,15 @@ class DashboardController extends Controller
     }
 
     private function getSPKData()
-{
-    try {
-        $response = Http::timeout(10)->get(url('/admin/dashboard/spk'));
-        if ($response->successful()) {
-            return $response->json()['data'] ?? [];
+    {
+        try {
+            $response = Http::timeout(10)->get(url('/admin/dashboard/spk'));
+            if ($response->successful()) {
+                return $response->json()['data'] ?? [];
+            }
+        } catch (\Exception $e) {
+            return [];
         }
-    } catch (\Exception $e) {
         return [];
     }
-    return [];
-}
 }

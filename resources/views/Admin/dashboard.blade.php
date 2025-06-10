@@ -133,53 +133,51 @@
     </div>
 
     <div class="row mt-4">
-    <div class="col-12">
-        <div class="card shadow-sm">
-            <div class="card-header">
-                <h3 class="card-title">Rekomendasi Perbaikan (SPK)</h3>
-            </div>
-            <div class="card-body table-responsive">
-                <table class="table table-bordered table-hover">
-                    <thead class="thead-light">
-                        <tr>
-                            <th>No</th>
-                            <th>Alternatif</th>
-                            <th>Urgensi</th>
-                            <th>Kerusakan</th>
-                            <th>Jumlah Pelapor</th>
-                            <th>Biaya Perbaikan</th>
-                            <th>Poin Derajat</th>
-                            {{-- Tambahkan kolom lain jika ada --}}
-                        </tr>
-                    </thead>
-                    <tbody>
-                        @forelse($spk_data as $i => $row)
+        <div class="col-12">
+            <div class="card shadow-sm">
+                <div class="card-header">
+                    <h3 class="card-title">Rekomendasi Perbaikan (SPK)</h3>
+                </div>
+                <div class="card-body table-responsive">
+                    <table class="table table-bordered table-hover">
+                        <thead class="thead-light">
                             <tr>
-                                <td>{{ $i + 1 }}</td>
-                                <td>{{ $row['Alternatif'] ?? '-' }}</td>
-                                <td>{{ $row['Urgensi'] ?? '-' }}</td>
-                                <td>{{ $row['Kerusakan'] ?? '-' }}</td>
-                                <td>{{ $row['Jumlah Pelapor'] ?? '-' }}</td>
-                                <td>{{ $row['Biaya Perbaikan'] ?? '-' }}</td>
-                                <td>{{ $row['Poin Derajat'] ?? '-' }}</td>
+                                <th>No</th>
+                                <th>Nama Fasilitas</th>
+                                <th>Score Ranking</th>
+                                <th>Ranking</th>
                             </tr>
-                        @empty
-                            <tr>
-                                <td colspan="7" class="text-center">Tidak ada data rekomendasi.</td>
-                            </tr>
-                        @endforelse
-                    </tbody>
-                </table>
+                        </thead>
+                        <tbody>
+                            @if (isset($spkData) && $spkData->count() > 0)
+                                @foreach ($spkData as $i => $item)
+                                    <tr>
+                                        <td>{{ $i + 1 }}</td>
+                                        <td>{{ $fasilitasList[$item->fasilitas_id->fasilitas_nama] ?? 'Nama Tidak Ditemukan' }}</td>
+                                        <td>{{ number_format($item->score_ranking, 4) }}</td>
+                                        <td>{{ $item->rank }}</td>
+                                    </tr>
+                                @endforeach
+                            @else
+                                <tr>
+                                    <td colspan="4" class="text-center">Tidak ada data.</td>
+                                </tr>
+                            @endif
+                        </tbody>
+                    </table>
+                </div>
+
             </div>
         </div>
     </div>
-</div>
 
+    </div>
+    </div>
     @push('scripts')
         <script src="https://cdn.jsdelivr.net/npm/chart.js@3.9.1/dist/chart.min.js"></script>
         <script>
             // Drag functionality for cards
-            document.addEventListener('DOMContentLoaded', function () {
+            document.addEventListener('DOMContentLoaded', function() {
                 const cardWrapper = document.getElementById('card-wrapper');
                 const container = document.getElementById('card-container');
                 const monthlyDamageData = @json($monthly_damage_data);
@@ -220,7 +218,9 @@
                     isDown = true;
                     startX = e.touches[0].pageX - cardWrapper.offsetLeft;
                     scrollLeft = container.scrollLeft;
-                }, { passive: true });
+                }, {
+                    passive: true
+                });
 
                 cardWrapper.addEventListener('touchend', () => {
                     isDown = false;
@@ -231,7 +231,9 @@
                     const x = e.touches[0].pageX - cardWrapper.offsetLeft;
                     const walk = (x - startX) * 2;
                     container.scrollLeft = scrollLeft - walk;
-                }, { passive: true });
+                }, {
+                    passive: true
+                });
 
                 const chartOptions = {
                     responsive: true,
@@ -250,9 +252,10 @@
                         },
                         tooltip: {
                             callbacks: {
-                                title: function (context) {
+                                title: function(context) {
                                     const monthNames = ['Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni',
-                                        'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember'];
+                                        'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember'
+                                    ];
                                     return monthNames[context[0].dataIndex];
                                 }
                             }
@@ -265,7 +268,9 @@
                 new Chart(damageChart, {
                     type: 'bar',
                     data: {
-                        labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'],
+                        labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov',
+                            'Dec'
+                        ],
                         datasets: [{
                             label: 'Jumlah Fasilitas',
                             data: monthlyDamageData,

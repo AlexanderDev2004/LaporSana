@@ -43,7 +43,10 @@ Route::get('logout', [AuthController::class, 'logout'])->middleware('auth')->nam
 // Rute untuk Admin (role 1)
 Route::middleware(['auth', 'authorize:1'])->group(function () {
     Route::get('/admin/dashboard', [DashboardController::class, 'index'])->name('admin.dashboard');
-    Route::get('/admin/dashboard/spk', [RekomendasiPerbaikan::class, 'hitungSPK'])->name('calculate');
+    Route::get('/admin/dashboard/spk', [DashboardController::class, 'hitungSPK']);
+    // Route::get('/admin/dashboard/py', [RekomendasiPerbaikan::class, 'hitungSPK'])->name('calculate');
+    Route::get('/admin/spk', [RekomendasiPerbaikan::class, 'tampilkanSPK'])->name('admin.spk');
+
 
     // Profile
     Route::group(['prefix' => 'admin/profile'], function () {
@@ -53,7 +56,7 @@ Route::middleware(['auth', 'authorize:1'])->group(function () {
     });
 
     // User Management
-        Route::group(['prefix' => 'admin/users'], function (): void {
+    Route::group(['prefix' => 'admin/users'], function (): void {
         Route::get('/', [UserController::class, 'index'])->name('admin.users.index');
         Route::get('/list', [UserController::class, 'list'])->name('admin.users.list');
         Route::get('/create', [UserController::class, 'create'])->name('admin.users.create');
@@ -127,8 +130,8 @@ Route::middleware(['auth', 'authorize:1'])->group(function () {
         Route::get('/admin/validasi-laporan/list', [ValidlaporAController::class, 'list'])->name('admin.validasi_laporan.list');
     });
 
-      //Laporan Verifikasi
-        Route::group(['prefix' => 'admin/laporan'], function () {
+    //Laporan Verifikasi
+    Route::group(['prefix' => 'admin/laporan'], function () {
         Route::get('/', [LaporanController::class, 'index'])->name('admin.laporan.index');
         Route::get('/list', [LaporanController::class, 'list'])->name('admin.laporan.list');
         Route::get('/create', [LaporanController::class, 'create'])->name('admin.laporan.create');
@@ -140,8 +143,6 @@ Route::middleware(['auth', 'authorize:1'])->group(function () {
         Route::delete('/{laporan}/delete', [LaporanController::class, 'delete'])->name('admin.laporan.delete');
         Route::post('/{laporan}/verify', [LaporanController::class, 'verify'])->name('admin.laporan.verify');
     });
-
-
 });
 
 
@@ -190,4 +191,4 @@ Route::group(['prefix' => 'teknisi', 'middleware' => 'authorize:6'], function ()
 });
 
 
-// Route::get('/python', [RekomendasiPerbaikan::class, 'hitungSPK'])->name('calculate');
+Route::get('/python', [RekomendasiPerbaikan::class, 'hitungSPK'])->name('calculate');

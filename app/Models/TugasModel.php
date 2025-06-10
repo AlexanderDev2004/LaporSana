@@ -16,7 +16,8 @@ class TugasModel extends Model
         'status_id',
         'tugas_jenis',
         'tugas_mulai',
-        'tugas_selesai'
+        'tugas_selesai',
+        'laporan_id'
     ];
 
     // Relasi dengan detail tugas
