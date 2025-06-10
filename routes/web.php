@@ -43,6 +43,7 @@ Route::get('logout', [AuthController::class, 'logout'])->middleware('auth')->nam
 // Rute untuk Admin (role 1)
 Route::middleware(['auth', 'authorize:1'])->group(function () {
     Route::get('/admin/dashboard', [DashboardController::class, 'index'])->name('admin.dashboard');
+    Route::get('/admin/dashboard/spk', [RekomendasiPerbaikan::class, 'hitungSPK'])->name('calculate');
 
     // Profile
     Route::group(['prefix' => 'admin/profile'], function () {
@@ -189,4 +190,4 @@ Route::group(['prefix' => 'teknisi', 'middleware' => 'authorize:6'], function ()
 });
 
 
-Route::get('/python', [RekomendasiPerbaikan::class, 'hitungSPK'])->name('calculate');
+// Route::get('/python', [RekomendasiPerbaikan::class, 'hitungSPK'])->name('calculate');

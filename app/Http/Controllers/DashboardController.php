@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\LaporanModel;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Http;
 
 class DashboardController extends Controller
 {
@@ -18,10 +19,11 @@ class DashboardController extends Controller
         $active_menu = 'dashboard';
         $card_data = $this->getCardData();
         $monthly_damage_data = $this->getMonthlyDamageData();
+        $spk_data = $this->getSPKData(); // Tambahkan ini
 
-        return view('admin.dashboard', compact('breadcrumb', 'active_menu', 'card_data', 'monthly_damage_data'));
+        return view('admin.dashboard', compact('breadcrumb', 'active_menu', 'card_data', 'monthly_damage_data', 'spk_data'));
     }
-    
+
     private function getCardData()
     {
         $data = [
@@ -38,12 +40,12 @@ class DashboardController extends Controller
     {
         $currentYear = date('Y');
         $monthlyData = [];
-        
+
         // Inisialisasi array untuk 12 bulan (0-11 untuk index JavaScript)
         for ($i = 1; $i <= 12; $i++) {
             $monthlyData[$i] = 0;
         }
-        
+
         // Query untuk menghitung jumlah fasilitas yang dilaporkan per bulan tahun ini
         // Menggunakan join antara m_laporan dan m_laporan_detail
         $reports = DB::table('m_laporan')
@@ -52,13 +54,26 @@ class DashboardController extends Controller
             ->whereYear('tanggal_lapor', $currentYear)
             ->groupBy('month')
             ->get();
-        
+
         // Mengisi data ke array hasil
         foreach ($reports as $report) {
             $monthlyData[$report->month] = $report->total;
         }
-        
+
         // Mengembalikan array values saja (tanpa key)
         return array_values($monthlyData);
     }
+
+    private function getSPKData()
+{
+    try {
+        $response = Http::timeout(10)->get(url('/admin/dashboard/spk'));
+        if ($response->successful()) {
+            return $response->json()['data'] ?? [];
+        }
+    } catch (\Exception $e) {
+        return [];
+    }
+    return [];
+}
 }

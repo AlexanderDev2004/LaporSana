@@ -70,71 +70,70 @@ class RekomendasiPerbaikan extends Controller
     //     return response()->json($result);
     // }
 
-  public function hitungSPK()
-{
-    try {
-        // 1. Ambil 5 laporan dengan jumlah pelapor terbanyak
-        $topLaporanIDs = DB::table('m_laporan')
-            ->select('laporan_id')
-            ->orderByDesc('jumlah_pelapor')
-            ->limit(5)
-            ->pluck('laporan_id')
-            ->toArray();
+    public function hitungSPK()
+    {
+        try {
+            // 1. Ambil 5 laporan dengan jumlah pelapor terbanyak
+            $topLaporanIDs = DB::table('m_laporan')
+                ->select('laporan_id')
+                ->orderByDesc('jumlah_pelapor')
+                ->limit(5)
+                ->pluck('laporan_id')
+                ->toArray();
 
-        // 2. Ambil fasilitas terkait dari laporan_detail
-        $fasilitasData = DB::table('m_laporan_detail')
-            ->join('m_fasilitas', 'm_laporan_detail.fasilitas_id', '=', 'm_fasilitas.fasilitas_id')
-            ->whereIn('m_laporan_detail.laporan_id', $topLaporanIDs)
-            ->select(
-                'm_fasilitas.fasilitas_id',
-                'm_fasilitas.fasilitas_nama as Alternatif',
-                'm_fasilitas.tingkat_urgensi as Urgensi',
-                DB::raw('(SELECT tingkat_kerusakan FROM m_tugas_detail WHERE fasilitas_id = m_fasilitas.fasilitas_id LIMIT 1) as Kerusakan'),
-                DB::raw('(SELECT biaya_perbaikan FROM m_tugas_detail WHERE fasilitas_id = m_fasilitas.fasilitas_id LIMIT 1) as Biaya_Perbaikan'),
-                DB::raw('(SELECT poin_roles FROM m_roles WHERE roles_id = (SELECT roles_id FROM m_user WHERE user_id = (SELECT user_id FROM m_laporan WHERE laporan_id = m_laporan_detail.laporan_id LIMIT 1) LIMIT 1) LIMIT 1) as Poin_Derajat'),
-                DB::raw('(SELECT jumlah_pelapor FROM m_laporan WHERE laporan_id = m_laporan_detail.laporan_id LIMIT 1) as Jumlah_Pelapor')
-            )
-            ->groupBy('m_fasilitas.fasilitas_id', 'm_fasilitas.fasilitas_nama', 'm_fasilitas.tingkat_urgensi', 'm_laporan_detail.laporan_id')
-            ->limit(5) // Batasi 5 fasilitas saja
-            ->get();
+            // 2. Ambil fasilitas terkait dari laporan_detail
+            $fasilitasData = DB::table('m_laporan_detail')
+                ->join('m_fasilitas', 'm_laporan_detail.fasilitas_id', '=', 'm_fasilitas.fasilitas_id')
+                ->whereIn('m_laporan_detail.laporan_id', $topLaporanIDs)
+                ->select(
+                    'm_fasilitas.fasilitas_id',
+                    'm_fasilitas.fasilitas_nama as Alternatif',
+                    'm_fasilitas.tingkat_urgensi as Urgensi',
+                    DB::raw('(SELECT tingkat_kerusakan FROM m_tugas_detail WHERE fasilitas_id = m_fasilitas.fasilitas_id LIMIT 1) as Kerusakan'),
+                    DB::raw('(SELECT biaya_perbaikan FROM m_tugas_detail WHERE fasilitas_id = m_fasilitas.fasilitas_id LIMIT 1) as Biaya_Perbaikan'),
+                    DB::raw('(SELECT poin_roles FROM m_roles WHERE roles_id = (SELECT roles_id FROM m_user WHERE user_id = (SELECT user_id FROM m_laporan WHERE laporan_id = m_laporan_detail.laporan_id LIMIT 1) LIMIT 1) LIMIT 1) as Poin_Derajat'),
+                    DB::raw('(SELECT jumlah_pelapor FROM m_laporan WHERE laporan_id = m_laporan_detail.laporan_id LIMIT 1) as Jumlah_Pelapor')
+                )
+                ->groupBy('m_fasilitas.fasilitas_id', 'm_fasilitas.fasilitas_nama', 'm_fasilitas.tingkat_urgensi', 'm_laporan_detail.laporan_id')
+                ->limit(5) // Batasi 5 fasilitas saja
+                ->get();
 
-        // 3. Format data untuk API Flask
-        $data = $fasilitasData->map(function ($item) {
-            return [
-                'fasilitas_id' => $item->fasilitas_id,
-                'Alternatif' => $item->Alternatif,
-                'Urgensi' => (float) $item->Urgensi,
-                'Kerusakan' => (float) $item->Kerusakan,
-                'Jumlah Pelapor' => (float) $item->{'Jumlah_Pelapor'},
-                'Biaya Perbaikan' => (float) $item->{'Biaya_Perbaikan'},
-                'Poin Derajat' => (float) $item->{'Poin_Derajat'},
-            ];
-        })->toArray();
+            // 3. Format data untuk API Flask
+            $data = $fasilitasData->map(function ($item) {
+                return [
+                    'fasilitas_id' => $item->fasilitas_id,
+                    'Alternatif' => $item->Alternatif,
+                    'Urgensi' => (float) $item->Urgensi,
+                    'Kerusakan' => (float) $item->Kerusakan,
+                    'Jumlah Pelapor' => (float) $item->{'Jumlah_Pelapor'},
+                    'Biaya Perbaikan' => (float) $item->{'Biaya_Perbaikan'},
+                    'Poin Derajat' => (float) $item->{'Poin_Derajat'},
+                ];
+            })->toArray();
 
-        // 4. Kirim ke Flask API
-        $response = Http::timeout(10)->post('http://127.0.0.1:5001/spk/calculate', [
-            'data' => $data
-        ]);
-
-        if ($response->successful()) {
-            return response()->json([
-                'status' => 'success',
-                'data' => $response->json()
+            // 4. Kirim ke Flask API
+            $response = Http::timeout(10)->post('http://127.0.0.1:5001/spk/calculate', [
+                'data' => $data
             ]);
-        } else {
+
+            if ($response->successful()) {
+                return response()->json([
+                    'status' => 'success',
+                    'data' => $response->json()
+                ]);
+            } else {
+                return response()->json([
+                    'status' => 'error',
+                    'message' => 'Gagal menghubungi server Flask',
+                    'error' => $response->body()
+                ], $response->status());
+            }
+        } catch (\Exception $e) {
             return response()->json([
                 'status' => 'error',
-                'message' => 'Gagal menghubungi server Flask',
-                'error' => $response->body()
-            ], $response->status());
+                'message' => 'Terjadi kesalahan saat menghitung SPK',
+                'error' => $e->getMessage()
+            ], 500);
         }
-
-    } catch (\Exception $e) {
-        return response()->json([
-            'status' => 'error',
-            'message' => 'Terjadi kesalahan saat menghitung SPK',
-            'error' => $e->getMessage()
-        ], 500);
     }
-}
 }
