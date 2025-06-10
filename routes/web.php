@@ -145,8 +145,6 @@ Route::middleware(['authorize:5'])->group(callback: function () {
         Route::get('sarpras/laporan/{laporan_id}', [SarprasController::class, 'showLaporan'])->name('sarpras.show');
         Route::post('sarpras/laporan/{laporan_id}/approve', [SarprasController::class, 'approve'])->name('sarpras.approve');
         Route::post('sarpras/laporan/{laporan_id}/reject', [SarprasController::class, 'reject'])->name('sarpras.reject');
-        Route::get('sarpras/riwayat_laporan', [SarprasController::class, 'riwayatlaporan'])->name('sarpras.riwayat');
-        Route::get('sarpras/riwayat/list_riwayat', [SarprasController::class, 'listRiwayat'])->name('sarpras.list.Riwayat');
 });
 
 Route::group(['prefix' => 'teknisi', 'middleware' => 'authorize:6'], function () {
