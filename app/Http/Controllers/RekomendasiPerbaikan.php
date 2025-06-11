@@ -6,6 +6,7 @@ use App\Models\FasilitasModel;
 use App\Models\RekomperbaikanModel;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 
 class RekomendasiPerbaikan extends Controller
@@ -166,32 +167,44 @@ class RekomendasiPerbaikan extends Controller
     public function perbaruiData(Request $request)
 {
     try {
-        // Jalankan proses hitungSPK untuk memperbarui data ranking
         $response = $this->hitungSPK();
 
-        // Cek jika proses hitungSPK menghasilkan error
         if ($response instanceof \Illuminate\Http\JsonResponse) {
             $responseData = $response->getData(true);
             if (isset($responseData['status']) && $responseData['status'] === 'error') {
-                return redirect()->route('dashboard')->with([
+                return redirect()->back()->with([
                     'error' => $responseData['message'] ?? 'Terjadi kesalahan saat memperbarui data!',
                 ]);
             }
         }
 
-        // Ambil data terbaru setelah update
         $fasilitasList = FasilitasModel::pluck('fasilitas_nama', 'fasilitas_id')->toArray();
         $spkData = RekomperbaikanModel::orderBy('rank')->get();
 
-        // Redirect ke dashboard dengan data terbaru
-        return redirect()->route('admin.dashboard')->with([
-            'spkData' => $spkData,
-            'fasilitasList' => $fasilitasList,
-            'success' => 'Data berhasil diperbarui!'
-        ]);
+        // Ambil role user yang sedang login
+        $userRole = Auth::user()->role_id; // Pastikan field-nya benar
+
+        // Redirect sesuai role
+        if ($userRole == 1) {
+            return redirect()->route('admin.dashboard')->with([
+                'spkData' => $spkData,
+                'fasilitasList' => $fasilitasList,
+                'success' => 'Data berhasil diperbarui!'
+            ]);
+        } elseif ($userRole == 5) {
+            return redirect()->route('sarpras.dashboard')->with([
+                'spkData' => $spkData,
+                'fasilitasList' => $fasilitasList,
+                'success' => 'Data berhasil diperbarui!'
+            ]);
+        } else {
+            return redirect()->back()->with([
+                'error' => 'Role tidak dikenali.'
+            ]);
+        }
 
     } catch (\Exception $e) {
-        return redirect()->route('admin.dashboard')->with([
+        return redirect()->back()->with([
             'error' => 'Terjadi kesalahan: ' . $e->getMessage()
         ]);
     }
