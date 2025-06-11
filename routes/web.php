@@ -121,13 +121,12 @@ Route::middleware(['auth', 'authorize:1'])->group(function () {
         Route::delete('/{fasilitas}/delete', [FasilitasController::class, 'delete'])->name('admin.fasilitas.delete');
     });
 
-    //Laporan Verifikasi
-   Route::group(['prefix' => 'admin/validasi_laporan'], function () {
-    Route::get('/', [LaporanController::class, 'index'])->name('admin.validasi_laporan.index');
-    Route::get('/list', [LaporanController::class, 'list'])->name('admin.validasi_laporan.list');
-    Route::get('/{laporan}/show', [LaporanController::class, 'show'])->name('admin.validasi_laporan.show');
-    Route::post('/{laporan}/verify', [LaporanController::class, 'verify'])->name('admin.validasi_laporan.verify');
-
+        //Laporan Verifikasi
+    Route::group(['prefix' => 'admin/validasi_laporan'], function () {
+        Route::get('/', [LaporanController::class, 'index'])->name('admin.validasi_laporan.index');
+        Route::get('/list', [LaporanController::class, 'list'])->name('admin.validasi_laporan.list');
+        Route::get('/{laporan}/show', [LaporanController::class, 'show'])->name('admin.validasi_laporan.show');
+        Route::post('/{laporan}/verify', [LaporanController::class, 'verify'])->name('admin.validasi_laporan.verify');
     });
 });
 
