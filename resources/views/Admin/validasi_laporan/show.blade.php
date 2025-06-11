@@ -132,79 +132,73 @@
 
     <!-- Script untuk konfirmasi sweetalert -->
     @if($laporan->status_id == 1)
-        <script>
-            function konfirmasiVerifikasi(tipe, laporanId) {
-                let title, text, confirmButtonText, confirmButtonColor;
+        <!-- filepath: e:\Software\laragon\www\LaporSana\resources\views\Admin\validasi_laporan\show.blade.php -->
+<script>
+    function konfirmasiVerifikasi(tipe, laporanId) {
+        let title, text, confirmButtonText, confirmButtonColor;
+        
+        if (tipe === 'setuju') {
+            title = 'Setujui Laporan?';
+            text = 'Laporan akan disetujui dan status akan diubah menjadi "Disetujui"';
+            confirmButtonText = 'Ya, Setujui!';
+            confirmButtonColor = '#28a745';
+        } else {
+            title = 'Tolak Laporan?';
+            text = 'Laporan akan ditolak dan status akan diubah menjadi "Ditolak"';
+            confirmButtonText = 'Ya, Tolak!';
+            confirmButtonColor = '#dc3545';
+        }
 
-                if (tipe === 'setuju') {
-                    title = 'Setujui Laporan?';
-                    text = 'Laporan akan disetujui dan status akan diubah menjadi "Disetujui"';
-                    confirmButtonText = 'Ya, Setujui!';
-                    confirmButtonColor = '#28a745';
-                } else {
-                    title = 'Tolak Laporan?';
-                    text = 'Laporan akan ditolak dan status akan diubah menjadi "Ditolak"';
-                    confirmButtonText = 'Ya, Tolak!';
-                    confirmButtonColor = '#dc3545';
-                }
-
-                Swal.fire({
-                    title: title,
-                    text: text,
-                    icon: 'warning',
-                    showCancelButton: true,
-                    confirmButtonColor: confirmButtonColor,
-                    cancelButtonColor: '#6c757d',
-                    confirmButtonText: confirmButtonText,
-                    cancelButtonText: 'Batal'
-                }).then((result) => {
-                    if (result.isConfirmed) {
-                        // Kirim request AJAX ke controller dengan URL yang benar
-                        $.ajax({
-                            url: "/admin/laporan/" + laporanId + "/verify",  // Fix the URL format
-                            type: 'POST',
-                            data: {
-                                _token: "{{ csrf_token() }}",
-                                verifikasi: tipe === 'setuju' ? 'setuju' : 'tolak'
-                            },
-                            success: function (response) {
-                                if (response.status) {
-                                    Swal.fire(
-                                        'Berhasil!',
-                                        response.message,
-                                        'success'
-                                    ).then(() => {
-                                        // Close the modal using the correct ID from index.blade.php
-                                        $('#myModal').modal('hide');
-
-                                        // Refresh datatable using the correct variable from index.blade.php
-                                        if (typeof dataLaporan !== 'undefined') {
-                                            dataLaporan.ajax.reload();
-                                        } else {
-                                            // Fallback if dataLaporan is not available in this context
-                                            $('#table_laporan').DataTable().ajax.reload();
-                                        }
-                                    });
-                                } else {
-                                    Swal.fire(
-                                        'Gagal!',
-                                        response.message,
-                                        'error'
-                                    );
-                                }
-                            },
-                            error: function (xhr, status, error) {
-                                console.error(xhr.responseText);  // Log any error messages for debugging
-                                Swal.fire(
-                                    'Error!',
-                                    'Terjadi kesalahan pada server. Detail: ' + error,
-                                    'error'
-                                );
-                            }
-                        });
+        Swal.fire({
+            title: title,
+            text: text,
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: confirmButtonColor,
+            cancelButtonColor: '#6c757d',
+            confirmButtonText: confirmButtonText,
+            cancelButtonText: 'Batal'
+        }).then((result) => {
+            if (result.isConfirmed) {
+                // Kirim request AJAX ke controller dengan URL yang benar
+                $.ajax({
+                    url: "{{ route('admin.validasi_laporan.verify', $laporan->laporan_id) }}", 
+                    type: 'POST',
+                    data: {
+                        _token: "{{ csrf_token() }}",
+                        verifikasi: tipe === 'setuju' ? 'setuju' : 'tolak'
+                    },
+                    success: function(response) {
+                        if (response.status) {
+                            Swal.fire(
+                                'Berhasil!',
+                                response.message,
+                                'success'
+                            ).then(() => {
+                                // Refresh datatable dan tutup modal
+                                $('#modal-action').modal('hide');
+                                $('#datatable').DataTable().ajax.reload();
+                            });
+                        } else {
+                            Swal.fire(
+                                'Gagal!',
+                                response.message,
+                                'error'
+                            );
+                        }
+                    },
+                    error: function(xhr, status, error) {
+                        console.error(xhr.responseText);  // Log any error messages for debugging
+                        Swal.fire(
+                            'Error!',
+                            'Terjadi kesalahan pada server. Detail: ' + error,
+                            'error'
+                        );
                     }
                 });
             }
-        </script>
+        });
+    }
+</script>
     @endif
 @endempty
