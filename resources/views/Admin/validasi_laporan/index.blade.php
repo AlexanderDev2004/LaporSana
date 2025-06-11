@@ -1,23 +1,30 @@
 @extends('layouts.admin.template')
 
-@section('title', 'Validasi Laporan')
-
 @section('content')
     <div class="container-fluid">
-        <h1 class="h3 mb-4 text-gray-800">Validasi Laporan</h1>
         <div class="card shadow mb-4">
-            <div class="card-header py-3">
-                <h6 class="m-0 font-weight-bold text-primary">Daftar Laporan Masuk</h6>
+            <div class="card-header py-3 d-flex justify-content-between align-items-center">
+                <div class="form-inline">
+                    <label class="mr-2" for="status_filter">Filter Status:</label>
+                    <select id="status_filter" class="form-control form-control-sm">
+                        <option value="">Semua Status</option>
+                        <option value="1">Menunggu Verifikasi</option>
+                        <option value="2">Ditolak</option>
+                        <option value="3">Diproses</option>
+                        <option value="5">Disetujui</option>
+                    </select>
+                </div>
             </div>
             <div class="card-body">
                 <div class="table-responsive">
                     <table id="laporanTable" class="table table-bordered" width="100%" cellspacing="0">
                         <thead>
                             <tr>
-                                <th>ID Laporan</th>
+                                <th>ID</th>
                                 <th>Pelapor</th>
-                                <th>Tanggal Lapor</th>
                                 <th>Status</th>
+                                <th>Tanggal Lapor</th>
+                                <th>Jumlah Pelapor</th>
                                 <th>Aksi</th>
                             </tr>
                         </thead>
@@ -28,116 +35,75 @@
         </div>
     </div>
 
-    <!-- Modal Detail Laporan -->
-    <div class="modal fade" id="detailLaporanModal" tabindex="-1" role="dialog" aria-labelledby="detailLaporanModalLabel"
-        aria-hidden="true">
-        <div class="modal-dialog modal-lg" role="document">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title" id="detailLaporanModalLabel">Detail Laporan</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                </div>
-                <div class="modal-body" id="modalContent">
-                    <p>Memuat...</p>
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Tutup</button>
-                </div>
-            </div>
-        </div>
+    <!-- Modal untuk menampilkan detail laporan -->
+    <div class="modal fade" id="myModal" tabindex="-1" role="dialog" aria-hidden="true">
+        <!-- Konten modal akan dimuat secara dinamis -->
     </div>
 @endsection
 
-@push('styles')
-    <link rel="stylesheet" href="https://cdn.datatables.net/1.13.6/css/dataTables.bootstrap5.min.css">
-@endpush
-
 @push('scripts')
-    <script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
-    <script src="https://cdn.datatables.net/1.13.6/js/dataTables.bootstrap5.min.js"></script>
     <script>
-        $(document).ready(function() {
-            var laporanTable = $('#laporanTable').DataTable({
+        function modalAction(url = '') {
+            $('#myModal').load(url, function () {
+                $('#myModal').modal('show');
+            });
+        }
+
+        var dataLaporan; // Mengubah nama variabel agar konsisten dengan show.blade.php
+        $(document).ready(function () {
+            dataLaporan = $('#laporanTable').DataTable({                       
                 processing: true,
                 serverSide: true,
-                ajax: '{{ route('admin.validasi_laporan.list') }}',
-                columns: [{
-                        data: 'laporan_id',
-                        name: 'laporan_id'
+                responsive: true,
+                
+                ajax: {
+                    "url": "{{ route('admin.validasi_laporan.list') }}", // Mengubah URL ke route yang benar
+                    "dataType": "json",
+                    "type": "GET",
+                    "data": function (d) {
+                        d.status_id = $('#status_filter').val();
                     },
-                    {
-                        data: 'pelapor',
-                        name: 'pelapor'
+                    "error": function (xhr, error, thrown) {
+                        console.log('Error pada DataTables:', error);
+                        console.log('Status:', xhr.status);
+                        console.log('Response:', xhr.responseText);
+                        $('#laporanTable_processing').hide();
+                        toastr.error('Gagal memuat data: ' + error);
+                    }
+                },
+                columns: [
+                    { data: 'laporan_id', className: 'text-center' },
+                    { data: 'user.name', className: '', orderable: true, searchable: true },
+                    { 
+                        data: 'status.status_nama', 
+                        className: 'text-center',
+                        render: function(data, type, row) {
+                            let badgeClass = 'badge badge-secondary';
+                            
+                            if (row.status_id == 1)
+                                badgeClass = 'badge badge-warning';
+                            else if (row.status_id == 2)
+                                badgeClass = 'badge badge-danger';
+                            else if (row.status_id == 3)
+                                badgeClass = 'badge badge-primary';
+                            else if (row.status_id == 4)
+                                badgeClass = 'badge badge-success';
+                            else if (row.status_id == 5)
+                                badgeClass = 'badge badge-info';
+                                
+                            return '<span class="' + badgeClass + '">' + data + '</span>';
+                        }
                     },
-                    {
-                        data: 'tanggal',
-                        name: 'tanggal'
-                    },
-                    {
-                        data: 'status',
-                        name: 'status'
-                    },
-                    {
-                        data: 'aksi',
-                        name: 'aksi',
-                        orderable: false,
-                        searchable: false
-                    },
+                    { data: 'tanggal_lapor', className: '', orderable: true, searchable: true },
+                    { data: 'jumlah_pelapor', className: 'text-center', orderable: true, searchable: true },
+                    { data: 'aksi', className: 'text-center', orderable: false, searchable: false }
                 ]
             });
 
-            window.modalAction = function(url) {
-                $('#modalContent').html('<p>Memuat...</p>');
-                $.get(url, function(res) {
-                    $('#modalContent').html(res);
-                    $('#detailLaporanModal').modal('show');
-                }).fail(function() {
-                    $('#modalContent').html('<p>Gagal memuat detail laporan.</p>');
-                });
-            };
-
-            window.setujuAction = function(id) {
-                if (confirm('Setujui laporan ini?')) {
-                    var url = '{{ route('admin.validasi_laporan.setuju', ':laporan_id') }}'.replace(
-                        ':laporan_id', id);
-                    console.log('Request URL:', url); // Debug the URL
-                    $.ajax({
-                        url: url,
-                        type: 'POST',
-                        data: {
-                            _token: '{{ csrf_token() }}',
-                            laporan_id: id
-                        },
-                        success: function(res) {
-                            alert(res.message);
-                            laporanTable.ajax.reload();
-                        },
-                        error: function(xhr) {
-                            alert('Gagal: ' + (xhr.responseJSON?.message || 'Terjadi kesalahan'));
-                        }
-                    });
-                }
-            };
-            window.tolakAction = function(id) {
-                if (confirm('Tolak laporan ini?')) {
-                    $.ajax({
-                        url: '{{ route('admin.validasi_laporan.tolak', ':laporan_id') }}'.replace(
-                            ':laporan_id', id),
-                        type: 'POST',
-                        data: {
-                            _token: '{{ csrf_token() }}',
-                            laporan_id: id
-                        },
-                        success: function(res) {
-                            alert(res.message);
-                            laporanTable.ajax.reload();
-                        },
-                        error: function(xhr) {
-                            alert('Gagal: ' + (xhr.responseJSON?.message || 'Terjadi kesalahan'));
-                        }
-                    });
-                }
-            };
+            // Filter berdasarkan status
+            $('#status_filter').on('change', function () {
+                dataLaporan.ajax.reload();
+            });
         });
     </script>
 @endpush

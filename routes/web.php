@@ -121,27 +121,13 @@ Route::middleware(['auth', 'authorize:1'])->group(function () {
         Route::delete('/{fasilitas}/delete', [FasilitasController::class, 'delete'])->name('admin.fasilitas.delete');
     });
 
-    Route::group(['prefix' => 'admin/validasi_laporan'], function () {
-        Route::get('/', [ValidlaporAController::class, 'index'])->name('admin.validasi_laporan.index');
-        Route::get('/list', [ValidlaporAController::class, 'list'])->name('admin.validasi_laporan.list');
-        Route::get('/{laporan_id}/show', [ValidlaporAController::class, 'show'])->name('admin.validasi_laporan.show');
-        Route::post('/{laporan_id}/setuju', [ValidlaporAController::class, 'setuju'])->name('admin.validasi_laporan.setuju');
-        Route::post('/{laporan_id}/tolak', [ValidlaporAController::class, 'tolak'])->name('admin.validasi_laporan.tolak');
-        Route::get('/admin/validasi-laporan/list', [ValidlaporAController::class, 'list'])->name('admin.validasi_laporan.list');
-    });
-
     //Laporan Verifikasi
-    Route::group(['prefix' => 'admin/laporan'], function () {
-        Route::get('/', [LaporanController::class, 'index'])->name('admin.laporan.index');
-        Route::get('/list', [LaporanController::class, 'list'])->name('admin.laporan.list');
-        Route::get('/create', [LaporanController::class, 'create'])->name('admin.laporan.create');
-        Route::post('/', [LaporanController::class, 'store'])->name('admin.laporan.store');
-        Route::get('/{laporan}/edit', [LaporanController::class, 'edit'])->name('admin.laporan.edit');
-        Route::put('/{laporan}', [LaporanController::class, 'update'])->name('admin.laporan.update');
-        Route::get('/{laporan}/show', [LaporanController::class, 'show'])->name('admin.laporan.show');
-        Route::get('/{laporan}/confirm', [LaporanController::class, 'confirm'])->name('admin.laporan.confirm');
-        Route::delete('/{laporan}/delete', [LaporanController::class, 'delete'])->name('admin.laporan.delete');
-        Route::post('/{laporan}/verify', [LaporanController::class, 'verify'])->name('admin.laporan.verify');
+   Route::group(['prefix' => 'admin/validasi_laporan'], function () {
+    Route::get('/', [LaporanController::class, 'index'])->name('admin.validasi_laporan.index');
+    Route::get('/list', [LaporanController::class, 'list'])->name('admin.validasi_laporan.list');
+    Route::get('/{laporan}/show', [LaporanController::class, 'show'])->name('admin.validasi_laporan.show');
+    Route::post('/{laporan}/verify', [LaporanController::class, 'verify'])->name('admin.validasi_laporan.verify');
+
     });
 });
 
