@@ -1,4 +1,5 @@
-[![Assets]({{Asset/laporsana.png}})]()
+![Assets](Asset/laporsana.png)
+
 ## LaporSana 
 Laporsana adalah sebuah website untuk membuat dan mengelola masalah fasilitas yang ada di 
 kampus, perbaikan fasilitas dengan integrasi sistem pendukung keputusan, yang memberikan rekomendasi
