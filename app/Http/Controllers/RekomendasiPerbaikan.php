@@ -153,10 +153,13 @@ class RekomendasiPerbaikan extends Controller
 
     public function tampilkanSPK()
     {
-        $spkData = RekomperbaikanModel::orderBy('rank')->get(); // Ambil ranking urut
+        $spkData = RekomperbaikanModel::orderBy('rank')->get();
         $fasilitasList = FasilitasModel::pluck('fasilitas_nama', 'fasilitas_id')->toArray();
 
-        return view('Admin.dashboard', compact('spkData', 'fasilitasList'));
+        // Tampilkan ke dua view: Admin dan Satpras
+        // return view('Admin.dashboard', compact('spkData', 'fasilitasList'));
+        return view('Admin.dashboard', compact('spkData', 'fasilitasList'))
+            ->with('satprasView', view('sarpras.dashboard', compact('spkData', 'fasilitasList'))->render());
     }
 
     // Fungsi untuk tombol "Perbarui Data"

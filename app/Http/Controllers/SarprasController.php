@@ -19,7 +19,18 @@ class SarprasController extends Controller
         ];
 
         $active_menu = 'dashboard';
-        return view('sarpras.dashboard', compact('breadcrumb', 'active_menu'));
+        $spk_data = $this->getSPKData(); // Tambahkan ini
+
+        // Ambil daftar fasilitas (id => nama)
+        $fasilitasList = \App\Models\FasilitasModel::pluck('fasilitas_nama', 'fasilitas_id')->toArray();
+
+        return view('sarpras.dashboard', [
+            'breadcrumb' => $breadcrumb,
+            'active_menu' => $active_menu,
+            'spkData' => collect($spk_data), // pastikan ini collection/array
+            'fasilitasList' => $fasilitasList
+        ]);
+        // return view('sarpras.dashboard', compact('breadcrumb', 'active_menu'));
     }
 
 
@@ -95,4 +106,18 @@ public function update(Request $request)
     }
 }
 
+ private function getSPKData()
+    {
+        try {
+            // Directly query the database instead of making HTTP requests
+            return \App\Models\RekomperbaikanModel::with('fasilitas')
+                ->orderBy('rank', 'asc')
+                ->limit(5)
+                ->get();
+        } catch (\Exception $e) {
+            Log::error('Error retrieving SPK data: ' . $e->getMessage());
+            return [];
+        }
+        return view('sarpras.dashboard', compact('breadcrumb', 'active_menu'));
+    }
 };
