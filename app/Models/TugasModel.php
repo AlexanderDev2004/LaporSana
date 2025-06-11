@@ -10,19 +10,20 @@ class TugasModel extends Model
 {
     protected $table = 'm_tugas';
     protected $primaryKey = 'tugas_id';
-    
+
     protected $fillable = [
         'user_id',
         'status_id',
         'tugas_jenis',
         'tugas_mulai',
-        'tugas_selesai'
+        'tugas_selesai',
+        'laporan_id'
     ];
 
     // Relasi dengan detail tugas
     public function details(): HasMany
     {
-        return $this->hasMany(TugasDetail::class, 'tugas_id', 'tugas_id');
+        return $this->hasMany(TugasDetailModel::class, 'tugas_id', 'tugas_id');
     }
 
     // Relasi dengan user (teknisi)

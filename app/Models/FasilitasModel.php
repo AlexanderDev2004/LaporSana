@@ -14,7 +14,7 @@ class FasilitasModel extends Model
         'ruangan_id',
         'fasilitas_kode',
         'fasilitas_nama',
-        'tingkat_urgensi',
+        'tingkat_urgensi'
     ];
     public function ruangan()
     {

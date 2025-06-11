@@ -7,12 +7,14 @@ use App\Http\Controllers\LantaiController;
 use App\Http\Controllers\LaporanController;
 use App\Http\Controllers\PelaporController;
 use App\Http\Controllers\ProfileController;
+use App\Http\Controllers\RekomendasiPerbaikan;
 use App\Http\Controllers\RoleController;
 use App\Http\Controllers\RuanganController;
 use App\Http\Controllers\SarprasController;
 use App\Http\Controllers\SpkController;
 use App\Http\Controllers\TeknisiController;
 use App\Http\Controllers\UserController;
+use App\Http\Controllers\ValidlaporAController;
 use Illuminate\Auth\Middleware\Authorize;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Auth;
@@ -42,7 +44,11 @@ Route::get('logout', [AuthController::class, 'logout'])->middleware('auth')->nam
 // Rute untuk Admin (role 1)
 Route::middleware(['auth', 'authorize:1'])->group(function () {
     Route::get('/admin/dashboard', [DashboardController::class, 'index'])->name('admin.dashboard');
-   
+    Route::get('/admin/dashboard/spk', [DashboardController::class, 'hitungSPK']);
+    // Route::get('/admin/dashboard/py', [RekomendasiPerbaikan::class, 'hitungSPK'])->name('calculate');
+    Route::get('/admin/spk', [RekomendasiPerbaikan::class, 'tampilkanSPK'])->name('admin.spk');
+
+
     // Profile
     Route::group(['prefix' => 'admin/profile'], function () {
         Route::get('/profile', [ProfileController::class, 'show'])->name('admin.profile.show');
@@ -51,7 +57,7 @@ Route::middleware(['auth', 'authorize:1'])->group(function () {
     });
 
     // User Management
-        Route::group(['prefix' => 'admin/users'], function (): void {
+    Route::group(['prefix' => 'admin/users'], function (): void {
         Route::get('/', [UserController::class, 'index'])->name('admin.users.index');
         Route::get('/list', [UserController::class, 'list'])->name('admin.users.list');
         Route::get('/create', [UserController::class, 'create'])->name('admin.users.create');
@@ -66,7 +72,8 @@ Route::middleware(['auth', 'authorize:1'])->group(function () {
         Route::get('/export_excel', [UserController::class, 'export_excel'])->name('admin.users.export_excel');  
         Route::get('export_pdf', [UserController::class, 'export_pdf'])->name('admin.users.export_pdf');  
     });
-    
+    // Role Management
+
     // Role Management
     Route::group(['prefix' => 'admin/roles'], function (): void {
         Route::get('/', [RoleController::class, 'index'])->name('admin.roles.index');
@@ -85,7 +92,7 @@ Route::middleware(['auth', 'authorize:1'])->group(function () {
     });
 
     //Lantai Management
-        Route::group(['prefix' => 'admin/lantai'], function () {
+    Route::group(['prefix' => 'admin/lantai'], function () {
         Route::get('/', [LantaiController::class, 'index'])->name('admin.lantai.index');
         Route::get('/list', [LantaiController::class, 'list'])->name('admin.lantai.list');
         Route::get('/create', [LantaiController::class, 'create'])->name('admin.lantai.create');
@@ -101,8 +108,8 @@ Route::middleware(['auth', 'authorize:1'])->group(function () {
         Route::get('export_pdf', [LantaiController::class, 'export_pdf'])->name('admin.lantai.export_pdf');       
     });
 
-       //Ruangan Management
-        Route::group(['prefix' => 'admin/ruangan'], function () {
+    //Ruangan Management
+    Route::group(['prefix' => 'admin/ruangan'], function () {
         Route::get('/', [RuanganController::class, 'index'])->name('admin.ruangan.index');
         Route::get('/list', [RuanganController::class, 'list'])->name('admin.ruangan.list');
         Route::get('/create', [RuanganController::class, 'create'])->name('admin.ruangan.create');
@@ -118,8 +125,8 @@ Route::middleware(['auth', 'authorize:1'])->group(function () {
         Route::get('export_pdf', [RuanganController::class, 'export_pdf'])->name('admin.ruangan.export_pdf');      
     });
 
-      //Fasilitas Management
-        Route::group(['prefix' => 'admin/fasilitas'], function () {
+    //Fasilitas Management
+    Route::group(['prefix' => 'admin/fasilitas'], function () {
         Route::get('/', [FasilitasController::class, 'index'])->name('admin.fasilitas.index');
         Route::get('/list', [FasilitasController::class, 'list'])->name('admin.fasilitas.list');
         Route::get('/create', [FasilitasController::class, 'create'])->name('admin.fasilitas.create');
@@ -135,22 +142,14 @@ Route::middleware(['auth', 'authorize:1'])->group(function () {
         Route::get('export_pdf', [FasilitasController::class, 'export_pdf'])->name('admin.fasilitas.export_pdf');       
     });
 
-    
-      //Laporan Verifikasi
-        Route::group(['prefix' => 'admin/laporan'], function () {
-        Route::get('/', [LaporanController::class, 'index'])->name('admin.laporan.index');
-        Route::get('/list', [LaporanController::class, 'list'])->name('admin.laporan.list');
-        Route::get('/create', [LaporanController::class, 'create'])->name('admin.laporan.create');
-        Route::post('/', [LaporanController::class, 'store'])->name('admin.laporan.store');
-        Route::get('/{laporan}/edit', [LaporanController::class, 'edit'])->name('admin.laporan.edit');
-        Route::put('/{laporan}', [LaporanController::class, 'update'])->name('admin.laporan.update');
-        Route::get('/{laporan}/show', [LaporanController::class, 'show'])->name('admin.laporan.show');
-        Route::get('/{laporan}/confirm', [LaporanController::class, 'confirm'])->name('admin.laporan.confirm');
-        Route::delete('/{laporan}/delete', [LaporanController::class, 'delete'])->name('admin.laporan.delete');
-        Route::post('/{laporan}/verify', [LaporanController::class, 'verify'])->name('admin.laporan.verify');
+    //Laporan Verifikasi
+   Route::group(['prefix' => 'admin/validasi_laporan'], function () {
+    Route::get('/', [LaporanController::class, 'index'])->name('admin.validasi_laporan.index');
+    Route::get('/list', [LaporanController::class, 'list'])->name('admin.validasi_laporan.list');
+    Route::get('/{laporan}/show', [LaporanController::class, 'show'])->name('admin.validasi_laporan.show');
+    Route::post('/{laporan}/verify', [LaporanController::class, 'verify'])->name('admin.validasi_laporan.verify');
+
     });
-
-
 });
 
 
@@ -183,6 +182,10 @@ Route::middleware(['authorize:5'])->group(callback: function () {
         Route::get('/sarpras/profile/edit', [SarprasController::class, 'edit'])->name('sarpras.profile.edit');
         Route::put('/sarpras/profile', [SarprasController::class, 'update'])->name('sarpras.profile.update');
 
+    Route::get('/sarpras/dashboard', [SarprasController::class, 'index'])->name('sarpras.dashboard');
+    Route::get('/sarpras/profile', [SarprasController::class, 'show'])->name('sarpras.profile.show');
+    Route::get('/sarpras/profile/edit', [SarprasController::class, 'edit'])->name('sarpras.profile.edit');
+    Route::put('/sarpras/profile', [SarprasController::class, 'update'])->name('sarpras.profile.update');
 });
 
 // Rute untuk Teknisi (role 6)
@@ -203,3 +206,17 @@ Route::group(['prefix' => 'teknisi', 'middleware' => 'authorize:6'], function ()
         Route::get('/teknisi/riwayat/list', [TeknisiController::class, 'riwayatList'])->name('teknisi.riwayat.list');
         
     });
+    Route::get('/dashboard', [TeknisiController::class, 'dashboard'])->name('teknisi.dashboard');
+    Route::get('/', [TeknisiController::class, 'index'])->name('teknisi.index');
+    Route::get('/list', [TeknisiController::class, 'list'])->name('teknisi.list');
+    Route::post('/', [TeknisiController::class, 'store'])->name('teknisi.store');
+    Route::get('/{teknisi}/edit', [TeknisiController::class, 'edit'])->name('teknisi.edit');
+    Route::get('/{teknisi}/show', [TeknisiController::class, 'show'])->name('teknisi.show');
+    Route::put('/{teknisi}/confirm', [TeknisiController::class, 'update'])->name('teknisi.update');
+    Route::delete('/{teknisi}/delete', [TeknisiController::class, 'destroy'])->name('teknisi.destroy');
+    Route::get('/teknisi/riwayat', [TeknisiController::class, 'riwayat'])->name('teknisi.riwayat');
+    Route::get('/teknisi/riwayat/list', [TeknisiController::class, 'riwayatList'])->name('teknisi.riwayat.list');
+});
+
+
+Route::get('/python', [RekomendasiPerbaikan::class, 'hitungSPK'])->name('calculate');

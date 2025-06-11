@@ -26,10 +26,10 @@ class LaporanController extends Controller
         $user = UserModel::all();
         $status = StatusModel::all();
         $details = LaporanDetail::all();
-      
 
 
-        return view('admin.laporan.index', compact('breadcrumb', 'active_menu', 'user', 'status', 'details'));
+
+        return view('admin.validasi_laporan.index', compact('breadcrumb', 'active_menu', 'user', 'status', 'details'));
     }
 
     public function list(Request $request)
@@ -46,74 +46,42 @@ class LaporanController extends Controller
         return DataTables::of($laporan)
             ->addIndexColumn()
             ->addColumn('aksi', function ($laporan) {
-                $btn = '<button onclick="modalAction(\'' . route('admin.laporan.show', $laporan->laporan_id) . '\')" class="btn btn-info btn-sm mr-1"><i class="fas fa-eye"></i></button>';
-
-                // Only show edit and delete buttons if appropriate
-                if ($laporan->status_id == 1) { // Status Menunggu
-                    $btn .= '<button onclick="modalAction(\'' . route('admin.laporan.edit', $laporan->laporan_id) . '\')" class="btn btn-warning btn-sm mr-1"><i class="fas fa-edit"></i></button>';
-                    $btn .= '<button onclick="modalAction(\'' . route('admin.laporan.confirm', $laporan->laporan_id) . '\')" class="btn btn-danger btn-sm"><i class="fas fa-trash"></i></button>';
-                }
-
+                $btn = '<button onclick="modalAction(\'' . route('admin.validasi_laporan.show', $laporan->laporan_id) . '\')" class="btn btn-info btn-sm mr-1"><i class="fas fa-eye"></i></button>';
                 return $btn;
             })
             ->rawColumns(['aksi'])
             ->make(true);
     }
 
-   
-public function show($laporan_id)
-{
-    $laporan = LaporanModel::with(['details.fasilitas.ruangan', 'user', 'status'])->find($laporan_id);
-    return view('admin.laporan.show', compact('laporan'));
-}
+
+
+    public function show($laporan_id)
+    {
+        $laporan = LaporanModel::with(['details.fasilitas.ruangan.lantai', 'status', 'user'])
+            ->where('laporan_id', $laporan_id)
+            ->firstOrFail();
+
+        return view('admin.validasi_laporan.show', compact('laporan'));
+    }
+
 
     public function verify(Request $request, $laporan_id)
     {
         $laporan = LaporanModel::findOrFail($laporan_id);
 
         if ($request->verifikasi == 'tolak') {
-            $laporan->status_id = config('constants.status_ditolak');
+            $laporan->status_id = 2; // Status ditolak
             $laporan->save();
 
             // Notify user of rejection (optional)
             // $laporan->user->notify(new LaporanStatusUpdated($laporan, 'Ditolak'));
 
-            return response()->json(['status' => true, 'message' => 'Laporan ditolak']);
-        } elseif ($request->verifikasi == 'setujui') {
-            $laporan->status_id = config('constants.status_diproses');
+            return response()->json(['status' => true, 'message' => 'Laporan berhasil ditolak']);
+        } elseif ($request->verifikasi == 'setuju') {
+            $laporan->status_id = 5; // Status disetujui
             $laporan->save();
 
-            // Assign to Sarana Prasarana (role_id = 2 for example)
-            $saranaUser = UserModel::where('role_id', 2)->first();
-            if ($saranaUser) {
-                $tugas = TugasModel::create([
-                    'user_id' => $saranaUser->user_id,
-                    'status_id' => config('constants.status_diproses'),
-                    'tugas_jenis' => 'perbaikan',
-                    'tugas_mulai' => now(),
-                    'tugas_selesai' => now()->addDays(7),
-                ]);
-
-                // Copy details from laporan to tugas_detail
-                foreach ($laporan->details as $detail) {
-                    TugasDetail::create([
-                        'tugas_id' => $tugas->tugas_id,
-                        'fasilitas_id' => $detail->fasilitas_id,
-                        'tugas_image' => $detail->foto_bukti,
-                        'deskripsi' => $detail->deskripsi,
-                    ]);
-                }
-
-                // Notify Sarana Prasarana user (optional)
-                // $saranaUser->notify(new TugasAssigned($tugas));
-            } else {
-                return response()->json(['status' => false, 'message' => 'Tidak ada user Sarana Prasarana ditemukan']);
-            }
-
-            // Notify user of approval (optional)
-            // $laporan->user->notify(new LaporanStatusUpdated($laporan, 'Diproses'));
-
-            return response()->json(['status' => true, 'message' => 'Laporan disetujui dan diteruskan ke Sarana Prasarana']);
+            return response()->json(['status' => true, 'message' => 'Laporan berhasil disetujui']);
         }
 
         return response()->json(['status' => false, 'message' => 'Aksi tidak valid']);

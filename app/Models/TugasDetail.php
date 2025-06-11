@@ -9,7 +9,7 @@ class TugasDetail extends Model
 {
     protected $table = 'm_tugas_detail';
     protected $primaryKey = 'detail_id';
-    
+
     protected $fillable = [
         'tugas_id',
         'fasilitas_id',
@@ -17,7 +17,7 @@ class TugasDetail extends Model
         'deskripsi',
         'tingkat_kerusakan',    
         'biaya_perbaikan' 
-
+        
     ];
 
     // Relasi dengan tugas
