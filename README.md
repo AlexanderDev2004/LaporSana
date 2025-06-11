@@ -1,4 +1,4 @@
-![Assets](Asset/laporsana.png)
+![LaporSana Logo](public/LaporSana.png)
 
 ## LaporSana 
 Laporsana adalah sebuah website untuk membuat dan mengelola masalah fasilitas yang ada di 
