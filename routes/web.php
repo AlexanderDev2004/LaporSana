@@ -160,7 +160,7 @@ Route::middleware(['authorize:5'])->group(callback: function () {
     Route::get('/sarpras/profile/edit', [SarprasController::class, 'edit'])->name('sarpras.profile.edit');
     Route::put('/sarpras/profile', [SarprasController::class, 'update'])->name('sarpras.profile.update');
     Route::get('/sarpras/spk', [RekomendasiPerbaikan::class, 'tampilkanSPK'])->name('sarpras.spk');
-    Route::post('sarpras/perbarui-data', [RekomendasiPerbaikan::class, 'perbaruiData'])->name('perbarui.data');
+    Route::post('sarpras/perbarui-data', [RekomendasiPerbaikan::class, 'perbaruiData'])->name('sarpras.perbarui.data');
 });
 
 // Rute untuk Teknisi (role 6)

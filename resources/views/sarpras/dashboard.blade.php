@@ -140,7 +140,7 @@
                         <h3 class="card-title mb-0">Rekomendasi Perbaikan (SPK)</h3>
                     </div>
                     <div class="flex-shrink-0 text-right">
-                        <form action="{{ route('perbarui.data') }}" method="POST" class="mb-0">
+                        <form action="{{ route('sarpras.perbarui.data') }}" method="POST" class="mb-0">
                             @csrf
                             <button type="submit" class="btn btn-sm btn-primary">
                                 <i class="fas fa-sync-alt"></i> Perbarui Data
