@@ -72,7 +72,7 @@
 
         dataLaporan = $('#table_laporan').DataTable({ 
             processing: true, 
-            serverSide: true, 
+            serverSide: true,
             ajax: { 
                 url: "{{ route('pelapor.list') }}", 
                 dataType: "json", 
@@ -84,11 +84,11 @@
                     className: "text-center", 
                     width: "5%", 
                     orderable: false, 
-                    searchable: false 
+                    searchable: true 
                 },{ 
                     data: "details.0.fasilitas.fasilitas_nama",
                     width: "15%", 
-                    defaultContent: "-" 
+                    defaultContent: "-"
                 },{ 
                     data: "details.0.fasilitas.ruangan.ruangan_nama",
                     width: "15%",  
@@ -119,6 +119,11 @@
                 defaultContent: '<button class="btn btn-info btn-sm btn-detail"><i class="fas fa-eye"></i> Detail</button>'
             }]
         });
+        $('#table-laporan_filter input').unbind().bind().on('keyup', function(e){ 
+        if(e.keyCode == 13){ // enter key 
+            dataLaporan.search(this.value).draw(); 
+        } 
+    });
     }); 
 </script> 
 @endpush

@@ -97,7 +97,7 @@ public function update(Request $request)
     public function laporan()
     {
         $breadcrumb = (object) [
-            'title' => 'Laporan Kerusakan Fasilitas',
+            'title' => 'Laporan Saya',
             'list'  => ['Home', 'Laporan Saya']
         ];
 
@@ -113,7 +113,7 @@ public function update(Request $request)
     public function list(Request $request)
     {
         $laporans = LaporanModel::with(['details.fasilitas.ruangan.lantai', 'status'])
-            ->where('user_id', auth()->user()->user_id);
+            ->where('user_id', auth()->user()->user_id, [1, 3]);
 
         return DataTables::of($laporans)
             ->addIndexColumn()
@@ -139,10 +139,22 @@ public function update(Request $request)
     public function create()
     {
         $lantai = LantaiModel::all();
-        $ruangan = RuanganModel::all();
-        $fasilitas = FasilitasModel::all();
 
-        return view('pelapor.create', compact('lantai', 'ruangan', 'fasilitas'));
+        return view('pelapor.create', compact('lantai'));
+    }
+
+    // Mengambil daftar lantai
+    public function getRuangan($lantai_id)
+    {
+        $ruangan = RuanganModel::where('lantai_id', $lantai_id)->get();
+        return response()->json($ruangan);
+    }
+
+    // Mengambil daftar fasilitas berdasarkan ruangan_id
+    public function getFasilitas($ruangan_id)
+    {
+        $fasilitas = FasilitasModel::where('ruangan_id', $ruangan_id)->get();
+        return response()->json($fasilitas);
     }
 
 
@@ -211,7 +223,7 @@ public function update(Request $request)
     public function laporanBersama()
     {
         $breadcrumb = (object) [
-            'title' => 'Laporan Kerusakan Fasilitas',
+            'title' => 'Laporan Bersama',
             'list'  => ['Home', 'Laporan Bersama']
         ];
 
@@ -226,7 +238,7 @@ public function update(Request $request)
 
     public function listBersama(Request $request)
     {
-        $laporans = LaporanModel::with(['details.fasilitas.ruangan.lantai', 'status'])
+        $laporans = LaporanModel::with(['details.fasilitas.ruangan.lantai', 'status', 'user'])
         ->where('status_id', 3) // hanya mengambil status yang sedang dalam proses
         ->get();
         
@@ -245,7 +257,8 @@ public function update(Request $request)
             ->addColumn('aksi', function ($laporan) {
                 $detailUrl = route('pelapor.show.bersama', ['laporan_id' => $laporan->laporan_id]);
                 $btn = '<button onclick="modalAction(\''.$detailUrl.'\')" class="btn btn-info btn-sm">Detail</button> ';
-                return $btn;
+                $btnDukung = '<button class="btn btn-primary btn-sm ml-1 btn-dukung" data-id="'.$laporan->laporan_id.'">Ikut Melapor</button>';
+                return $btn . $btnDukung;
             })
             ->rawColumns(['status.status_nama', 'aksi'])
             ->make(true);
@@ -258,5 +271,18 @@ public function update(Request $request)
             ->firstOrFail();
 
         return view('pelapor.show_bersama', compact('laporan'));
+    }
+
+    public function dukungLaporan($laporan_id)
+    {
+        try {
+            $laporan = LaporanModel::findOrFail($laporan_id);
+            $laporan->jumlah_pelapor += 1;
+            $laporan->save();
+
+            return response()->json(['status' => true, 'message' => 'Terima kasih telah ikut melaporkan kerusakan ini!']);
+        } catch (\Exception $e) {
+            return response()->json(['status' => false, 'message' => 'Gagal memberikan dukungan: ' . $e->getMessage()], 500);
+        }
     }
 }

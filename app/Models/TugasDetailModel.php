@@ -13,6 +13,8 @@ class TugasDetailModel extends Model
     protected $fillable = [
         'tugas_id',
         'fasilitas_id',
+        'tingkat_kerusakan',
+        'biaya_perbaikan',
         'tugas_image',
         'deskripsi',
     ];
@@ -26,4 +28,6 @@ class TugasDetailModel extends Model
     {
         return $this->belongsTo(FasilitasModel::class, 'fasilitas_id', 'fasilitas_id');
     }
+
+    
 }
