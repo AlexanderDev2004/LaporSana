@@ -39,8 +39,7 @@
             <div
                 class="bg-white/10 border border-white/20 backdrop-blur-lg rounded-3xl p-10 text-center max-w-3xl w-full shadow-2xl">
                 <p class="text-yellow-300 uppercase text-sm tracking-widest mb-4">Selamat Datang</p>
-                <img src="{{ asset('LaporSana.png') }}" alt="LaporSana" class="mx-auto mb-6 w-32 md:w-40 drop-shadow-lg">
-                <h1 class="text-3xl md:text-4xl font-bold mb-4">LaporSana</h1>
+                <img src="{{ asset('LaporSana.png') }}" alt="LaporSana" class="mx-auto mb-6 w-64 md:w-52 drop-shadow-lg shadow-2xl size-full">
                 <p class="text-white/90 text-lg mb-10 leading-relaxed">
                     Sistem Manajemen Pelaporan dan Perbaikan Fasilitas Kampus.
                 </p>
