@@ -43,8 +43,8 @@ class PelaporController extends Controller
 
     public function list(Request $request)
     {
-        $laporans = LaporanModel::with(['details.fasilitas.ruangan.lantai', 'status'])
-            ->where('user_id', auth()->user()->user_id, [1, 3]);
+        $laporans = LaporanModel::with(['details.fasilitas.ruangan.lantai'])
+            ->where('user_id', auth()->user()->user_id);
 
         return DataTables::of($laporans)
             ->addIndexColumn()
