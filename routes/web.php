@@ -4,8 +4,10 @@ use App\Http\Controllers\AuthController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\FasilitasController;
 use App\Http\Controllers\LantaiController;
+use App\Http\Controllers\LaporanController;
 use App\Http\Controllers\PelaporController;
 use App\Http\Controllers\ProfileController;
+use App\Http\Controllers\RekomendasiPerbaikan;
 use App\Http\Controllers\RoleController;
 use App\Http\Controllers\RuanganController;
 use App\Http\Controllers\SarprasController;
@@ -41,6 +43,10 @@ Route::get('logout', [AuthController::class, 'logout'])->middleware('auth')->nam
 // Rute untuk Admin (role 1)
 Route::middleware(['auth', 'authorize:1'])->group(function () {
     Route::get('/admin/dashboard', [DashboardController::class, 'index'])->name('admin.dashboard');
+    Route::get('/admin/dashboard/spk', [DashboardController::class, 'hitungSPK']);
+    // Route::get('/admin/dashboard/py', [RekomendasiPerbaikan::class, 'hitungSPK'])->name('calculate');
+    Route::get('/admin/spk', [RekomendasiPerbaikan::class, 'tampilkanSPK'])->name('admin.spk');
+    Route::post('admin/perbarui-data', [RekomendasiPerbaikan::class, 'perbaruiData'])->name('perbarui.data');
 
     // Profile
     Route::group(['prefix' => 'admin/profile'], function () {
@@ -48,16 +54,21 @@ Route::middleware(['auth', 'authorize:1'])->group(function () {
         Route::get('/profile/edit', [ProfileController::class, 'edit'])->name('admin.profile.edit');
         Route::put('/profile', [ProfileController::class, 'update'])->name('admin.profile.update');
     });
+
     // User Management
-    Route::group(['prefix' => 'admin/users'], function () {
-        Route::get('/', [UserController::class, 'list'])->name('admin.users.index');
+    Route::group(['prefix' => 'admin/users'], function (): void {
+        Route::get('/', [UserController::class, 'index'])->name('admin.users.index');
+        Route::get('/list', [UserController::class, 'list'])->name('admin.users.list');
         Route::get('/create', [UserController::class, 'create'])->name('admin.users.create');
         Route::post('/', [UserController::class, 'store'])->name('admin.users.store');
-        Route::get('/{user}', [UserController::class, 'show'])->name('admin.users.show');
         Route::get('/{user}/edit', [UserController::class, 'edit'])->name('admin.users.edit');
         Route::put('/{user}', [UserController::class, 'update'])->name('admin.users.update');
-        Route::delete('/{user}', [UserController::class, 'destroy'])->name('admin.users.destroy');
+        Route::get('/{user}/show', [UserController::class, 'show'])->name('admin.users.show');
+        Route::get('/{user}/confirm', [UserController::class, 'confirm'])->name('admin.users.confirm');
+        Route::delete('/{user}/delete', [UserController::class, 'delete'])->name('admin.users.delete');
     });
+    // Role Management
+
     // Role Management
     Route::group(['prefix' => 'admin/roles'], function (): void {
         Route::get('/', [RoleController::class, 'index'])->name('admin.roles.index');
@@ -110,13 +121,12 @@ Route::middleware(['auth', 'authorize:1'])->group(function () {
         Route::delete('/{fasilitas}/delete', [FasilitasController::class, 'delete'])->name('admin.fasilitas.delete');
     });
 
-    // Laporan Management
+        //Laporan Verifikasi
     Route::group(['prefix' => 'admin/validasi_laporan'], function () {
-        Route::get('/', [ValidlaporAController::class, 'index'])->name('admin.validasi_laporan.index');
-        Route::get('/list', [ValidlaporAController::class, 'list'])->name('admin.validasi_laporan.list');
-        Route::get('/{laporan_id}/show', [ValidlaporAController::class, 'show'])->name('admin.validasi_laporan.show');
-        Route::post('/{laporan_id}/setuju', [ValidlaporAController::class, 'setuju'])->name('admin.validasi_laporan.setuju');
-        Route::post('/{laporan_id}/tolak', [ValidlaporAController::class, 'tolak'])->name('admin.validasi_laporan.tolak');
+        Route::get('/', [LaporanController::class, 'index'])->name('admin.validasi_laporan.index');
+        Route::get('/list', [LaporanController::class, 'list'])->name('admin.validasi_laporan.list');
+        Route::get('/{laporan}/show', [LaporanController::class, 'show'])->name('admin.validasi_laporan.show');
+        Route::post('/{laporan}/verify', [LaporanController::class, 'verify'])->name('admin.validasi_laporan.verify');
     });
 });
 
@@ -175,6 +185,10 @@ Route::middleware(['authorize:5'])->group(callback: function () {
         Route::post('/riwayat/list', [SarprasController::class, 'riwayatList'])->name('sarpras.riwayat.list');
         Route::get('/riwayat/{laporan_id}', [SarprasController::class, 'showRiwayatLaporan'])->name('sarpras.riwayat.show');
     });
+    
+    // Rekomendasi Perbaikan
+    Route::get('/spk', [RekomendasiPerbaikan::class, 'tampilkanSPK'])->name('sarpras.spk');
+    Route::post('/perbarui-data', [RekomendasiPerbaikan::class, 'perbaruiData'])->name('sarpras.perbarui.data');
 });
 
 // Rute untuk Teknisi (role 6)
@@ -190,3 +204,6 @@ Route::group(['prefix' => 'teknisi', 'middleware' => 'authorize:6'], function ()
     Route::get('/teknisi/riwayat', [TeknisiController::class, 'riwayat'])->name('teknisi.riwayat');
     Route::get('/teknisi/riwayat/list', [TeknisiController::class, 'riwayatList'])->name('teknisi.riwayat.list');
 });
+
+
+Route::get('/python', [RekomendasiPerbaikan::class, 'hitungSPK'])->name('calculate');

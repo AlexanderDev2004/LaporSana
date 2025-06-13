@@ -27,7 +27,7 @@ class FasilitasController extends Controller
 
      public function list(Request $request)
     {
-        $fasilitas = FasilitasModel::select('fasilitas_id', 'fasilitas_kode', 'fasilitas_nama', 'ruangan_id')
+        $fasilitas = FasilitasModel::select('fasilitas_id', 'fasilitas_kode', 'fasilitas_nama', 'tingkat_urgensi', 'ruangan_id')
         ->with('ruangan');
 
         if ($request->ruangan_id) {
@@ -73,6 +73,7 @@ class FasilitasController extends Controller
             $validator = Validator::make($request->all(), [
                 'fasilitas_kode' => 'required',
                 'fasilitas_nama' => 'required',
+                'tingkat_urgensi' => 'required|in:1,2,3,4,5', 
                 'ruangan_id'    => 'required'
             ]);
 
@@ -90,6 +91,7 @@ class FasilitasController extends Controller
                 $fasilitas = new FasilitasModel();
                 $fasilitas->fasilitas_kode = $request->fasilitas_kode;
                 $fasilitas->fasilitas_nama = $request->fasilitas_nama;
+                $fasilitas->tingkat_urgensi = $request->tingkat_urgensi;
                 $fasilitas->ruangan_id = $request->ruangan_id;
                 $fasilitas->save();
 
@@ -117,6 +119,7 @@ class FasilitasController extends Controller
                 'ruangan_id'    => 'required|exists:m_ruangan,ruangan_id',
                 'fasilitas_kode' => 'required',
                 'fasilitas_nama' => 'required|min:3|max:50',
+                'tingkat_urgensi' => 'required|in:1,2,3,4,5', // Validasi tingkat urgensi
             ];
 
             $validator = Validator::make($request->all(), $rules);

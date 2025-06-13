@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\FasilitasModel;
 use App\Models\LantaiModel;
 use App\Models\LaporanModel;
+use App\Models\RekomperbaikanModel;
 use App\Models\RoleModel;
 use App\Models\RuanganModel;
 use App\Models\TugasDetailModel;
@@ -23,12 +24,66 @@ class SarprasController extends Controller
     public function index()
     {
         $breadcrumb = (object) [
-            'title' => 'Selamat Datang',
-            'list'  => ['Home', 'Welcome']
+            'title' => 'Dashboard',
+            'list'  => ['Home', 'Dashboard']
         ];
 
         $active_menu = 'dashboard';
-        return view('sarpras.dashboard', compact('breadcrumb', 'active_menu'));
+        $card_data = $this->getCardData();
+        $monthly_damage_data = $this->getMonthlyDamageData();
+        $spk_data = $this->getSPKData(); // Tambahkan ini
+
+        // Ambil daftar fasilitas (id => nama)
+        $fasilitasList = FasilitasModel::pluck('fasilitas_nama', 'fasilitas_id')->toArray();
+
+        return view('sarpras.dashboard', [
+            'breadcrumb' => $breadcrumb,
+            'active_menu' => $active_menu,
+            'card_data' => $card_data,
+            'monthly_damage_data' => $monthly_damage_data,
+            'spkData' => collect($spk_data), // pastikan ini collection/array
+            'fasilitasList' => $fasilitasList
+        ]);
+    }
+
+    private function getCardData()
+    {
+        $data = [
+            'total_laporan' => LaporanModel::count(),
+            'menunggu_verifikasi' => LaporanModel::where('status_id', 1)->count(),
+            'ditolak' => LaporanModel::where('status_id', 2)->count(),
+            'diproses' => LaporanModel::where('status_id', 3)->count(),
+            'selesai' => LaporanModel::where('status_id', 4)->count(),
+        ];
+        return $data;
+    }
+
+    private function getMonthlyDamageData()
+    {
+        $currentYear = date('Y');
+        $monthlyData = [];
+
+        // Inisialisasi array untuk 12 bulan (0-11 untuk index JavaScript)
+        for ($i = 1; $i <= 12; $i++) {
+            $monthlyData[$i] = 0;
+        }
+
+        // Query untuk menghitung jumlah fasilitas yang dilaporkan per bulan tahun ini
+        // Menggunakan join antara m_laporan dan m_laporan_detail
+        $reports = DB::table('m_laporan')
+            ->join('m_laporan_detail', 'm_laporan.laporan_id', '=', 'm_laporan_detail.laporan_id')
+            ->select(DB::raw('MONTH(tanggal_lapor) as month'), DB::raw('COUNT(m_laporan_detail.fasilitas_id) as total'))
+            ->whereYear('tanggal_lapor', $currentYear)
+            ->groupBy('month')
+            ->get();
+
+        // Mengisi data ke array hasil
+        foreach ($reports as $report) {
+            $monthlyData[$report->month] = $report->total;
+        }
+
+        // Mengembalikan array values saja (tanpa key)
+        return array_values($monthlyData);
     }
 
 
@@ -414,5 +469,20 @@ class SarprasController extends Controller
             ->firstOrFail();
 
         return view('sarpras.riwayat.show', compact('laporan'));
+    }
+
+    private function getSPKData()
+    {
+        try {
+            // Directly query the database instead of making HTTP requests
+            return RekomperbaikanModel::with('fasilitas')
+                ->orderBy('rank', 'asc')
+                ->limit(5)
+                ->get();
+        } catch (\Exception $e) {
+            Log::error('Error retrieving SPK data: ' . $e->getMessage());
+            return [];
+        }
+        return view('sarpras.dashboard', compact('breadcrumb', 'active_menu'));
     }
 };

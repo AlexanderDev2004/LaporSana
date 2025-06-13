@@ -1,113 +1,109 @@
 @extends('layouts.admin.template')
 
-@section('title', 'Validasi Laporan')
-
 @section('content')
     <div class="container-fluid">
-        <h1 class="h3 mb-4 text-gray-800">Validasi Laporan</h1>
         <div class="card shadow mb-4">
-            <div class="card-header py-3">
-                <h6 class="m-0 font-weight-bold text-primary">Daftar Laporan Masuk</h6>
+            <div class="card-header py-3 d-flex justify-content-between align-items-center">
+                <div class="form-inline">
+                    <label class="mr-2" for="status_filter">Filter Status:</label>
+                    <select id="status_filter" class="form-control form-control-sm">
+                        <option value="">Semua Status</option>
+                        <option value="1">Menunggu Verifikasi</option>
+                        <option value="2">Ditolak</option>
+                        <option value="3">Diproses</option>
+                        <option value="5">Disetujui</option>
+                    </select>
+                </div>
             </div>
             <div class="card-body">
                 <div class="table-responsive">
-                    {{-- Perbaikan: Hanya ada satu tag <table> --}}
-                    <table class="table table-bordered" id="laporanTable" width="100%" cellspacing="0">
+                    <table id="laporanTable" class="table table-bordered" width="100%" cellspacing="0">
                         <thead>
                             <tr>
-                                <th>ID Laporan</th>
+                                <th>ID</th>
                                 <th>Pelapor</th>
-                                <th>Tanggal Lapor</th>
                                 <th>Status</th>
+                                <th>Tanggal Lapor</th>
+                                <th>Jumlah Pelapor</th>
                                 <th>Aksi</th>
                             </tr>
                         </thead>
-                        <tbody>
-                            {{-- DataTables akan mengisi bagian ini secara otomatis --}}
-                        </tbody>
+                        <tbody></tbody>
                     </table>
                 </div>
             </div>
         </div>
     </div>
 
-    <div class="modal fade" id="detailLaporanModal" tabindex="-1" role="dialog" aria-labelledby="detailLaporanModalLabel"
-        aria-hidden="true">
-        <div class="modal-dialog modal-lg" role="document">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title">Detail Laporan</h5>
-                    <button type="button" class="close" data-dismiss="modal"><span>&times;</span></button>
-                </div>
-                <div class="modal-body" id="modalContent">
-                    <p>Memuat...</p>
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Tutup</button>
-                </div>
-            </div>
-        </div>
+    <!-- Modal untuk menampilkan detail laporan -->
+    <div class="modal fade" id="myModal" tabindex="-1" role="dialog" aria-hidden="true">
+        <!-- Konten modal akan dimuat secara dinamis -->
     </div>
 @endsection
 
-{{-- Hapus @push('styles') dan @push('scripts') yang memuat CDN DataTables karena sudah dimuat di template utama --}}
-{{-- @push('styles')
-    <link rel="stylesheet" href="https://cdn.datatables.net/1.11.5/css/dataTables.bootstrap4.min.css">
-@endpush --}}
-
 @push('scripts')
-{{-- <script src="https://cdn.datatables.net/1.11.5/js/jquery.dataTables.min.js"></script> --}}
-{{-- <script src="https://cdn.datatables.net/1.11.5/js/dataTables.bootstrap4.min.js"></script> --}}
-<script>
-$(document).ready(function () {
-    var laporanTable = $('#laporanTable').DataTable({
-        processing: true,
-        serverSide: true,
-        ajax: '{{ route("admin.validasi_laporan.list") }}',
-        columns: [
-            { data: 'laporan_id', defaultContent: "-"},
-            { data: 'pelapor', defaultContent: "-"},
-            { data: 'tanggal', defaultContent: "-"},
-            { data: 'status', defaultContent: "-"},
-            { data: 'aksi', name: 'aksi', orderable: false, searchable: false },
-        ]
-    });
+    <script>
+        function modalAction(url = '') {
+            $('#myModal').load(url, function () {
+                $('#myModal').modal('show');
+            });
+        }
 
-    window.modalAction = function(url) {
-        $('#modalContent').html('<p>Memuat...</p>');
-        $.get(url, function(res) {
-            $('#modalContent').html(res);
-            $('#detailLaporanModal').modal('show');
-        }).fail(function() {
-            $('#modalContent').html('<p>Gagal memuat detail laporan.</p>');
+        var dataLaporan; // Mengubah nama variabel agar konsisten dengan show.blade.php
+        $(document).ready(function () {
+            dataLaporan = $('#laporanTable').DataTable({                       
+                processing: true,
+                serverSide: true,
+                responsive: true,
+                
+                ajax: {
+                    "url": "{{ route('admin.validasi_laporan.list') }}", // Mengubah URL ke route yang benar
+                    "dataType": "json",
+                    "type": "GET",
+                    "data": function (d) {
+                        d.status_id = $('#status_filter').val();
+                    },
+                    "error": function (xhr, error, thrown) {
+                        console.log('Error pada DataTables:', error);
+                        console.log('Status:', xhr.status);
+                        console.log('Response:', xhr.responseText);
+                        $('#laporanTable_processing').hide();
+                        toastr.error('Gagal memuat data: ' + error);
+                    }
+                },
+                columns: [
+                    { data: 'laporan_id', className: 'text-center' },
+                    { data: 'user.name', className: '', orderable: true, searchable: true },
+                    { 
+                        data: 'status.status_nama', 
+                        className: 'text-center',
+                        render: function(data, type, row) {
+                            let badgeClass = 'badge badge-secondary';
+                            
+                            if (row.status_id == 1)
+                                badgeClass = 'badge badge-warning';
+                            else if (row.status_id == 2)
+                                badgeClass = 'badge badge-danger';
+                            else if (row.status_id == 3)
+                                badgeClass = 'badge badge-primary';
+                            else if (row.status_id == 4)
+                                badgeClass = 'badge badge-success';
+                            else if (row.status_id == 5)
+                                badgeClass = 'badge badge-info';
+                                
+                            return '<span class="' + badgeClass + '">' + data + '</span>';
+                        }
+                    },
+                    { data: 'tanggal_lapor', className: '', orderable: true, searchable: true },
+                    { data: 'jumlah_pelapor', className: 'text-center', orderable: true, searchable: true },
+                    { data: 'aksi', className: 'text-center', orderable: false, searchable: false }
+                ]
+            });
+
+            // Filter berdasarkan status
+            $('#status_filter').on('change', function () {
+                dataLaporan.ajax.reload();
+            });
         });
-    };
-
-    window.setujuAction = function(id) {
-        if (confirm('Setujui laporan ini?')) {
-            $.post("{{ url('admin/validasi_lapor an') }}/" + id + "/setuju", {
-                _token: '{{ csrf_token() }}'
-            }, function(res) {
-                alert(res.message);
-                laporanTable.ajax.reload();
-            }).fail(function(jqXHR, textStatus, errorThrown) {
-                alert('Terjadi kesalahan saat menyetujui laporan: ' + jqXHR.responseJSON.message);
-            });
-        }
-    };
-
-    window.tolakAction = function(id) {
-        if (confirm('Tolak laporan ini?')) {
-            $.post("{{ url('admin/validasi_laporan') }}/" + id + "/tolak", {
-                _token: '{{ csrf_token() }}'
-            }, function(res) {
-                alert(res.message);
-                laporanTable.ajax.reload();
-            }).fail(function(jqXHR, textStatus, errorThrown) {
-                alert('Terjadi kesalahan saat menolak laporan: ' + jqXHR.responseJSON.message);
-            });
-        }
-    };
-});
-</script>
+    </script>
 @endpush
