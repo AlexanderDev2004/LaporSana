@@ -1,5 +1,5 @@
 <!-- Sidebar -->
- <div class="sidebar">
+<div class="sidebar">
      <!-- Sidebar user panel (optional) -->
      <div class="user-panel mt-3 pb-3 mb-3 d-flex">
          <div class="image">
@@ -98,16 +98,16 @@
             </a>
         </li> --}}
 
-        <li class="nav-header">Logout</li>
+        {{-- <li class="nav-header">Logout</li>
         <li class="nav-item">
             <a href="{{ route('logout') }}" class="nav-link">
                 <i class="nav-icon fas fa-sign-out-alt"></i>
                 <p>Logout</p>
             </a>
-        </li>
+        </li> --}}
     </ul>
 </nav>
 <!-- /.sidebar-menu -->
 
- </div>
- <!-- /.sidebar -->
+</div>
+<!-- /.sidebar -->
