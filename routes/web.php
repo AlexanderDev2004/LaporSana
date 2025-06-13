@@ -158,7 +158,7 @@ Route::middleware(['authorize:5'])->group(callback: function () {
         Route::get('/penugasan/{tugas_id}', [SarprasController::class, 'tugasShow'])->name('sarpras.penugasan.show');
         Route::get('/create_tugas', [SarprasController::class, 'tugasCreate'])->name('sarpras.penugasan.create');
         Route::post('/penugasan/store', [SarprasController::class, 'tugasStore'])->name('sarpras.penugasan.store');
-        Route::get('/penugasan/{tugas_id}/edit', [SarprasController::class, 'tugasEdit'])->name('sarpras.penugasan.edit');
+        // Route::get('/penugasan/{tugas_id}/edit', [SarprasController::class, 'tugasEdit'])->name('sarpras.penugasan.edit');
         Route::put('/penugasan/{tugas_id}', [SarprasController::class, 'tugasUpdate'])->name('sarpras.penugasan.update');
         Route::delete('/penugasan/{tugas_id}', [SarprasController::class, 'tugasDestroy'])->name('sarpras.penugasan.destroy');
 
@@ -170,6 +170,10 @@ Route::middleware(['authorize:5'])->group(callback: function () {
         Route::get('/laporan', [SarprasController::class, 'laporan'])->name('sarpras.laporan');
         Route::POST('/laporan/list', [SarprasController::class, 'list'])->name('sarpras.laporan.list');
         Route::get('/laporan/{laporan_id}', [SarprasController::class, 'showLaporan'])->name('sarpras.laporan.show');
+        Route::post('/laporan/{laporan_id}/update-status', [SarprasController::class, 'updateStatusLaporan'])->name('sarpras.laporan.updateStatus');
+        Route::get('/riwayat', [SarprasController::class, 'riwayatLaporan'])->name('sarpras.riwayat');
+        Route::post('/riwayat/list', [SarprasController::class, 'riwayatList'])->name('sarpras.riwayat.list');
+        Route::get('/riwayat/{laporan_id}', [SarprasController::class, 'showRiwayatLaporan'])->name('sarpras.riwayat.show');
     });
 });
 

@@ -140,14 +140,14 @@ class SarprasController extends Controller
             })
             ->addColumn('aksi', function ($tugas) {
                 $detailUrl = route('sarpras.penugasan.show', ['tugas_id' => $tugas->tugas_id]);
-                $editUrl = route('sarpras.penugasan.edit', ['tugas_id' => $tugas->tugas_id]);
+                // $editUrl = route('sarpras.penugasan.edit', ['tugas_id' => $tugas->tugas_id]);
                 $deleteUrl = route('sarpras.penugasan.destroy', ['tugas_id' => $tugas->tugas_id]);
 
                 $btn = '<button onclick="modalAction(\''.$detailUrl.'\')" class="btn btn-info btn-sm">Detail</button> ';
-                $btnEdit = '<button onclick="modalAction(\''.$editUrl.'\')" class="btn btn-info btn-sm btn-warning">Edit</button> ';
+                // $btnEdit = '<button onclick="modalAction(\''.$editUrl.'\')" class="btn btn-info btn-sm btn-warning">Edit</button> ';
                 $btnDelete = '<button type="button" class="btn btn-danger btn-sm ml-1 btn-hapus" data-url="'.$deleteUrl.'">Hapus</button>';
 
-                return $btn . $btnEdit . $btnDelete;
+                return $btn . $btnDelete;
             })
             ->rawColumns(['status.status_nama', 'aksi'])
             ->make(true);
@@ -199,12 +199,10 @@ class SarprasController extends Controller
             $detail->tugas_id = $tugas->tugas_id;
             $detail->fasilitas_id = $validated['fasilitas_id'];
             
-            // --- INI PERBAIKAN UTAMANYA ---
             $detail->deskripsi = $validated['deskripsi'] ?? ''; // Berikan string kosong jika null
             $detail->tingkat_kerusakan = 1; // Sesuai default di database
             $detail->biaya_perbaikan = 0.00; // Sesuai default di database
             $detail->tugas_image = ''; // Berikan string kosong
-            // --------------------------------
 
             $detail->save();
             
@@ -241,30 +239,30 @@ class SarprasController extends Controller
         return view('sarpras.penugasan.edit', compact('tugas', 'teknisi'));
     }
 
-    public function tugasUpdate(Request $request, $tugas_id)
-    {
-        $validator = Validator::make($request->all(), [
-            'user_id' => 'required|exists:m_user,user_id',
-            'tugas_jenis' => 'required|in:Pemeriksaan,Perbaikan',
-        ]);
+    // public function tugasUpdate(Request $request, $tugas_id)
+    // {
+    //     $validator = Validator::make($request->all(), [
+    //         'user_id' => 'required|exists:m_user,user_id',
+    //         'tugas_jenis' => 'required|in:Pemeriksaan,Perbaikan',
+    //     ]);
 
-        if ($validator->fails()) {
-            return response()->json(['status' => false, 'message' => 'Validasi gagal.', 'errors' => $validator->errors()], 422);
-        }
+    //     if ($validator->fails()) {
+    //         return response()->json(['status' => false, 'message' => 'Validasi gagal.', 'errors' => $validator->errors()], 422);
+    //     }
 
-        try {
-            $tugas = TugasModel::findOrFail($tugas_id);
-            $tugas->user_id = $request->user_id;
-            $tugas->tugas_jenis = $request->tugas_jenis;
-            $tugas->save();
+    //     try {
+    //         $tugas = TugasModel::findOrFail($tugas_id);
+    //         $tugas->user_id = $request->user_id;
+    //         $tugas->tugas_jenis = $request->tugas_jenis;
+    //         $tugas->save();
 
-            return response()->json(['status' => true, 'message' => 'Data penugasan berhasil diperbarui.']);
+    //         return response()->json(['status' => true, 'message' => 'Data penugasan berhasil diperbarui.']);
         
-        } catch (\Exception $e) {
-            Log::error('Error saat update tugas: ' . $e->getMessage());
-            return response()->json(['status' => false, 'message' => 'Terjadi error di server.'], 500);
-        }
-    }
+    //     } catch (\Exception $e) {
+    //         Log::error('Error saat update tugas: ' . $e->getMessage());
+    //         return response()->json(['status' => false, 'message' => 'Terjadi error di server.'], 500);
+    //     }
+    // }
 
     public function tugasDestroy($tugas_id)
     {
@@ -282,6 +280,7 @@ class SarprasController extends Controller
         }
     }
 
+    // masuk bagian laporan kerusakan
     public function laporan()
     {
         $breadcrumb = (object) [
@@ -319,7 +318,16 @@ class SarprasController extends Controller
             ->addColumn('aksi', function ($laporan) {
                 $detailUrl = route('sarpras.laporan.show', ['laporan_id' => $laporan->laporan_id]);
                 $btn = '<button onclick="modalAction(\''.$detailUrl.'\')" class="btn btn-info btn-sm">Detail</button> ';
-                return $btn;
+
+                $btnSelesai = '';
+                $btnTolak = '';
+
+                // Tombol aksi hanya muncul jika statusnya "Menunggu Verifikasi" (ID 1)
+                if ($laporan->status_id == 3) {
+                    $btnSelesai = '<button type="button" class="btn btn-success btn-sm ml-1 btn-update-status" data-id="'.$laporan->laporan_id.'" data-status="4">Selesai</button>';
+                    $btnTolak = '<button type="button" class="btn btn-danger btn-sm ml-1 btn-update-status" data-id="'.$laporan->laporan_id.'" data-status="2">Tolak</button>';
+                }
+                return $btn . $btnSelesai . $btnTolak;
             })
             ->rawColumns(['status.status_nama', 'aksi'])
             ->make(true);
@@ -332,5 +340,79 @@ class SarprasController extends Controller
             ->firstOrFail();
 
         return view('sarpras.laporan.show', compact('laporan'));
+    }
+
+    public function updateStatusLaporan(Request $request, $laporan_id)
+    {
+        $validator = Validator::make($request->all(), [
+            'status_id' => 'required|in:2,4', // Hanya izinkan status Ditolak (2) atau Selesai (4)
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json(['status' => false, 'message' => 'Status yang dipilih tidak valid.'], 422);
+        }
+
+        try {
+            $laporan = LaporanModel::findOrFail($laporan_id);
+            $laporan->status_id = $request->status_id;
+            $laporan->save();
+            
+            return response()->json(['status' => true, 'message' => 'Status laporan berhasil diperbarui.']);
+
+        } catch (\Exception $e) {
+            Log::error('Gagal update status laporan: ' . $e->getMessage());
+            return response()->json(['status' => false, 'message' => 'Terjadi error di server.'], 500);
+        }
+    }
+
+    public function riwayatLaporan()
+    {
+        $breadcrumb = (object) [
+            'title' => 'Riwayat Laporan',
+            'list'  => ['Home', 'Laporan', 'Riwayat']
+        ];
+        $page = (object) [
+            'title' => 'Daftar Riwayat Laporan Kerusakan'
+        ];
+        $active_menu = 'riwayat laporan';
+
+        return view('sarpras.riwayat.riwayat', compact('breadcrumb', 'page', 'active_menu'));
+    }
+
+    /**
+     * Menyediakan data untuk tabel Riwayat Laporan melalui AJAX.
+     */
+    public function riwayatList(Request $request)
+    {
+        // Filter hanya untuk status Selesai (4) dan Ditolak (2)
+        $laporans = LaporanModel::with(['details.fasilitas.ruangan.lantai', 'user', 'status'])
+            ->whereIn('status_id', [2, 4]);
+
+        return DataTables::of($laporans)
+            ->addIndexColumn()
+            ->editColumn('status.status_nama', function ($laporan) {
+                $status = $laporan->status->status_nama ?? 'Tidak Diketahui';
+                switch ($laporan->status_id) {
+                    case 2: return '<span class="badge badge-danger">' . $status . '</span>';
+                    case 4: return '<span class="badge badge-success">' . $status . '</span>';
+                    default: return '<span class="badge badge-secondary">' . $status . '</span>';
+                }
+            })
+            ->addColumn('aksi', function ($laporan) {
+                $detailUrl = route('sarpras.riwayat.show', ['laporan_id' => $laporan->laporan_id]);
+                $btn = '<button onclick="modalAction(\''.$detailUrl.'\')" class="btn btn-info btn-sm">Detail</button>';
+                return $btn;
+            })
+            ->rawColumns(['status.status_nama', 'aksi'])
+            ->make(true);
+    }
+
+    public function showRiwayatLaporan($laporan_id)
+    {
+        $laporan = LaporanModel::with(['details.fasilitas.ruangan.lantai', 'status'])
+            ->where('laporan_id', $laporan_id)
+            ->firstOrFail();
+
+        return view('sarpras.riwayat.show', compact('laporan'));
     }
 };
