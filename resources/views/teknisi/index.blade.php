@@ -41,6 +41,7 @@
                         <th>Jenis Tugas</th>
                         <th>Tanggal Penugasan</th>
                         <th>Tanggal Penyelesaian</th>
+                        <th>Laporan</th>
                         <th>Aksi</th>
                     </tr>
                 </thead>
@@ -125,6 +126,12 @@
                     },
                     {
                         data: "tugas_selesai",
+                        className: "",
+                        orderable: true,
+                        searchable: true
+                    },
+                    {
+                        data: "laporan",
                         className: "",
                         orderable: true,
                         searchable: true

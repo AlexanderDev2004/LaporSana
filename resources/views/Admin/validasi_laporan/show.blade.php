@@ -161,7 +161,7 @@
                     if (result.isConfirmed) {
                         // Kirim request AJAX ke controller dengan URL yang benar
                         $.ajax({
-                            url: "/admin/laporan/" + laporanId + "/verify",  // Fix the URL format
+                            url: "{{ route('admin.validasi_laporan.verify', $laporan->laporan_id) }}",  // Fix the URL format
                             type: 'POST',
                             data: {
                                 _token: "{{ csrf_token() }}",

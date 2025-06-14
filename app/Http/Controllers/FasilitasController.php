@@ -325,4 +325,6 @@ class FasilitasController extends Controller
 
                 return $pdf->stream('Data Fasilitas ' . date('Y-m-d H:i:s') . '.pdf');
         }
+
+        
 }

@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\LaporanModel;
 use App\Models\StatusModel;
 use App\Models\TugasDetail;
 use App\Models\TugasModel;
@@ -62,7 +63,7 @@ class TeknisiController extends Controller
             'list' => ['Home', 'Tugas']
         ];
 
-        $tugas = TugasModel::with(['status', 'user'])
+        $tugas = TugasModel::with(['status', 'user', 'laporan'])
             ->where('user_id', Auth::user()->user_id)
             ->whereHas('status', function ($query) {
                 $query->where('status_nama', '!=', 'selesai');
@@ -74,8 +75,9 @@ class TeknisiController extends Controller
 
         $status = StatusModel::all();
         $user = UserModel::all();
+        $laporan = LaporanModel::all();
 
-        return view('teknisi.index', compact('user', 'status', 'tugas', 'active_menu', 'breadcrumb'));
+        return view('teknisi.index', compact('user', 'status', 'tugas', 'active_menu', 'breadcrumb', 'laporan'));
     }
 
 
@@ -95,6 +97,14 @@ class TeknisiController extends Controller
 
         return DataTables::of($tugas->get())
             ->addIndexColumn()
+            ->addColumn('laporan', function ($tugas) {
+                if ($tugas->laporan) {
+                    $link = '<a href="' . route('teknisi.show_laporan', $tugas->laporan->laporan_id) . '" class="text-info mx-1" style="text-decoration: underline;">Laporan</a>';
+                    return $link;
+                } else {
+                    return '<span class="text-muted">Belum Ada</span>';
+                }
+            })
             ->addColumn('aksi', function ($tugas) {
                 $btn = '<button onclick="modalAction(\'' . route('teknisi.show', $tugas->tugas_id) . '\')" class="btn btn-info btn-sm mx-1"><i class="fas fa-eye"></i></button>';
                 $btn .= '';
@@ -105,7 +115,7 @@ class TeknisiController extends Controller
                 }
                 return $btn;
             })
-            ->rawColumns(['aksi'])
+            ->rawColumns(['laporan', 'aksi'])
             ->toJson();
     }
 
@@ -125,6 +135,23 @@ class TeknisiController extends Controller
         return view('teknisi.show', compact('breadcrumb', 'active_menu', 'tugas'));
     }
 
+    public function showLaporan($id)
+    {
+        $laporan = LaporanModel::with([
+            'user',
+            'status',
+            'details.fasilitas.ruangan.lantai' // details sudah include fasilitas, ruangan, lantai
+        ])->findOrFail($id);
+
+        $breadcrumb = (object) [
+            'title' => 'Detail Laporan',
+            'list'  => ['Home', 'Tugas', 'Detail Laporan']
+        ];
+        $active_menu = 'tugas';
+
+        return view('teknisi.show_laporan', compact('breadcrumb', 'active_menu', 'laporan'));
+    }
+
     public function riwayat()
     {
         $breadcrumb = (object) [
@@ -133,7 +160,7 @@ class TeknisiController extends Controller
         ];
         $active_menu = 'riwayat';
 
-        // Kita bisa kirim data status untuk filter juga, misal semua status selesai
+        // data status untuk filter 
         $status = StatusModel::all();
 
         return view('teknisi.riwayat', compact('breadcrumb', 'active_menu', 'status'));
@@ -152,7 +179,7 @@ class TeknisiController extends Controller
             ->addIndexColumn()
             ->addColumn('aksi', function ($tugas) {
                 $btn = '<button onclick="modalAction(\'' . route('teknisi.show', $tugas->tugas_id) . '\')" class="btn btn-info btn-sm"><i class="fas fa-eye"></i></button>';
-                return $btn; // di riwayat biasanya hanya lihat detail
+                return $btn; 
             })
             ->rawColumns(['aksi'])
             ->toJson();
@@ -205,7 +232,11 @@ class TeknisiController extends Controller
 
         // Validasi input
         $validator = Validator::make($request->all(), [
-            'tugas_selesai' => 'nullable|date|after_or_equal:tugas_mulai',
+            'tugas_selesai' => ['nullable', 'date', function ($attribute, $value, $fail) {
+                if ($value != date('Y-m-d')) {
+                    $fail('Tanggal tidak sesuai! (' . date('Y-m-d') . ').');
+                }
+            }],
         ]);
 
         if ($validator->fails()) {
@@ -222,10 +253,12 @@ class TeknisiController extends Controller
         // Jika jenis tugas sebelumnya adalah pemeriksaan, ubah ke perbaikan
         $jenis_tugas_baru = $tugas->tugas_jenis === 'pemeriksaan' ? 'perbaikan' : $tugas->tugas_jenis;
 
+        $formattedTugasSelesai = $request->tugas_selesai . ' ' . date('H:i:s');
+
         $tugas->update([
-            'status_id' => $status->status_id,
-            'tugas_jenis' => $jenis_tugas_baru,
-            'tugas_selesai' => $request->tugas_selesai,
+            'status_id'     => $status->status_id,
+            'tugas_jenis'   => $jenis_tugas_baru,
+            'tugas_selesai' => $formattedTugasSelesai,
         ]);
 
         return response()->json([
@@ -242,7 +275,6 @@ class TeknisiController extends Controller
             'tingkat_kerusakan' => 'required|integer|min:1|max:5',
             'biaya_perbaikan' => 'nullable|numeric|min:0',
             'tugas_image' => 'nullable|image|mimes:jpeg,png,jpg,gif,svg|max:2048',
-            // Jika ada validasi untuk TugasModel, misalnya status atau tugas_selesai, tambahkan di sini
         ]);
 
         if ($validator->fails()) {
@@ -259,7 +291,7 @@ class TeknisiController extends Controller
             'tugas_jenis' => $tugas->tugas_jenis === 'pemeriksaan' ? 'perbaikan' : $tugas->tugas_jenis,
         ]);
 
-       
+
         $tugasDetail = TugasDetail::where('tugas_id', $tugas->tugas_id)->firstOrFail();
         $dataDetail = [
             'tingkat_kerusakan' => $request->tingkat_kerusakan,
@@ -295,7 +327,6 @@ class TeknisiController extends Controller
             'list'  => ['Home', 'Profil']
         ];
 
-        // Aktifkan menu sidebar
         $active_menu = 'profile';
 
         // Tampilkan view
@@ -321,7 +352,6 @@ class TeknisiController extends Controller
         $user = auth()->user();
 
         $validated = $request->validate([
-            // Username tidak diubah sendiri, jadi skip validasi unique username
             'name' => 'required|string|max:100',
             'NIM' => 'nullable|string|max:20',
             'NIP' => 'nullable|string|max:20',

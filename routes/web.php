@@ -148,6 +148,8 @@ Route::middleware(['auth', 'authorize:1'])->group(function () {
     Route::get('/list', [LaporanController::class, 'list'])->name('admin.validasi_laporan.list');
     Route::get('/{laporan}/show', [LaporanController::class, 'show'])->name('admin.validasi_laporan.show');
     Route::post('/{laporan}/verify', [LaporanController::class, 'verify'])->name('admin.validasi_laporan.verify');
+    Route::get('/export_excel', [LaporanController::class, 'export_excel'])->name('admin.validasi_laporan.export_excel');  
+    Route::get('export_pdf', [LaporanController::class, 'export_pdf'])->name('admin.validasi_laporan.export_pdf');  
 
     });
 });
@@ -176,12 +178,7 @@ Route::middleware(['authorize:2,3,4'])->group(function () {
 });
 
 // Sarpras Management (role 5)
-Route::middleware(['authorize:5'])->group(callback: function () {
-        Route::get('/sarpras/dashboard', [SarprasController::class, 'index'])->name('sarpras.dashboard');
-        Route::get('/sarpras/profile', [SarprasController::class, 'show'])->name('sarpras.profile.show');
-        Route::get('/sarpras/profile/edit', [SarprasController::class, 'edit'])->name('sarpras.profile.edit');
-        Route::put('/sarpras/profile', [SarprasController::class, 'update'])->name('sarpras.profile.update');
-
+Route::middleware(['authorize:5'])->group(function () {
     Route::get('/sarpras/dashboard', [SarprasController::class, 'index'])->name('sarpras.dashboard');
     Route::get('/sarpras/profile', [SarprasController::class, 'show'])->name('sarpras.profile.show');
     Route::get('/sarpras/profile/edit', [SarprasController::class, 'edit'])->name('sarpras.profile.edit');
@@ -204,18 +201,8 @@ Route::group(['prefix' => 'teknisi', 'middleware' => 'authorize:6'], function ()
         Route::put('/{teknisi}/updatepemeriksaan', [TeknisiController::class, 'updatePemeriksaan'])->name('teknisi.updatepemeriksaan');
         Route::get('/teknisi/riwayat', [TeknisiController::class, 'riwayat'])->name('teknisi.riwayat');
         Route::get('/teknisi/riwayat/list', [TeknisiController::class, 'riwayatList'])->name('teknisi.riwayat.list');
+        Route::get('/laporan/{id}', [TeknisiController::class, 'showLaporan'])->name('teknisi.show_laporan');
         
-    });
-    Route::get('/dashboard', [TeknisiController::class, 'dashboard'])->name('teknisi.dashboard');
-    Route::get('/', [TeknisiController::class, 'index'])->name('teknisi.index');
-    Route::get('/list', [TeknisiController::class, 'list'])->name('teknisi.list');
-    Route::post('/', [TeknisiController::class, 'store'])->name('teknisi.store');
-    Route::get('/{teknisi}/edit', [TeknisiController::class, 'edit'])->name('teknisi.edit');
-    Route::get('/{teknisi}/show', [TeknisiController::class, 'show'])->name('teknisi.show');
-    Route::put('/{teknisi}/confirm', [TeknisiController::class, 'update'])->name('teknisi.update');
-    Route::delete('/{teknisi}/delete', [TeknisiController::class, 'destroy'])->name('teknisi.destroy');
-    Route::get('/teknisi/riwayat', [TeknisiController::class, 'riwayat'])->name('teknisi.riwayat');
-    Route::get('/teknisi/riwayat/list', [TeknisiController::class, 'riwayatList'])->name('teknisi.riwayat.list');
 });
 
 
