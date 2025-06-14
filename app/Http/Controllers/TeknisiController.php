@@ -91,16 +91,15 @@ class TeknisiController extends Controller
 
 
         // Filter status
-        if ($request->has('filter_status') && $request->filter_status != '') {
-            $tugas->where('status_id', $request->filter_status);
+        if ($request->has('filter_tugas_jenis') && $request->filter_tugas_jenis != '') {
+            $tugas->where('tugas_jenis', $request->filter_tugas_jenis);
         }
 
         return DataTables::of($tugas->get())
             ->addIndexColumn()
             ->addColumn('laporan', function ($tugas) {
                 if ($tugas->laporan) {
-                    $link = '<a href="' . route('teknisi.show_laporan', $tugas->laporan->laporan_id) . '" class="text-info mx-1" style="text-decoration: underline;">Laporan</a>';
-                    return $link;
+                    return '<a href="javascript:void(0)" onclick="modalAction(\'' . route('teknisi.show_laporan', $tugas->laporan->laporan_id) . '\')" class="btn btn-link text-info"><i class="fas fa-eye"></i> <span class="ms-1">Laporan</span></a>';
                 } else {
                     return '<span class="text-muted">Belum Ada</span>';
                 }
@@ -160,7 +159,7 @@ class TeknisiController extends Controller
         ];
         $active_menu = 'riwayat';
 
-        // data status untuk filter 
+        // Kita bisa kirim data status untuk filter 
         $status = StatusModel::all();
 
         return view('teknisi.riwayat', compact('breadcrumb', 'active_menu', 'status'));
@@ -179,7 +178,7 @@ class TeknisiController extends Controller
             ->addIndexColumn()
             ->addColumn('aksi', function ($tugas) {
                 $btn = '<button onclick="modalAction(\'' . route('teknisi.show', $tugas->tugas_id) . '\')" class="btn btn-info btn-sm"><i class="fas fa-eye"></i></button>';
-                return $btn; 
+                return $btn; // di riwayat hanya lihat detail
             })
             ->rawColumns(['aksi'])
             ->toJson();
@@ -352,6 +351,7 @@ class TeknisiController extends Controller
         $user = auth()->user();
 
         $validated = $request->validate([
+            // Username tidak diubah sendiri, jadi skip validasi unique username
             'name' => 'required|string|max:100',
             'NIM' => 'nullable|string|max:20',
             'NIP' => 'nullable|string|max:20',
