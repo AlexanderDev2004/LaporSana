@@ -378,7 +378,7 @@ class SarprasController extends Controller
     //         $tugas->save();
 
     //         return response()->json(['status' => true, 'message' => 'Data penugasan berhasil diperbarui.']);
-        
+
     //     } catch (\Exception $e) {
     //         Log::error('Error saat update tugas: ' . $e->getMessage());
     //         return response()->json(['status' => false, 'message' => 'Terjadi error di server.'], 500);
@@ -457,12 +457,58 @@ class SarprasController extends Controller
         return view('sarpras.laporan.laporan', compact('breadcrumb', 'page', 'active_menu'));
     }
 
+    public function listLaporan(Request $request)
+{
+    $laporans = LaporanModel::with(['details.fasilitas.ruangan.lantai', 'status'])
+        ->orderBy('status_id', 'asc')
+        ->where('status_id', 1) // hanya mengambil status yang sedang dalam proses
+        ->get();
+
+    return DataTables::of($laporans)
+        ->addIndexColumn()
+        ->editColumn('status.status_nama', function ($laporan) {
+            $status = $laporan->status->status_nama ?? 'Tidak Diketahui';
+            switch ($laporan->status_id) {
+                case 1: return '<span class="badge badge-warning">' . $status . '</span>';
+                case 2: return '<span class="badge badge-danger">' . $status . '</span>';
+                case 3: return '<span class="badge badge-info">' . $status . '</span>';
+                case 4: return '<span class="badge badge-success">' . $status . '</span>';
+                default: return '<span class="badge badge-secondary">' . $status . '</span>';
+            }
+        })
+        ->addColumn('aksi', function ($laporan) {
+        $detailUrl = route('sarpras.show', ['laporan_id' => $laporan->laporan_id]);
+        $btn = '<button onclick="modalAction(\''.$detailUrl.'\')" class="btn btn-info btn-sm">Detail</button>';
+
+        if ($laporan->status_id == 1) {
+            $approveUrl = route('sarpras.approve', ['laporan_id' => $laporan->laporan_id]);
+            $rejectUrl = route('sarpras.reject', ['laporan_id' => $laporan->laporan_id]);
+
+            $btn .= '
+                <form action="'.$approveUrl.'" method="POST" class="d-inline form-approve" style="margin-left:4px;">
+                    '.csrf_field().'
+                    <button type="button" class="btn btn-success btn-sm btn-approve">Setujui</button>
+                </form>
+                <form action="'.$rejectUrl.'" method="POST" class="d-inline form-reject" style="margin-left:4px;">
+                    '.csrf_field().'
+                    <button type="button" class="btn btn-danger btn-sm btn-reject">Tolak</button>
+                </form>';
+        } else {
+            $btn .= '<span class="text-muted ml-2">Sudah diverifikasi</span>';
+        }
+
+        return $btn;
+    })
+        ->rawColumns(['status.status_nama', 'aksi'])
+        ->make(true);
+}
+
     public function list(Request $request)
     {
         $laporans = LaporanModel::with(['details.fasilitas.ruangan.lantai', 'status', 'user'])
         ->where('status_id', 3) // hanya mengambil status yang sedang dalam proses
         ->get();
-        
+
         return DataTables::of($laporans)
             ->addIndexColumn()
             ->editColumn('status.status_nama', function ($laporan) {
@@ -493,6 +539,7 @@ class SarprasController extends Controller
             ->make(true);
     }
 
+
     public function showLaporan($laporan_id)
     {
         $laporan = LaporanModel::with(['details.fasilitas.ruangan.lantai', 'status'])
@@ -516,7 +563,7 @@ class SarprasController extends Controller
             $laporan = LaporanModel::findOrFail($laporan_id);
             $laporan->status_id = $request->status_id;
             $laporan->save();
-            
+
             return response()->json(['status' => true, 'message' => 'Status laporan berhasil diperbarui.']);
 
         } catch (\Exception $e) {
