@@ -36,4 +36,9 @@ class TugasModel extends Model
     {
         return $this->belongsTo(StatusModel::class, 'status_id', 'status_id');
     }
+    public function riwayat()
+{
+    return $this->hasOne(RiwayatPerbaikan::class, 'tugas_id', 'tugas_id');
+}
+
 }

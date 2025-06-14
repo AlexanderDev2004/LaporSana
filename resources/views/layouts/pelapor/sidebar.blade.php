@@ -50,7 +50,7 @@
         </li>
 
         <li class="nav-item">
-            <a href="{{ url('/') }}" class="nav-link {{ $active_menu == 'feedback' ? '' : '' }}">
+            <a href="{{ route('pelapor.feedback') }}" class="nav-link {{ $active_menu == 'feedback' ? 'active' : '' }}">
                 <i class="nav-icon fas fa-star"></i>
                 <p>Feedback</p>
             </a>

@@ -144,6 +144,13 @@ Route::middleware(['authorize:2,3,4'])->group(function () {
         // mengambil ruangan dan fasilitas untuk ajax chain
         Route::get('/get-ruangan/{lantai_id}', [PelaporController::class, 'getRuangan'])->name('pelapor.getRuangan');
         Route::get('/get-fasilitas/{ruangan_id}', [PelaporController::class, 'getFasilitas'])->name('pelapor.getFasilitas');
+
+        //Feedback
+        Route::get('/feedback', [PelaporController::class, 'feedback'])->name('pelapor.feedback');
+        Route::get('/feedback/list', [PelaporController::class, 'feedbackList'])->name('pelapor.feedback.list');
+        Route::get('/feedback/{tugas_id}', [PelaporController::class, 'feedbackShow'])->name('pelapor.feedback.show');
+        Route::get('/feedback/form/{tugas_id}', [PelaporController::class, 'feedbackCreate'])->name('pelapor.feedback.create');
+        Route::post('/feedback/store', [PelaporController::class, 'feedbackStore'])->name('pelapor.feedback.store');
     });
 });
 
