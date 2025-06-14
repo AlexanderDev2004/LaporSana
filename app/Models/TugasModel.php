@@ -37,4 +37,9 @@ class TugasModel extends Model
     {
         return $this->belongsTo(StatusModel::class, 'status_id', 'status_id');
     }
+
+    public function laporan(): BelongsTo
+    {
+        return $this->belongsTo(LaporanModel::class, 'laporan_id', 'laporan_id');
+    }
 }

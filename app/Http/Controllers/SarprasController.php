@@ -180,6 +180,7 @@ class SarprasController extends Controller
     {
         // Query ini sudah benar, dengan asumsi semua relasi di model benar
         $tugas = TugasModel::with(['details.fasilitas.ruangan.lantai', 'user', 'status'])
+            ->where('status_id', '!=', 4) // Ambil semua tugas yang belum selesai
             ->get();
 
         return DataTables::of($tugas)
@@ -221,7 +222,27 @@ class SarprasController extends Controller
     {
         $teknisi = UserModel::where('roles_id', 6)->get();
         $lantai = LantaiModel::all();
-        return view('sarpras.penugasan.create', compact('teknisi', 'lantai'));
+
+        // Ambil fasilitas yang sudah dilaporkan dan belum pernah ditugaskan
+        $fasilitasLaporan = DB::table('m_laporan_detail as d')
+            ->join('m_laporan as l', 'l.laporan_id', '=', 'd.laporan_id')
+            ->join('m_fasilitas as f', 'f.fasilitas_id', '=', 'd.fasilitas_id')
+            ->join('m_ruangan as r', 'r.ruangan_id', '=', 'f.ruangan_id')
+            ->join('m_lantai as lt', 'lt.lantai_id', '=', 'r.lantai_id')
+            ->leftJoin('m_tugas as t', 't.laporan_id', '=', 'l.laporan_id')
+            ->whereNull('t.laporan_id') // Belum pernah ditugaskan
+            ->select(
+                'l.laporan_id',
+                'f.fasilitas_id',
+                'f.fasilitas_nama',
+                'r.ruangan_id',
+                'r.ruangan_nama',
+                'lt.lantai_id',
+                'lt.lantai_nama'
+            )
+            ->get();
+
+        return view('sarpras.penugasan.create', compact('teknisi', 'lantai', 'fasilitasLaporan'));
     }
 
     public function tugasStore(Request $request)
@@ -229,9 +250,8 @@ class SarprasController extends Controller
         $validator = Validator::make($request->all(), [
             'user_id' => 'required|exists:m_user,user_id',
             'tugas_jenis' => 'required|in:Pemeriksaan,Perbaikan',
-            'lantai_id' => 'required|exists:m_lantai,lantai_id',
-            'ruangan_id' => 'required|exists:m_ruangan,ruangan_id',
             'fasilitas_id' => 'required|exists:m_fasilitas,fasilitas_id',
+            'laporan_id' => 'required|exists:m_laporan,laporan_id',
             'deskripsi' => 'nullable|string|max:255',
         ]);
 
@@ -239,36 +259,36 @@ class SarprasController extends Controller
             return response()->json(['status' => false, 'message' => 'Validasi gagal.', 'errors' => $validator->errors()], 422);
         }
 
+        // Cegah duplikasi penugasan laporan
+        if (TugasModel::where('laporan_id', $request->laporan_id)->exists()) {
+            return response()->json(['status' => false, 'message' => 'Laporan ini sudah ditugaskan.'], 400);
+        }
+
         try {
             $validated = $validator->validated();
 
             $tugas = new TugasModel();
             $tugas->user_id = $validated['user_id'];
-            $tugas->status_id = 3; 
+            $tugas->status_id = 3;
             $tugas->tugas_jenis = $validated['tugas_jenis'];
             $tugas->tugas_mulai = now();
-            $tugas->tugas_selesai = null; 
+            $tugas->tugas_selesai = null;
+            $tugas->laporan_id = $validated['laporan_id'];
             $tugas->save();
 
             $detail = new TugasDetailModel();
             $detail->tugas_id = $tugas->tugas_id;
             $detail->fasilitas_id = $validated['fasilitas_id'];
-            
-            $detail->deskripsi = $validated['deskripsi'] ?? ''; // Berikan string kosong jika null
-            $detail->tingkat_kerusakan = 1; // Sesuai default di database
-            $detail->biaya_perbaikan = 0.00; // Sesuai default di database
-            $detail->tugas_image = ''; // Berikan string kosong
-
+            $detail->deskripsi = $validated['deskripsi'] ?? '';
+            $detail->tingkat_kerusakan = 1;
+            $detail->biaya_perbaikan = 0.00;
+            $detail->tugas_image = '';
             $detail->save();
-            
-            return response()->json(['status' => true, 'message' => 'Tugas baru berhasil dibuat dan diberikan kepada teknisi.']);
 
+            return response()->json(['status' => true, 'message' => 'Tugas berhasil ditambahkan.']);
         } catch (\Exception $e) {
-            Log::error('Error saat menyimpan tugas: ' . $e->getMessage() . ' di baris ' . $e->getLine());
-            return response()->json([
-                'status' => false,
-                'message' => 'Terjadi error di server. Silakan hubungi administrator.'
-            ], 500);
+            Log::error('Error saat menyimpan tugas: ' . $e->getMessage());
+            return response()->json(['status' => false, 'message' => 'Terjadi error di server.'], 500);
         }
     }
 
@@ -283,6 +303,52 @@ class SarprasController extends Controller
     public function getFasilitas($ruangan_id)
     {
         $fasilitas = FasilitasModel::where('ruangan_id', $ruangan_id)->get();
+        return response()->json($fasilitas);
+    }
+
+    // Helper untuk mendapatkan fasilitas berdasarkan jenis tugas
+    public function getFasilitasByJenisTugas($jenis_tugas)
+    {
+        $status_id = null;
+
+        if ($jenis_tugas === 'Pemeriksaan') {
+            $status_id = 5;
+        } elseif ($jenis_tugas === 'Perbaikan') {
+            $status_id = 3;
+        }
+
+        if (!$status_id) {
+            return response()->json([], 400);
+        }
+
+        $query = DB::table('m_laporan_detail as d')
+            ->join('m_laporan as l', 'l.laporan_id', '=', 'd.laporan_id')
+            ->join('m_fasilitas as f', 'f.fasilitas_id', '=', 'd.fasilitas_id')
+            ->join('m_ruangan as r', 'r.ruangan_id', '=', 'f.ruangan_id')
+            ->join('m_lantai as lt', 'lt.lantai_id', '=', 'r.lantai_id')
+            ->leftJoin('m_tugas as t', 't.laporan_id', '=', 'l.laporan_id')
+            ->where('l.status_id', $status_id)
+            ->whereNull('t.laporan_id');
+
+        // Tambahkan filter khusus untuk PERBAIKAN → hanya ambil fasilitas yang ada di SPK
+        if ($jenis_tugas === 'Perbaikan') {
+            $query->whereExists(function ($subquery) {
+                $subquery->select(DB::raw(1))
+                    ->from('t_rekomperbaikan')
+                    ->whereColumn('t_rekomperbaikan.fasilitas_id', 'f.fasilitas_id');
+            });
+        }
+
+        $fasilitas = $query
+            ->select(
+                'l.laporan_id',
+                'f.fasilitas_id',
+                'f.fasilitas_nama',
+                'r.ruangan_nama',
+                'lt.lantai_nama'
+            )
+            ->get();
+
         return response()->json($fasilitas);
     }
 
@@ -333,6 +399,45 @@ class SarprasController extends Controller
             Log::error('Error saat menghapus tugas: ' . $e->getMessage());
             return response()->json(['status' => false, 'message' => 'Terjadi error di server saat menghapus data.'], 500);
         }
+    }
+
+    // view riwayat penugasan
+    public function riwayatPenugasan()
+    {
+        $breadcrumb = (object)[
+            'title' => 'Riwayat Penugasan',
+            'list'  => ['Home', 'Penugasan', 'Riwayat']
+        ];
+
+        $page = (object)[
+            'title' => 'Daftar Riwayat Penugasan Teknisi'
+        ];
+
+        $active_menu = 'riwayat penugasan';
+
+        return view('sarpras.penugasan.riwayat', compact('breadcrumb', 'page', 'active_menu'));
+    }
+
+    public function riwayatPenugasanList(Request $request)
+    {
+        $tugas = TugasModel::with(['details.fasilitas.ruangan.lantai', 'user', 'status'])
+            ->where('status_id', 4) // status selesai
+            ->orderByDesc('tugas_mulai')
+            ->get();
+
+        return DataTables::of($tugas)
+            ->addIndexColumn()
+            ->editColumn('status.status_nama', function ($tugas) {
+                return '<span class="badge badge-success">' . ($tugas->status->status_nama ?? 'Selesai') . '</span>';
+            })
+            ->addColumn('aksi', function ($tugas) {
+                $detailUrl = route('sarpras.penugasan.show', ['tugas_id' => $tugas->tugas_id]);
+                $btn = '<button onclick="modalAction(\''.$detailUrl.'\')" class="btn btn-info btn-sm">Detail</button> ';
+
+                return $btn;
+            })
+            ->rawColumns(['status.status_nama', 'aksi'])
+            ->make(true);
     }
 
     // masuk bagian laporan kerusakan
@@ -483,6 +588,5 @@ class SarprasController extends Controller
             Log::error('Error retrieving SPK data: ' . $e->getMessage());
             return [];
         }
-        return view('sarpras.dashboard', compact('breadcrumb', 'active_menu'));
     }
 };

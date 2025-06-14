@@ -171,10 +171,14 @@ Route::middleware(['authorize:5'])->group(callback: function () {
         // Route::get('/penugasan/{tugas_id}/edit', [SarprasController::class, 'tugasEdit'])->name('sarpras.penugasan.edit');
         Route::put('/penugasan/{tugas_id}', [SarprasController::class, 'tugasUpdate'])->name('sarpras.penugasan.update');
         Route::delete('/penugasan/{tugas_id}', [SarprasController::class, 'tugasDestroy'])->name('sarpras.penugasan.destroy');
+        Route::get('/riwayat-penugasan', [SarprasController::class, 'riwayatPenugasan'])->name('sarpras.riwayat.penugasan');
+        Route::get('/riwayat-penugasan/list', [SarprasController::class, 'riwayatPenugasanList'])->name('sarpras.riwayat.penugasan.list');
 
         // ajax chain
         Route::get('get-ruangan/{lantai_id}', [SarprasController::class, 'getRuangan'])->name('sarpras.getRuangan');
         Route::get('get-fasilitas/{ruangan_id}', [SarprasController::class, 'getFasilitas'])->name('sarpras.getFasilitas');
+        Route::get('get-fasilitas-laporan/{jenis_tugas}', [SarprasController::class, 'getFasilitasByJenisTugas'])->name('sarpras.getFasilitasByJenisTugas');
+        Route::get('/get-data-pemeriksaan/{fasilitas_id}', [SarprasController::class, 'getPemeriksaanTerakhir'])->name('sarpras.getPemeriksaanTerakhir');
 
         // laporan
         Route::get('/laporan', [SarprasController::class, 'laporan'])->name('sarpras.laporan');
@@ -184,11 +188,11 @@ Route::middleware(['authorize:5'])->group(callback: function () {
         Route::get('/riwayat', [SarprasController::class, 'riwayatLaporan'])->name('sarpras.riwayat');
         Route::post('/riwayat/list', [SarprasController::class, 'riwayatList'])->name('sarpras.riwayat.list');
         Route::get('/riwayat/{laporan_id}', [SarprasController::class, 'showRiwayatLaporan'])->name('sarpras.riwayat.show');
+        
+        // spk
+        Route::get('/spk', [RekomendasiPerbaikan::class, 'tampilkanSPK'])->name('sarpras.spk');
+        Route::post('/perbarui-data', [RekomendasiPerbaikan::class, 'perbaruiData'])->name('sarpras.perbarui.data');
     });
-    
-    // Rekomendasi Perbaikan
-    Route::get('/spk', [RekomendasiPerbaikan::class, 'tampilkanSPK'])->name('sarpras.spk');
-    Route::post('/perbarui-data', [RekomendasiPerbaikan::class, 'perbaruiData'])->name('sarpras.perbarui.data');
 });
 
 // Rute untuk Teknisi (role 6)

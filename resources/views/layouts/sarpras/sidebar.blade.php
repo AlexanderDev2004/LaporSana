@@ -23,45 +23,20 @@
                      <p>Dashboard</p>
                  </a>
              </li>
-             <li class="nav-item">
-                 <a href="{{ url('logout') }}" class="nav-link">
-                     <i class="nav-icon fas fa-sign-out-alt"></i>
-                     <p>Logout</p>
-                 </a>
-             </li>
+             <li class="nav-header">Penugasan</li>
              <li class="nav-item">
                  <a href="{{ route('sarpras.penugasan') }}" class="nav-link {{ $active_menu == 'penugasan' ? 'active' : '' }}">
-                     <i class="nav-icon fas fa-file"></i>
+                     <i class="nav-icon fas fa-tasks"></i>
                      <p>Penugasan</p>
                  </a>
              </li>
-             <li class="nav-header">Manajemen Data Pengguna</li>
              <li class="nav-item">
-                 <a href="{{ url('/') }}" class="nav-link">
-                     <i class="nav-icon fas fa-layer-group"></i>
-                     <p>Role User</p>
+                 <a href="{{ route('sarpras.riwayat.penugasan') }}" class="nav-link {{ $active_menu == 'riwayat penugasan' ? 'active' : '' }}">
+                     <i class="nav-icon fas fa-history"></i>
+                     <p>Riwayat Penugasan</p>
                  </a>
              </li>
-             <li class="nav-item">
-                 <a href="{{ url('/') }}" class="nav-link">
-                     <i class="nav-icon far fa-user"></i>
-                     <p>Data User</p>
-                 </a>
-             </li>
-             <li class="nav-header">Manajemen Data Fasilitas</li>
-             <li class="nav-item">
-                 <a href="{{ url('/') }}" class="nav-link">
-                     <i class="nav-icon fas fa-home"></i>
-                     <p>Ruangan</p>
-                 </a>
-             </li>
-             <li class="nav-item">
-                 <a href="{{ url('/') }}" class="nav-link">
-                     <i class="nav-icon fas fa-plug"></i>
-                     <p>Fasilitas</p>
-                 </a>
-             </li>
-             <li class="nav-header">Arsip</li>
+             <li class="nav-header">Laporan</li>
              <li class="nav-item">
                  <a href="{{ route('sarpras.laporan') }}" class="nav-link {{ $active_menu == 'laporan' ? 'active' : '' }}">
                      <i class="nav-icon fas fa-file"></i>
