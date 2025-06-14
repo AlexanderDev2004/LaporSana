@@ -166,7 +166,7 @@ class SarprasController extends Controller
             'title' => 'Penugasan',
             'list'  => ['Home', 'Penugasan']
         ];
-        
+
         $page = (object) [
             'title' => 'Penugasan Teknisi'
         ];

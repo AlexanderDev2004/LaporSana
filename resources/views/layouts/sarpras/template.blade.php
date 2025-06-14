@@ -40,7 +40,7 @@
 <body class="hold-transition sidebar-mini layout-fixed">
 <div class="wrapper">
     <!-- Navbar -->
-    @include('layouts.admin.header')
+    @include('layouts.sarpras.header')
     <!-- /.navbar -->
 
     <!-- Main Sidebar Container -->
