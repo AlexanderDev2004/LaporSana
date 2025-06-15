@@ -31,15 +31,16 @@
             @endif
 
             {{-- Tabel Tugas --}}
-            <table id="table_tugas" class="table table-bordered table-striped table-sm table-hover">
+            <table id="table-tugas" class="table table-bordered table-striped table-sm table-hover">
                 <thead>
                     <tr>
                         <th>No</th>
                         <th>Nama Teknisi</th>
                         <th>Status</th>
                         <th>Jenis Tugas</th>
-                        <th>Tanggal Pengerjaan</th>
-                        <th>Tanggal Selesai</th>
+                        <th>Tanggal Penugasan</th>
+                        <th>Tanggal Penyelesaian</th>
+                        <th>Laporan</th>
                         <th>Aksi</th>
                     </tr>
                 </thead>
@@ -62,7 +63,7 @@
         var tableTugas;
 
         $(document).ready(function() {
-            tableTugas = $('#table_tugas').DataTable({
+            tableTugas = $('#table-tugas').DataTable({
                 processing: true,
                 serverSide: true,
                 ajax: {
@@ -108,7 +109,7 @@
                                     badgeClass = 'danger';
                                     break;
                             }
-                            return `<span class="badge badge-${badgeClass}">${data}</span>`;
+                            return <span class="badge badge-${badgeClass}">${data}</span>;
                         }
                     },
                     {
@@ -125,6 +126,12 @@
                     },
                     {
                         data: "tugas_selesai",
+                        className: "",
+                        orderable: true,
+                        searchable: true
+                    },
+                    {
+                        data: "laporan",
                         className: "",
                         orderable: true,
                         searchable: true

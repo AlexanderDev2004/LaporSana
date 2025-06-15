@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\LaporanModel;
 use App\Models\StatusModel;
 use App\Models\TugasDetail;
 use App\Models\TugasModel;
@@ -11,8 +12,8 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
-use Yajra\DataTables\Facades\DataTables;
 use Illuminate\Support\Facades\Validator;
+use Yajra\DataTables\Facades\DataTables;
 
 class TeknisiController extends Controller
 {
@@ -26,7 +27,7 @@ class TeknisiController extends Controller
 
         $active_menu = 'dashboard';
 
-        // tugas terbaru yang aktif kecuali status_id != dibatalkan)
+        // tugas terbaru yang aktif kecuali status_id != dibatalkan dan selesai)
         $tugasTerbaru = TugasModel::where('user_id', Auth::user()->user_id)
             ->whereHas('status', function ($q) {
                 $q->whereNotIn('status_nama', ['dibatalkan', 'selesai']);
@@ -43,7 +44,7 @@ class TeknisiController extends Controller
             ->orderBy('bulan')
             ->get();
 
-        //rray 12 bulan dengan default 0 jumlah
+        // array 12 bulan dengan default 0 jumlah
         $dataStatistik = array_fill(1, 12, 0);
         foreach ($statistik as $item) {
             $dataStatistik[(int)$item->bulan] = $item->jumlah;
@@ -51,6 +52,7 @@ class TeknisiController extends Controller
 
         return view('teknisi.dashboard', compact('breadcrumb', 'active_menu', 'tugasTerbaru', 'dataStatistik'));
     }
+
 
 
     public function index(Request $request)
@@ -61,7 +63,7 @@ class TeknisiController extends Controller
             'list' => ['Home', 'Tugas']
         ];
 
-        $tugas = TugasModel::with(['status', 'user'])
+        $tugas = TugasModel::with(['status', 'user', 'laporan'])
             ->where('user_id', Auth::user()->user_id)
             ->whereHas('status', function ($query) {
                 $query->where('status_nama', '!=', 'selesai');
@@ -73,8 +75,9 @@ class TeknisiController extends Controller
 
         $status = StatusModel::all();
         $user = UserModel::all();
+        $laporan = LaporanModel::all();
 
-        return view('teknisi.index', compact('user', 'status', 'tugas', 'active_menu', 'breadcrumb'));
+        return view('teknisi.index', compact('user', 'status', 'tugas', 'active_menu', 'breadcrumb', 'laporan'));
     }
 
 
@@ -102,15 +105,17 @@ class TeknisiController extends Controller
                 }
             })
             ->addColumn('aksi', function ($tugas) {
-                // Gabungkan semua tombol aksi
-
-                $btn = '<button onclick="modalAction(\'' . route('teknisi.show', $tugas->tugas_id) . '\')" class="btn btn-info btn-sm"><i class="fas fa-eye"></i></button>';
-                $btn .= '<button onclick="modalAction(\'' . route('teknisi.edit', $tugas->tugas_id) . '\')" class="btn btn-warning btn-sm"><i class="fas fa-edit"></i></button>';
-                $btn .= '<button onclick="modalAction(\'' . route('teknisi.destroy', $tugas->tugas_id) . '\')" class="btn btn-danger btn-sm"><i class="fas fa-trash"></i></button>';
+                $btn = '<button onclick="modalAction(\'' . route('teknisi.show', $tugas->tugas_id) . '\')" class="btn btn-info btn-sm mx-1"><i class="fas fa-eye"></i></button>';
+                $btn .= '';
+                if ($tugas->tugas_jenis === 'pemeriksaan') {
+                    $btn .= '<button onclick="modalAction(\'' . route('teknisi.editpemeriksaan', $tugas->tugas_id) . '\')" class="btn btn-warning btn-sm"><i class="fas fa-edit"></i></button>';
+                } else {
+                    $btn .= '<button onclick="modalAction(\'' . route('teknisi.edit', $tugas->tugas_id) . '\')" class="btn btn-warning btn-sm"><i class="fas fa-edit"></i></button>';
+                }
                 return $btn;
             })
-            ->rawColumns(['aksi']) // Kolom aksi mengandung HTML
-            ->toJson(); // Pastikan mengembalikan JSON
+            ->rawColumns(['laporan', 'aksi'])
+            ->toJson();
     }
 
     public function show($id)
@@ -127,6 +132,23 @@ class TeknisiController extends Controller
         ];
         $active_menu = 'tugas';
         return view('teknisi.show', compact('breadcrumb', 'active_menu', 'tugas'));
+    }
+
+    public function showLaporan($id)
+    {
+        $laporan = LaporanModel::with([
+            'user',
+            'status',
+            'details.fasilitas.ruangan.lantai' // details sudah include fasilitas, ruangan, lantai
+        ])->findOrFail($id);
+
+        $breadcrumb = (object) [
+            'title' => 'Detail Laporan',
+            'list'  => ['Home', 'Tugas', 'Detail Laporan']
+        ];
+        $active_menu = 'tugas';
+
+        return view('teknisi.show_laporan', compact('breadcrumb', 'active_menu', 'laporan'));
     }
 
     public function riwayat()

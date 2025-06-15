@@ -14,6 +14,14 @@
                         <option value="5">Disetujui</option>
                     </select>
                 </div>
+                <div class="ml-auto">
+                <a href="{{ route('admin.validasi_laporan.export_excel') }}" class="btn btn-primary mr-2">
+                    <i class="fa fa-file-excel"></i> Export Laporan
+                </a>
+                <a href="{{ route('admin.validasi_laporan.export_pdf') }}" class="btn btn-warning">
+                    <i class="fa fa-file-pdf"></i> Export Laporan
+                </a>
+            </div>
             </div>
             <div class="card-body">
                 <div class="table-responsive">
@@ -51,11 +59,11 @@
 
         var dataLaporan; // Mengubah nama variabel agar konsisten dengan show.blade.php
         $(document).ready(function () {
-            dataLaporan = $('#laporanTable').DataTable({                       
+            dataLaporan = $('#laporanTable').DataTable({
                 processing: true,
                 serverSide: true,
                 responsive: true,
-                
+
                 ajax: {
                     "url": "{{ route('admin.validasi_laporan.list') }}", // Mengubah URL ke route yang benar
                     "dataType": "json",
@@ -74,12 +82,12 @@
                 columns: [
                     { data: 'laporan_id', className: 'text-center' },
                     { data: 'user.name', className: '', orderable: true, searchable: true },
-                    { 
-                        data: 'status.status_nama', 
+                    {
+                        data: 'status.status_nama',
                         className: 'text-center',
                         render: function(data, type, row) {
                             let badgeClass = 'badge badge-secondary';
-                            
+
                             if (row.status_id == 1)
                                 badgeClass = 'badge badge-warning';
                             else if (row.status_id == 2)
@@ -90,7 +98,7 @@
                                 badgeClass = 'badge badge-success';
                             else if (row.status_id == 5)
                                 badgeClass = 'badge badge-info';
-                                
+
                             return '<span class="' + badgeClass + '">' + data + '</span>';
                         }
                     },

@@ -9,9 +9,11 @@ use App\Models\StatusModel;
 use App\Models\TugasModel;
 use App\Models\TugasDetail;
 use App\Models\UserModel;
+use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Http\Request;
 use Yajra\DataTables\Facades\DataTables;
 use Illuminate\Support\Facades\Log;
+use PhpOffice\PhpSpreadsheet\IOFactory;
 
 class LaporanController extends Controller
 {
@@ -85,5 +87,79 @@ class LaporanController extends Controller
         }
 
         return response()->json(['status' => false, 'message' => 'Aksi tidak valid']);
+    }
+    public function export_excel()
+    {
+        //ambil data user yang akan di export
+        $laporan = LaporanModel::select('user_id', 'status_id', 'tanggal_lapor', 'jumlah_pelapor', 'laporan_id')
+            ->orderBy('user_id')
+            ->with('user', 'status', 'details.fasilitas')
+            ->get();
+
+
+        // load library excel
+        $spreadsheet = new \PhpOffice\PhpSpreadsheet\Spreadsheet();
+        $sheet = $spreadsheet->getActiveSheet(); // ambil sheet yang aktif
+
+        $sheet->setCellValue('A1', 'No');
+        $sheet->setCellValue('B1', 'Nama Pelapor');
+        $sheet->setCellValue('C1', 'Status');
+        $sheet->setCellValue('D1', 'Tanggal Lapor');
+        $sheet->setCellValue('E1', 'Jumlah Pelapor');
+        $sheet->setCellValue('F1', 'Fasilitas');
+        $sheet->setCellValue('G1', 'Foto Bukti');
+        $sheet->setCellValue('H1', 'Deskripsi');
+
+        $sheet->getStyle('A1:H1')->getFont()->setBold(true); // bold header
+
+        $no = 1;        // nomor data dimulai dari 1
+        $baris = 2;     //baris data dimulai dari baris ke 2
+        foreach ($laporan as $key => $value) {
+            $detail = $value->details->first();
+            $sheet->setCellValue('A' . $baris, $no);
+            $sheet->setCellValue('B' . $baris, $value->user->name);
+            $sheet->setCellValue('C' . $baris, $value->status->status_nama);
+            $sheet->setCellValue('D' . $baris, $value->tanggal_lapor);
+            $sheet->setCellValue('E' . $baris, $value->jumlah_pelapor);
+            $sheet->setCellValue('F' . $baris, ($detail) ? $detail->fasilitas->fasilitas_nama : '');
+            $sheet->setCellValue('G' . $baris, ($detail) ? $detail->foto_bukti : '');
+            $sheet->setCellValue('H' . $baris, ($detail) ? $detail->deskripsi : '');
+            $baris++;
+            $no++;
+        }
+
+        foreach (range('A', 'H') as $columnID) {
+            $sheet->getColumnDimension($columnID)->setAutoSize(true); //set auto size untuk kolom
+        }
+
+        $sheet->setTitle('Data Laporan Kerusakan'); // set title sheet
+        $writer = IOFactory::createWriter($spreadsheet, 'Xlsx');
+        $filename = 'Data Laporan Kerusakan' . date('Y-m-d H:i:s') . '.xlsx';
+        header('Content-Type: application/vnd. openxmlformats-officedocument.spreadsheetml.sheet');
+        header('Content-Disposition: attachment; filename="' . $filename . '"');
+        header('Cache-Control: max-age=0');
+        header('Cache-Control: max-age=1');
+        header('Expires: Mon, 26 Jul 1997 05:00:00 GMT');
+        header('Last-Modified: ' . gmdate('D, d M Y H:i:s') . ' GMT');
+        header('Cache-Control: cache, must-revalidate');
+        header('Pragma: public');
+        $writer->save('php://output');
+        exit;
+    } // end function export_excel
+
+    public function export_pdf()
+    {
+        $laporan = LaporanModel::select('user_id', 'status_id', 'tanggal_lapor', 'jumlah_pelapor', 'laporan_id')
+            ->orderBy('user_id')
+            ->with('user', 'status', 'details.fasilitas.ruangan.lantai')
+            ->get();
+
+        //use Barryvdh\DomPDF\Facade\Pdf;
+        $pdf = Pdf::loadView('admin.validasi_laporan.export_pdf', ['laporan' => $laporan]);
+        $pdf->setPaper('a4', 'potrait'); //Set ukuran kertas dan orientasi
+        $pdf->setOption('isRemoteEnabled', true); // set true jika ada gambar dari url
+        $pdf->render();
+
+        return $pdf->stream('Data Laporan Kerusakan ' . date('Y-m-d H:i:s') . '.pdf');
     }
 }
