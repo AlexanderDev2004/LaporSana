@@ -2,7 +2,7 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\{LaporanModel, TugasModel, TugasDetailModel, UserModel};
+use App\Models\{LaporanModel, TugasDetail, TugasModel, TugasDetailModel, UserModel};
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\{Auth, DB, Log};
 use Yajra\DataTables\Facades\DataTables;
@@ -95,7 +95,7 @@ class ValidlaporAController extends Controller
             ]);
 
             foreach ($laporan->details as $detail) {
-                TugasDetailModel::create([
+                TugasDetail::create([
                     'tugas_id' => $tugas->tugas_id,
                     'fasilitas_id' => $detail->fasilitas_id,
                     'tugas_image' => $detail->foto_bukti,
