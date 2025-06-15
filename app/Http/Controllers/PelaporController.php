@@ -170,25 +170,21 @@ class PelaporController extends Controller
     public function listBersama(Request $request)
     {
         $laporans = LaporanModel::with(['details.fasilitas.ruangan.lantai', 'status', 'user'])
-        ->where('status_id', 3) // hanya mengambil status yang sedang dalam proses
-        ->get();
-        
+            ->where('status_id', 5)
+            ->get();
+
         return DataTables::of($laporans)
             ->addIndexColumn()
             ->editColumn('status.status_nama', function ($laporan) {
                 $status = $laporan->status->status_nama ?? 'Tidak Diketahui';
-                switch ($laporan->status_id) {
-                    case 1: return '<span class="badge badge-warning">' . $status . '</span>';
-                    case 2: return '<span class="badge badge-danger">' . $status . '</span>';
-                    case 3: return '<span class="badge badge-info">' . $status . '</span>';
-                    case 4: return '<span class="badge badge-success">' . $status . '</span>';
-                    default: return '<span class="badge badge-secondary">' . $status . '</span>';
-                }
+                return '<span class="badge badge-secondary">' . $status . '</span>';
             })
             ->addColumn('aksi', function ($laporan) {
                 $detailUrl = route('pelapor.show.bersama', ['laporan_id' => $laporan->laporan_id]);
+                $dukungUrl = route('pelapor.dukungLaporan', ['laporan_id' => $laporan->laporan_id]);
+
                 $btn = '<button onclick="modalAction(\''.$detailUrl.'\')" class="btn btn-info btn-sm">Detail</button> ';
-                $btnDukung = '<button class="btn btn-primary btn-sm ml-1 btn-dukung" data-id="'.$laporan->laporan_id.'">Ikut Melapor</button>';
+                $btnDukung = '<button class="btn btn-primary btn-sm ml-1 btn-dukung" data-url="'.$dukungUrl.'">Ikut Melapor</button>';
                 return $btn . $btnDukung;
             })
             ->rawColumns(['status.status_nama', 'aksi'])
@@ -207,13 +203,38 @@ class PelaporController extends Controller
     public function dukungLaporan($laporan_id)
     {
         try {
+            $userId = auth()->user()->user_id;
+
+            $sudahDukung = LaporanDetail::where('laporan_id', $laporan_id)
+                ->where('user_id', $userId)
+                ->exists();
+
+            if ($sudahDukung) {
+                return response()->json([
+                    'status' => false,
+                    'message' => 'Kamu sudah ikut melapor untuk laporan ini.'
+                ]);
+            }
+
+            $detail = new LaporanDetail();
+            $detail->laporan_id = $laporan_id;
+            $detail->deskripsi = '-';
+            $detail->save();
+
             $laporan = LaporanModel::findOrFail($laporan_id);
             $laporan->jumlah_pelapor += 1;
             $laporan->save();
 
-            return response()->json(['status' => true, 'message' => 'Terima kasih telah ikut melaporkan kerusakan ini!']);
+            return response()->json([
+                'status' => true,
+                'message' => 'Terima kasih telah ikut melaporkan kerusakan ini!'
+            ]);
+
         } catch (\Exception $e) {
-            return response()->json(['status' => false, 'message' => 'Gagal memberikan dukungan: ' . $e->getMessage()], 500);
+            return response()->json([
+                'status' => false,
+                'message' => 'Gagal memberikan dukungan: ' . $e->getMessage()
+            ], 500);
         }
     }
 }

@@ -29,8 +29,8 @@
 
 @push('js')
 <script>
-    function modalAction(url = ''){
-        $('#myModal').load(url, function(response, status, xhr){
+    function modalAction(url = '') {
+        $('#myModal').load(url, function(response, status, xhr) {
             if (status == "error") {
                 var msg = "Maaf, terjadi kesalahan saat memuat detail: ";
                 $(this).html('<div class="modal-dialog" role="document"><div class="modal-content"><div class="modal-body"><div class="alert alert-danger">' + msg + xhr.status + " " + xhr.statusText + '</div></div></div></div>');
@@ -39,7 +39,7 @@
         });
     }
 
-    $(document).ready(function(){
+    $(document).ready(function () {
         $.ajaxSetup({
             headers: { 'X-CSRF-TOKEN': '{{ csrf_token() }}' }
         });
@@ -53,42 +53,20 @@
                 type: "POST",
             },
             columns: [
-                { 
-                    data: "DT_RowIndex", 
-                    className: "text-center", 
-                    orderable: false, 
-                    searchable: false 
-                },{ 
-                    data: "details.0.fasilitas.fasilitas_nama", 
-                    defaultContent: "-" 
-                },{ 
-                    data: "details.0.fasilitas.ruangan.ruangan_nama", 
-                    defaultContent: "-" 
-                },{ 
-                    data: "details.0.fasilitas.ruangan.lantai.lantai_nama", 
-                    defaultContent: "-" 
-                },{ 
-                    data: "status.status_nama", 
-                    defaultContent: "-" 
-                },{ 
-                    data: "user.name", 
-                    defaultContent: "-" 
-                },{ 
-                    data: "jumlah_pelapor", 
-                    defaultContent: "-" 
-                },{ 
-                    data: "aksi", 
-                    className: "text-center", 
-                    orderable: false, 
-                    searchable: false 
-                }
+                { data: "DT_RowIndex", className: "text-center", orderable: false, searchable: false },
+                { data: "details.0.fasilitas.fasilitas_nama", defaultContent: "-" },
+                { data: "details.0.fasilitas.ruangan.ruangan_nama", defaultContent: "-" },
+                { data: "details.0.fasilitas.ruangan.lantai.lantai_nama", defaultContent: "-" },
+                { data: "status.status_nama", defaultContent: "-" },
+                { data: "user.name", defaultContent: "-" },
+                { data: "jumlah_pelapor", defaultContent: "-" },
+                { data: "aksi", className: "text-center", orderable: false, searchable: false }
             ]
         });
 
         // Event listener untuk tombol "Ikut Melapor"
-        $('#table_laporan_bersama').on('click', '.btn-dukung', function() {
-            let laporanId = $(this).data('id');
-            let url = '{{ url("/pelapor/laporan-bersama") }}/' + laporanId + '/dukung';
+        $('#table_laporan_bersama').on('click', '.btn-dukung', function () {
+            let url = $(this).data('url');
 
             Swal.fire({
                 title: 'Konfirmasi',
@@ -102,15 +80,15 @@
             }).then((result) => {
                 if (result.isConfirmed) {
                     $.post(url)
-                        .done(function(response) {
+                        .done(function (response) {
                             if (response.status) {
                                 Swal.fire('Berhasil!', response.message, 'success');
                                 table.ajax.reload(null, false); // Reload tabel
                             } else {
-                                Swal.fire('Gagal!', response.message, 'error');
+                                Swal.fire('Info', response.message, 'info');
                             }
                         })
-                        .fail(function() {
+                        .fail(function () {
                             Swal.fire('Error!', 'Tidak dapat menghubungi server.', 'error');
                         });
                 }

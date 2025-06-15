@@ -460,7 +460,7 @@ class SarprasController extends Controller
     public function list(Request $request)
     {
         $laporans = LaporanModel::with(['details.fasilitas.ruangan.lantai', 'status', 'user'])
-        ->where('status_id', 3) // hanya mengambil status yang sedang dalam proses
+        ->whereIn('status_id', [3,5]) // Ambil laporan yang sedang diproses, selesai, atau disetujui
         ->get();
         
         return DataTables::of($laporans)
@@ -483,7 +483,7 @@ class SarprasController extends Controller
                 $btnTolak = '';
 
                 // Tombol aksi hanya muncul jika statusnya "Menunggu Verifikasi" (ID 1)
-                if ($laporan->status_id == 3) {
+                if ($laporan->status_id != 2 && $laporan->status_id != 1) {
                     $btnSelesai = '<button type="button" class="btn btn-success btn-sm ml-1 btn-update-status" data-id="'.$laporan->laporan_id.'" data-status="4">Selesai</button>';
                     $btnTolak = '<button type="button" class="btn btn-danger btn-sm ml-1 btn-update-status" data-id="'.$laporan->laporan_id.'" data-status="2">Tolak</button>';
                 }
