@@ -110,7 +110,7 @@
                                     badgeClass = 'danger';
                                     break;
                             }
-                            return <span class="badge badge-${badgeClass}">${data}</span>;
+                            return `<span class="badge badge-${badgeClass}">${data}</span>`;
                         }
                     },
                     {
