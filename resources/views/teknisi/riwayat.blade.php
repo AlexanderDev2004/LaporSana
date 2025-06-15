@@ -41,6 +41,7 @@
                         <th>Jenis Tugas</th>
                         <th>Tanggal Pengerjaan</th>
                         <th>Tanggal Selesai</th>
+                        <th>Feedback</th>
                         <th>Aksi</th>
                     </tr>
                 </thead>
