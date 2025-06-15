@@ -9,7 +9,7 @@
         <div class="card-body">
 
             {{-- Filter Status --}}
-            <div id="filter" class="form-horizontal filter-date p-2 border-bottom mb-2">
+            {{-- <div id="filter" class="form-horizontal filter-date p-2 border-bottom mb-2">
                 <div class="row">
                     <div class="col-md-4">
                         <label for="filter_status">Filter Status</label>
@@ -21,7 +21,7 @@
                         </select>
                     </div>
                 </div>
-            </div>
+            </div> --}}
 
             {{-- Alert --}}
             @if (session('success'))
