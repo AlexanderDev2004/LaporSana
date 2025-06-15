@@ -174,13 +174,21 @@ class TeknisiController extends Controller
             });
 
 
-        return DataTables::of($tugas->get())
+        return DataTables::of($tugas->with('riwayat')->get())
             ->addIndexColumn()
+            ->addColumn('feedback', function ($tugas) {
+                if ($tugas->riwayat) {
+                    $rating = str_repeat('⭐', $tugas->riwayat->rating);
+                    return "<div>{$rating}<br><small>{$tugas->riwayat->ulasan}</small></div>";
+                } else {
+                    return '<span class="text-muted">Belum ada</span>';
+                }
+            })
             ->addColumn('aksi', function ($tugas) {
                 $btn = '<button onclick="modalAction(\'' . route('teknisi.show', $tugas->tugas_id) . '\')" class="btn btn-info btn-sm"><i class="fas fa-eye"></i></button>';
-                return $btn; // di riwayat hanya lihat detail
+                return $btn;
             })
-            ->rawColumns(['aksi'])
+            ->rawColumns(['feedback', 'aksi'])
             ->toJson();
     }
 
