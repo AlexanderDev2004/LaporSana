@@ -70,7 +70,7 @@
           </li>
           <!-- Menu Footer-->
           <li class="user-footer">
-            <a href="{{ route('sarpras.profile.show') }}" class="btn btn-primary btn-flat">Edit Profile</a>
+            <a href="{{ route('teknisi.profile.show') }}" class="btn btn-primary btn-flat">Edit Profile</a>
             <a href="{{ route('logout') }}" class="btn btn-danger btn-flat float-right">
               Logout
             </a>
