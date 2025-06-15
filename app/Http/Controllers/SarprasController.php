@@ -168,7 +168,7 @@ class SarprasController extends Controller
         ];
         
         $page = (object) [
-            'title' => 'Penugasan Teknisi'
+            'title' => 'Daftar Penugasan Teknisi'
         ];
 
         $active_menu = 'penugasan';
@@ -252,7 +252,7 @@ class SarprasController extends Controller
             'tugas_jenis' => 'required|in:Pemeriksaan,Perbaikan',
             'fasilitas_id' => 'required|exists:m_fasilitas,fasilitas_id',
             'laporan_id' => 'required|exists:m_laporan,laporan_id',
-            'deskripsi' => 'nullable|string|max:255',
+            'deskripsi' => 'nullable|string',
         ]);
 
         if ($validator->fails()) {

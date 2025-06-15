@@ -96,7 +96,7 @@ class PelaporController extends Controller
             'ruangan_id' => 'required|exists:m_ruangan,ruangan_id',
             'fasilitas_id' => 'required|exists:m_fasilitas,fasilitas_id',
             'foto_bukti' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:10240', // Batas sudah 10MB
-            'deskripsi' => 'required|string|min:10|max:255',
+            'deskripsi' => 'required|string',
         ]);
 
         if ($validator->fails()) {
