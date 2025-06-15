@@ -40,4 +40,9 @@ class LaporanModel extends Model
     {
         return $this->hasOne(TugasModel::class, 'laporan_id', 'laporan_id');
     }
+
+    public function dukungan()
+    {
+        return $this->hasMany(DukungLaporanModel::class, 'laporan_id', 'laporan_id');
+    }
 }
