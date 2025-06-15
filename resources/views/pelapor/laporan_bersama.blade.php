@@ -29,8 +29,8 @@
 
 @push('js')
 <script>
-    function modalAction(url = '') {
-        $('#myModal').load(url, function(response, status, xhr) {
+    function modalAction(url = ''){
+        $('#myModal').load(url, function(response, status, xhr){
             if (status == "error") {
                 var msg = "Maaf, terjadi kesalahan saat memuat detail: ";
                 $(this).html('<div class="modal-dialog" role="document"><div class="modal-content"><div class="modal-body"><div class="alert alert-danger">' + msg + xhr.status + " " + xhr.statusText + '</div></div></div></div>');
@@ -39,7 +39,7 @@
         });
     }
 
-    $(document).ready(function () {
+    $(document).ready(function(){
         $.ajaxSetup({
             headers: { 'X-CSRF-TOKEN': '{{ csrf_token() }}' }
         });
@@ -65,7 +65,8 @@
         });
 
         // Event listener untuk tombol "Ikut Melapor"
-        $('#table_laporan_bersama').on('click', '.btn-dukung', function () {
+        $('#table_laporan_bersama').on('click', '.btn-dukung', function() {
+            // Perbaikan: Ambil URL dari atribut 'data-url'
             let url = $(this).data('url');
 
             Swal.fire({
@@ -80,7 +81,7 @@
             }).then((result) => {
                 if (result.isConfirmed) {
                     $.post(url)
-                        .done(function (response) {
+                        .done(function(response) {
                             if (response.status) {
                                 Swal.fire('Berhasil!', response.message, 'success');
                                 table.ajax.reload(null, false); // Reload tabel
@@ -88,8 +89,9 @@
                                 Swal.fire('Info', response.message, 'info');
                             }
                         })
-                        .fail(function () {
-                            Swal.fire('Error!', 'Tidak dapat menghubungi server.', 'error');
+                        .fail(function(jqXHR) {
+                            let errorMsg = jqXHR.responseJSON ? jqXHR.responseJSON.message : 'Tidak dapat menghubungi server.';
+                            Swal.fire('Gagal!', errorMsg, 'error');
                         });
                 }
             });
