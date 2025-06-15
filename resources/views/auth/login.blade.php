@@ -1,14 +1,13 @@
 <!DOCTYPE html>
 <html lang="id">
-
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <meta name="csrf-token" content="{{ csrf_token() }}" />
     <title>Login - LaporSana</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <link rel="stylesheet" href="{{ asset('adminlte/plugins/fontawesome-free/css/all.min.css') }}" />
-    <link rel="stylesheet" href="{{ asset('adminlte/plugins/sweetalert2-theme-bootstrap-4/bootstrap-4.min.css') }}" />
+    <link rel="stylesheet" href="{{ asset('LaporSana/plugins/fontawesome-free/css/all.min.css') }}" />
+    <link rel="stylesheet" href="{{ asset('LaporSana/plugins/sweetalert2-theme-bootstrap-4/bootstrap-4.min.css') }}" />
     <style>
         .loading-spinner {
             display: none;
@@ -27,7 +26,6 @@
         }
     </style>
 </head>
-
 <body class="bg-gray-100 min-h-screen flex items-center justify-center">
     <div class="flex w-full lg:w-[1000px] rounded-xl overflow-hidden shadow-2xl">
         <!-- LEFT - FORM -->
@@ -62,6 +60,9 @@
                         <input type="password" id="password" name="password"
                             class="form-input w-full px-4 py-2 pr-10 bg-gray-100 rounded border border-gray-300 text-gray-900 focus:ring-2 focus:ring-blue-500"
                             placeholder="Masukkan password" required />
+                        <span class="absolute right-10 top-2.5 text-gray-400 cursor-pointer" id="togglePassword">
+                            <i class="fas fa-eye"></i>
+                        </span>
                         <span class="absolute right-3 top-2.5 text-gray-400">
                             <i class="fas fa-lock"></i>
                         </span>
@@ -90,35 +91,79 @@
         <div class="hidden lg:block lg:w-1/2 relative">
             <div class="absolute inset-0 bg-gradient-to-tr from-blue-900 via-blue-700 to-blue-800 opacity-80 z-0"></div>
             <img src="{{ asset('LaporSana.png') }}" class="absolute top-8 left-8 w-24 z-10" alt="Logo" />
-
             <div class="absolute inset-0 flex flex-col items-center justify-center text-white p-10 z-10">
                 <h3 class="text-3xl font-bold mb-4">Selamat Datang di LaporSana</h3>
                 <p class="text-center text-white/80 text-sm max-w-xs">
                     Laporkan kerusakan fasilitas kampus Anda dengan mudah dan cepat.
                 </p>
             </div>
-
-            <!-- Background Pattern (Opsional) -->
             <div class="absolute bottom-10 right-10 w-20 h-20 border-2 border-yellow-400/30 rotate-45 z-10"></div>
         </div>
     </div>
 
     <!-- JS Library -->
-    <script src="{{ asset('adminlte/plugins/jquery/jquery.min.js') }}"></script>
-    <script src="{{ asset('adminlte/plugins/bootstrap/js/bootstrap.bundle.min.js') }}"></script>
-    <script src="{{ asset('adminlte/plugins/jquery-validation/jquery.validate.min.js') }}"></script>
-    <script src="{{ asset('adminlte/plugins/jquery-validation/additional-methods.min.js') }}"></script>
-    <script src="{{ asset('adminlte/plugins/sweetalert2/sweetalert2.min.js') }}"></script>
+    <script src="{{ asset('LaporSana/plugins/jquery/jquery.min.js') }}"></script>
+    <script src="{{ asset('LaporSana/plugins/bootstrap/js/bootstrap.bundle.min.js') }}"></script>
+    <script src="{{ asset('LaporSana/plugins/jquery-validation/jquery.validate.min.js') }}"></script>
+    <script src="{{ asset('LaporSana/plugins/jquery-validation/additional-methods.min.js') }}"></script>
+    <script src="{{ asset('LaporSana/plugins/sweetalert2/sweetalert2.min.js') }}"></script>
 
     <script>
-        // Login Loading Spinner (opsional)
         $(document).ready(function () {
-            $('#form-login').on('submit', function () {
+            // Submit login via AJAX
+            $('#form-login').on('submit', function (e) {
+                e.preventDefault();
+
                 $('#btn-login').attr('disabled', true);
                 $('.loading-spinner').show();
+                $('#error-username').text('');
+                $('#error-password').text('');
+
+                $.ajax({
+                    url: "{{ route('postlogin') }}",
+                    type: "POST",
+                    data: $(this).serialize(),
+                    success: function (res) {
+                        window.location.href = res.redirect;
+                    },
+                    error: function (xhr) {
+                        $('#btn-login').attr('disabled', false);
+                        $('.loading-spinner').hide();
+
+                        if (xhr.status === 422) {
+                            let errors = xhr.responseJSON.errors;
+                            if (errors.username) {
+                                $('#error-username').text(errors.username[0]);
+                            }
+                            if (errors.password) {
+                                $('#error-password').text(errors.password[0]);
+                            }
+                        } else if (xhr.status === 401 || xhr.status === 400) {
+                            Swal.fire({
+                                icon: 'error',
+                                title: 'Gagal',
+                                text: xhr.responseJSON.message || 'Username atau password salah'
+                            });
+                        } else {
+                            Swal.fire({
+                                icon: 'error',
+                                title: 'Error',
+                                text: 'Terjadi kesalahan pada server.'
+                            });
+                        }
+                    }
+                });
+            });
+
+            // Show/Hide Password
+            $('#togglePassword').on('click', function () {
+                const passwordInput = $('#password');
+                const icon = $(this).find('i');
+                const type = passwordInput.attr('type') === 'password' ? 'text' : 'password';
+                passwordInput.attr('type', type);
+                icon.toggleClass('fa-eye fa-eye-slash');
             });
         });
     </script>
 </body>
-
 </html>

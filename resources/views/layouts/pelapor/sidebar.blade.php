@@ -1,5 +1,5 @@
 <!-- Sidebar -->
- <div class="sidebar">
+<div class="sidebar">
      <!-- Sidebar user panel (optional) -->
      <div class="user-panel mt-3 pb-3 mb-3 d-flex">
          <div class="image">
@@ -7,7 +7,7 @@
                  alt="User Image">
          </div>
          <div class="info">
-             <a href="#" class="d-block"><strong>{{ Auth::user()->name }}</strong></a>
+             <a href="{{ route('pelapor.profile.show') }}" class="d-block"><strong>{{ Auth::user()->name }}</strong></a>
          </div>
      </div>
 
@@ -50,7 +50,7 @@
         </li>
 
         <li class="nav-item">
-            <a href="{{ url('/') }}" class="nav-link {{ $active_menu == 'feedback' ? '' : '' }}">
+            <a href="{{ route('pelapor.feedback') }}" class="nav-link {{ $active_menu == 'feedback' ? 'active' : '' }}">
                 <i class="nav-icon fas fa-star"></i>
                 <p>Feedback</p>
             </a>
@@ -98,16 +98,16 @@
             </a>
         </li> --}}
 
-        <li class="nav-header">Logout</li>
+        {{-- <li class="nav-header">Logout</li>
         <li class="nav-item">
             <a href="{{ route('logout') }}" class="nav-link">
                 <i class="nav-icon fas fa-sign-out-alt"></i>
                 <p>Logout</p>
             </a>
-        </li>
+        </li> --}}
     </ul>
 </nav>
 <!-- /.sidebar-menu -->
 
- </div>
- <!-- /.sidebar -->
+</div>
+<!-- /.sidebar -->

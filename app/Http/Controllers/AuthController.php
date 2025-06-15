@@ -19,8 +19,6 @@ class AuthController extends Controller
         return view('auth.login');
     }
 
-
-
     public function postlogin(Request $request)
     {
         $credentials = $request->validate([
@@ -31,30 +29,39 @@ class AuthController extends Controller
         $user = UserModel::where('username', $credentials['username'])->first();
 
         if (!$user || !Hash::check($credentials['password'], $user->password)) {
+            if ($request->ajax()) {
+                return response()->json([
+                    'message' => 'Username atau password salah'
+                ], 401);
+            }
             return back()->withErrors(['msg' => 'Username atau password salah']);
         }
 
         Auth::login($user);
-
-        // Ambil role dan arahkan ke dashboard masing-masing
         $role = $user->roles_id;
-        switch ($role) {
-            case 1:
-                return redirect('/admin/dashboard');
-            case 2:
-                return redirect('/pelapor/dashboard');
-            case 3:
-                return redirect('/pelapor/dashboard');
-            case 4:
-                return redirect('/pelapor/dashboard');
-            case 5:
-                return redirect('/sarpras/dashboard');
-            case 6:
-                return redirect('/teknisi/dashboard');
-            default:
-                Auth::logout();
-                return back()->withErrors(['msg' => 'Role tidak dikenali']);
+
+        $redirect = match ($role) {
+            1 => '/admin/dashboard',
+            2, 3, 4 => '/pelapor/dashboard',
+            5 => '/sarpras/dashboard',
+            6 => '/teknisi/dashboard',
+            default => null,
+        };
+
+        if (!$redirect) {
+            Auth::logout();
+            return response()->json([
+                'message' => 'Role tidak dikenali'
+            ], 400);
         }
+
+        if ($request->ajax()) {
+            return response()->json([
+                'redirect' => $redirect
+            ]);
+        }
+
+        return redirect($redirect);
     }
 
     public function logout(Request $request)

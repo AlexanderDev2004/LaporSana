@@ -18,20 +18,14 @@
                 </div>
                 <div class="form-group"> 
                     <label>Ruangan</label> 
-                    <select name="ruangan_id" id="ruangan_id" class="form-control" required>
-                        <option value="">- Pilih Ruangan -</option> 
-                        @foreach($ruangan as $k) 
-                            <option value="{{ $k->ruangan_id }}">{{ $k->ruangan_nama }}</option> 
-                        @endforeach 
+                    <select name="ruangan_id" id="ruangan_id" class="form-control" required disabled>
+                        <option value="">- Pilih Lantai Terlebih Dahulu -</option> 
                     </select>
                 </div>
                 <div class="form-group"> 
                     <label>Fasilitas</label> 
-                    <select name="fasilitas_id" id="fasilitas_id" class="form-control" required>
-                        <option value="">- Pilih Fasilitas -</option> 
-                        @foreach($fasilitas as $k) 
-                            <option value="{{ $k->fasilitas_id }}">{{ $k->fasilitas_nama }}</option> 
-                        @endforeach 
+                    <select name="fasilitas_id" id="fasilitas_id" class="form-control" required disabled>
+                        <option value="">- Pilih Ruangan Terlebih Dahulu -</option> 
                     </select>
                 </div> 
                 <div class="form-group"> 
@@ -55,6 +49,46 @@
 
 <script> 
 $(document).ready(function() {
+    // Event listener untuk chained dropdown
+    $('#lantai_id').on('change', function() {
+        let lantaiId = $(this).val();
+        let ruanganSelect = $('#ruangan_id');
+        let fasilitasSelect = $('#fasilitas_id');
+
+        ruanganSelect.empty().append('<option value="">- Memuat Ruangan... -</option>').prop('disabled', true);
+        fasilitasSelect.empty().append('<option value="">- Pilih Ruangan Terlebih Dahulu -</option>').prop('disabled', true);
+
+        if (lantaiId) {
+            $.get('{{ url("/pelapor/get-ruangan") }}/' + lantaiId, function(data) {
+                ruanganSelect.empty().append('<option value="">- Pilih Ruangan -</option>').prop('disabled', false);
+                $.each(data, function(key, value) {
+                    ruanganSelect.append('<option value="' + value.ruangan_id + '">' + value.ruangan_nama + '</option>');
+                });
+            });
+        } else {
+             ruanganSelect.empty().append('<option value="">- Pilih Lantai Terlebih Dahulu -</option>').prop('disabled', true);
+        }
+    });
+
+    $('#ruangan_id').on('change', function() {
+        let ruanganId = $(this).val();
+        let fasilitasSelect = $('#fasilitas_id');
+        
+        fasilitasSelect.empty().append('<option value="">- Memuat Fasilitas... -</option>').prop('disabled', true);
+
+        if (ruanganId) {
+            $.get('{{ url("/pelapor/get-fasilitas") }}/' + ruanganId, function(data) {
+                fasilitasSelect.empty().append('<option value="">- Pilih Fasilitas -</option>').prop('disabled', false);
+                $.each(data, function(key, value) {
+                    fasilitasSelect.append('<option value="' + value.fasilitas_id + '">' + value.fasilitas_nama + '</option>');
+                });
+            });
+        } else {
+            fasilitasSelect.empty().append('<option value="">- Pilih Ruangan Terlebih Dahulu -</option>').prop('disabled', true);
+        }
+    });
+
+    // Event listener untuk submit form
     $("#form-tambah").on('submit', function(e) {
         e.preventDefault();
         
@@ -76,8 +110,11 @@ $(document).ready(function() {
                         title: 'Berhasil', 
                         text: response.message 
                     }).then(() => {
-                        if (window.dataLaporan) {
-                            window.dataLaporan.ajax.reload(null, false); 
+                        // Cek tabel mana yang ada di halaman untuk di-reload
+                        if (typeof dataLaporan !== 'undefined') {
+                            dataLaporan.ajax.reload(null, false);
+                        } else if (typeof $('#table_laporan_bersama').DataTable() !== 'undefined') {
+                            $('#table_laporan_bersama').DataTable().ajax.reload(null, false);
                         } else {
                             location.reload();
                         }

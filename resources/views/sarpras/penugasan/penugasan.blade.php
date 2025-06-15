@@ -1,21 +1,24 @@
-@extends('layouts.pelapor.template')
+@extends('layouts.sarpras.template')
 
 @section('content')
 <div class="card card-outline card-warning">
     <div class="card-header">
         <h3 class="card-title">{{ $page->title }}</h3>
+        <div class="card-tools">
+            <button type="button" onclick="modalAction('{{ route('sarpras.penugasan.create') }}')" class="btn btn-primary">Tambah Tugas</button>
+        </div>
     </div>
     <div class="card-body">
-        <table class="table table-bordered table-striped table-hover table-sm" id="table_laporan_bersama">
+        <table class="table table-bordered table-striped table-hover table-sm" id="table_tugas">
             <thead>
                 <tr>
                     <th>No</th>
+                    <th>Jenis Tugas</th>
                     <th>Fasilitas</th>
                     <th>Ruangan</th>
                     <th>Lantai</th>
+                    <th>Teknisi</th>
                     <th>Status</th>
-                    <th>Pelapor</th>
-                    <th>Jumlah Pelapor</th>
                     <th>Aksi</th>
                 </tr>
             </thead>
@@ -44,13 +47,13 @@
             headers: { 'X-CSRF-TOKEN': '{{ csrf_token() }}' }
         });
 
-        var table = $('#table_laporan_bersama').DataTable({
+        var table = $('#table_tugas').DataTable({
             processing: true,
             serverSide: true,
             ajax: {
-                url: "{{ route('pelapor.list.bersama') }}",
+                url: "{{ route('sarpras.penugasan.list') }}",
                 dataType: "json",
-                type: "POST",
+                type: "GET",
             },
             columns: [
                 { 
@@ -58,6 +61,9 @@
                     className: "text-center", 
                     orderable: false, 
                     searchable: false 
+                },{ 
+                    data: "tugas_jenis", 
+                    defaultContent: "-" 
                 },{ 
                     data: "details.0.fasilitas.fasilitas_nama", 
                     defaultContent: "-" 
@@ -68,13 +74,10 @@
                     data: "details.0.fasilitas.ruangan.lantai.lantai_nama", 
                     defaultContent: "-" 
                 },{ 
-                    data: "status.status_nama", 
-                    defaultContent: "-" 
-                },{ 
                     data: "user.name", 
                     defaultContent: "-" 
                 },{ 
-                    data: "jumlah_pelapor", 
+                    data: "status.status_nama", 
                     defaultContent: "-" 
                 },{ 
                     data: "aksi", 
@@ -85,34 +88,37 @@
             ]
         });
 
-        // Event listener untuk tombol "Ikut Melapor"
-        $('#table_laporan_bersama').on('click', '.btn-dukung', function() {
-            let laporanId = $(this).data('id');
-            let url = '{{ url("/pelapor/laporan-bersama") }}/' + laporanId + '/dukung';
-
+        // --- TAMBAHKAN BLOK SCRIPT INI ---
+        $('#table_tugas').on('click', '.btn-hapus', function() {
+            let deleteUrl = $(this).data('url');
+            
             Swal.fire({
                 title: 'Konfirmasi',
-                text: "Apakah Anda yakin ingin ikut melaporkan kerusakan ini?",
-                icon: 'question',
+                text: "Anda yakin ingin menghapus tugas ini secara permanen?",
+                icon: 'warning',
                 showCancelButton: true,
-                confirmButtonColor: '#0d6efd',
-                cancelButtonColor: '#ffc107',
-                confirmButtonText: 'Ya, Ikut Melapor!',
+                confirmButtonColor: '#d33',
+                cancelButtonColor: '#3085d6',
+                confirmButtonText: 'Ya, Hapus!',
                 cancelButtonText: 'Batal'
             }).then((result) => {
                 if (result.isConfirmed) {
-                    $.post(url)
-                        .done(function(response) {
+                    $.ajax({
+                        url: deleteUrl,
+                        type: 'DELETE', // Menggunakan metode DELETE
+                        dataType: 'json',
+                        success: function(response) {
                             if (response.status) {
                                 Swal.fire('Berhasil!', response.message, 'success');
-                                table.ajax.reload(null, false); // Reload tabel
+                                table.ajax.reload(); // Muat ulang tabel
                             } else {
                                 Swal.fire('Gagal!', response.message, 'error');
                             }
-                        })
-                        .fail(function() {
+                        },
+                        error: function() {
                             Swal.fire('Error!', 'Tidak dapat menghubungi server.', 'error');
-                        });
+                        }
+                    });
                 }
             });
         });

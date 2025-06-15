@@ -1,4 +1,4 @@
-@extends('layouts.pelapor.template')
+@extends('layouts.sarpras.template')
 
 @section('content')
 <div class="card card-outline card-warning">
@@ -6,7 +6,7 @@
         <h3 class="card-title">{{ $page->title }}</h3>
     </div>
     <div class="card-body">
-        <table class="table table-bordered table-striped table-hover table-sm" id="table_laporan_bersama">
+        <table class="table table-bordered table-striped table-hover table-sm" id="table_laporan">
             <thead>
                 <tr>
                     <th>No</th>
@@ -44,11 +44,11 @@
             headers: { 'X-CSRF-TOKEN': '{{ csrf_token() }}' }
         });
 
-        var table = $('#table_laporan_bersama').DataTable({
+        var table = $('#table_laporan').DataTable({
             processing: true,
             serverSide: true,
             ajax: {
-                url: "{{ route('pelapor.list.bersama') }}",
+                url: "{{ route('sarpras.laporan.list') }}",
                 dataType: "json",
                 type: "POST",
             },
@@ -83,38 +83,6 @@
                     searchable: false 
                 }
             ]
-        });
-
-        // Event listener untuk tombol "Ikut Melapor"
-        $('#table_laporan_bersama').on('click', '.btn-dukung', function() {
-            let laporanId = $(this).data('id');
-            let url = '{{ url("/pelapor/laporan-bersama") }}/' + laporanId + '/dukung';
-
-            Swal.fire({
-                title: 'Konfirmasi',
-                text: "Apakah Anda yakin ingin ikut melaporkan kerusakan ini?",
-                icon: 'question',
-                showCancelButton: true,
-                confirmButtonColor: '#0d6efd',
-                cancelButtonColor: '#ffc107',
-                confirmButtonText: 'Ya, Ikut Melapor!',
-                cancelButtonText: 'Batal'
-            }).then((result) => {
-                if (result.isConfirmed) {
-                    $.post(url)
-                        .done(function(response) {
-                            if (response.status) {
-                                Swal.fire('Berhasil!', response.message, 'success');
-                                table.ajax.reload(null, false); // Reload tabel
-                            } else {
-                                Swal.fire('Gagal!', response.message, 'error');
-                            }
-                        })
-                        .fail(function() {
-                            Swal.fire('Error!', 'Tidak dapat menghubungi server.', 'error');
-                        });
-                }
-            });
         });
     });
 </script>
