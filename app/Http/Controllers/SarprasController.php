@@ -7,6 +7,7 @@ use App\Models\LantaiModel;
 use App\Models\LaporanModel;
 use App\Models\RoleModel;
 use App\Models\RuanganModel;
+use App\Models\TugasDetail;
 use App\Models\TugasDetailModel;
 use App\Models\TugasModel;
 use App\Models\UserModel;
@@ -195,7 +196,7 @@ class SarprasController extends Controller
             $tugas->tugas_selesai = null; 
             $tugas->save();
 
-            $detail = new TugasDetailModel();
+            $detail = new TugasDetail();
             $detail->tugas_id = $tugas->tugas_id;
             $detail->fasilitas_id = $validated['fasilitas_id'];
             
@@ -270,7 +271,7 @@ class SarprasController extends Controller
     {
         DB::beginTransaction();
         try {
-            TugasDetailModel::where('tugas_id', $tugas_id)->delete();
+            TugasDetail::where('tugas_id', $tugas_id)->delete();
             TugasModel::findOrFail($tugas_id)->delete();
 
             DB::commit();

@@ -99,7 +99,7 @@ class TeknisiController extends Controller
             ->addIndexColumn()
             ->addColumn('laporan', function ($tugas) {
                 if ($tugas->laporan) {
-                    return '<a href="#" onclick="event.preventDefault(); modalAction(\'' . route('teknisi.show_laporan', $tugas->laporan->laporan_id) . '\')" class="btn btn-link text-info"><i class="fas fa-eye"></i> <span class="ms-1">Laporan</span></a>';
+                   return '<a href="#" onclick="modalAction(\'' . route('teknisi.show_laporan', $tugas->laporan->laporan_id) . '\')" class="btn btn-link text-info"><i class="fas fa-eye"></i> <span class="ms-1">Laporan</span></a>';
                 } else {
                     return '<span class="text-muted">Belum Ada</span>';
                 }
