@@ -27,28 +27,26 @@ class TeknisiController extends Controller
 
         $active_menu = 'dashboard';
 
-        // tugas terbaru yang aktif kecuali status_id != dibatalkan dan selesai)
-        $tugasTerbaru = TugasModel::where('user_id', Auth::user()->user_id)
+        $userId = Auth::user()->user_id;
+
+        // Statistik bulanan tetap
+        $dataStatistik = [];
+        for ($i = 1; $i <= 12; $i++) {
+            $dataStatistik[] = TugasModel::where('user_id', $userId)
+                ->whereMonth('tugas_mulai', $i)
+                ->whereYear('tugas_mulai', date('Y'))
+                ->count();
+        }
+
+        // Tugas terbaru yang BELUM selesai
+        $tugasTerbaru = TugasModel::with('details.fasilitas', 'status')
+            ->where('user_id', $userId)
             ->whereHas('status', function ($q) {
-                $q->whereNotIn('status_nama', ['dibatalkan', 'selesai']);
+                $q->where('status_nama', '!=', 'selesai');
             })
-            ->orderBy('tugas_mulai', 'desc')
+            ->orderByDesc('tugas_mulai')
             ->limit(2)
             ->get();
-
-        // jumlah tugas per bulan dalam tahun berjalan
-        $tahunIni = date('Y');
-        $statistik = TugasModel::selectRaw('MONTH(tugas_mulai) as bulan, COUNT(*) as jumlah')
-            ->whereYear('tugas_mulai', $tahunIni)
-            ->groupBy('bulan')
-            ->orderBy('bulan')
-            ->get();
-
-        // array 12 bulan dengan default 0 jumlah
-        $dataStatistik = array_fill(1, 12, 0);
-        foreach ($statistik as $item) {
-            $dataStatistik[(int)$item->bulan] = $item->jumlah;
-        }
 
         return view('teknisi.dashboard', compact('breadcrumb', 'active_menu', 'tugasTerbaru', 'dataStatistik'));
     }
@@ -99,7 +97,7 @@ class TeknisiController extends Controller
             ->addIndexColumn()
             ->addColumn('laporan', function ($tugas) {
                 if ($tugas->laporan) {
-                    return '<a href="#" onclick="event.preventDefault(); modalAction(\'' . route('teknisi.show_laporan', $tugas->laporan->laporan_id) . '\')" class="btn btn-link text-info"><i class="fas fa-eye"></i> <span class="ms-1">Laporan</span></a>';
+                    return '<a href="#" onclick="modalAction(\'' . route('teknisi.show_laporan', $tugas->laporan->laporan_id) . '\')" class="btn btn-link text-info"><i class="fas fa-eye"></i> <span class="ms-1">Laporan</span></a>';
                 } else {
                     return '<span class="text-muted">Belum Ada</span>';
                 }
