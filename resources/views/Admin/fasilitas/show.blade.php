@@ -47,6 +47,10 @@
                             <th class="text-right col-3">Nama :</th>
                             <td class="col-9">{{ $fasilitas->fasilitas_nama }}</td>
                         </tr>
+                           <tr>
+                            <th class="text-right col-3">Tingkat Urgensi :</th>
+                            <td class="col-9">{{ $fasilitas->tingkat_urgensi }}</td>
+                        </tr>
                     </table>
                 </div>
             </div>

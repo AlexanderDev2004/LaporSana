@@ -6,16 +6,16 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
-class LaporanModel extends Model 
+class LaporanModel extends Model
 {
     protected $table = 'm_laporan';
     protected $primaryKey = 'laporan_id';
-    
+
     protected $fillable = [
-            'user_id',
-            'status_id',
-            'tanggal_lapor',
-            'jumlah_pelapor'
+        'user_id',
+        'status_id',
+        'tanggal_lapor',
+        'jumlah_pelapor'
     ];
 
     // Relasi dengan detail laporan
@@ -34,5 +34,15 @@ class LaporanModel extends Model
     public function status(): BelongsTo
     {
         return $this->belongsTo(StatusModel::class, 'status_id', 'status_id');
+    }
+
+    public function tugas()
+    {
+        return $this->hasOne(TugasModel::class, 'laporan_id', 'laporan_id');
+    }
+
+    public function dukungan()
+    {
+        return $this->hasMany(DukungLaporanModel::class, 'laporan_id', 'laporan_id');
     }
 }
