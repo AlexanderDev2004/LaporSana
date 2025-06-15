@@ -6,6 +6,7 @@ use App\Models\FasilitasModel;
 use App\Models\LantaiModel;
 use App\Models\LaporanModel;
 use App\Models\RekomperbaikanModel;
+use App\Models\RiwayatPerbaikan;
 use App\Models\RoleModel;
 use App\Models\RuanganModel;
 use App\Models\TugasDetailModel;
@@ -32,6 +33,13 @@ class SarprasController extends Controller
         $card_data = $this->getCardData();
         $monthly_damage_data = $this->getMonthlyDamageData();
         $spk_data = $this->getSPKData(); // Tambahkan ini
+        $satisfactionData = [
+            RiwayatPerbaikan::where('rating', 1)->count(),
+            RiwayatPerbaikan::where('rating', 2)->count(),
+            RiwayatPerbaikan::where('rating', 3)->count(),
+            RiwayatPerbaikan::where('rating', 4)->count(),
+            RiwayatPerbaikan::where('rating', 5)->count()
+        ];
 
         // Ambil daftar fasilitas (id => nama)
         $fasilitasList = FasilitasModel::pluck('fasilitas_nama', 'fasilitas_id')->toArray();
@@ -42,7 +50,8 @@ class SarprasController extends Controller
             'card_data' => $card_data,
             'monthly_damage_data' => $monthly_damage_data,
             'spkData' => collect($spk_data), // pastikan ini collection/array
-            'fasilitasList' => $fasilitasList
+            'fasilitasList' => $fasilitasList,
+            'satisfactionData' => $satisfactionData
         ]);
     }
 
@@ -335,12 +344,13 @@ class SarprasController extends Controller
 
         // Tambahkan filter khusus untuk PERBAIKAN → hanya ambil fasilitas yang ada di SPK
         if ($jenis_tugas === 'Perbaikan') {
-            $query->whereExists(function ($subquery) {
-                $subquery->select(DB::raw(1))
-                    ->from('t_rekomperbaikan')
-                    ->whereColumn('t_rekomperbaikan.fasilitas_id', 'f.fasilitas_id');
+            // Hanya ambil fasilitas yang ada di tabel t_rekomperbaikan (hasil rekomendasi)
+            $query->whereIn('f.fasilitas_id', function ($subquery) {
+            $subquery->select('fasilitas_id')
+                ->from('t_rekomperbaikan');
             });
         }
+
 
         $fasilitas = $query
             ->select(
@@ -465,7 +475,7 @@ class SarprasController extends Controller
     public function list(Request $request)
     {
         $laporans = LaporanModel::with(['details.fasilitas.ruangan.lantai', 'status', 'user'])
-            ->where('status_id', [3, 4, 5]) // Ambil laporan yang sedang diproses, selesai, atau disetujui
+            ->whereIn('status_id', [3, 4, 5]) // Ambil laporan yang sedang diproses, selesai, atau disetujui
             ->get();
 
         return DataTables::of($laporans)

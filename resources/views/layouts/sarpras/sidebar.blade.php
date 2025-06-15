@@ -36,11 +36,6 @@
                      <p>Riwayat Penugasan</p>
                  </a>
              </li>
-             <li class="nav-header">Laporan</li>
-                     <i class="nav-icon fas fa-toolbox"></i>
-                     <p>Penugasan</p>
-                 </a>
-             </li>
              <li class="nav-header">laporan</li>
              <li class="nav-item">
                  <a href="{{ route('sarpras.laporan') }}" class="nav-link {{ $active_menu == 'laporan' ? 'active' : '' }}">
