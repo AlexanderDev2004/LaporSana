@@ -79,7 +79,6 @@ class RekomendasiPerbaikan extends Controller
             // 1. Ambil 5 laporan dengan jumlah pelapor terbanyak
             $topLaporanIDs = DB::table('m_laporan')
                 ->select('laporan_id')
-                ->where('status', 'disetujui') // hanya laporan yang disetujui admin
                 ->orderByDesc('jumlah_pelapor')
                 ->limit(5)
                 ->pluck('laporan_id')

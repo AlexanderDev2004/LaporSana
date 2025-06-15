@@ -154,10 +154,9 @@ class SarprasController extends Controller
 
             return redirect()->route('sarpras.profile.show')->with('success', 'Profil berhasil diperbarui.');
         } catch (\Exception $e) {
-            Log::error('Gagal update profil: '.$e->getMessage());
+            Log::error('Gagal update profil: ' . $e->getMessage());
             return back()->withErrors(['error' => 'Gagal memperbarui profil'])->withInput();
         }
-
     }
 
     public function penugasan()
@@ -188,10 +187,14 @@ class SarprasController extends Controller
             ->editColumn('status.status_nama', function ($tugas) {
                 $status = $tugas->status->status_nama ?? 'Tidak Diketahui';
                 switch ($tugas->status_id) {
-                    case 3: return '<span class="badge badge-info">' . $status . '</span>';
-                    case 4: return '<span class="badge badge-success">' . $status . '</span>';
-                    case 5: return '<span class="badge badge-primary">' . $status . '</span>';
-                    default: return '<span class="badge badge-secondary">' . $status . '</span>';
+                    case 3:
+                        return '<span class="badge badge-info">' . $status . '</span>';
+                    case 4:
+                        return '<span class="badge badge-success">' . $status . '</span>';
+                    case 5:
+                        return '<span class="badge badge-primary">' . $status . '</span>';
+                    default:
+                        return '<span class="badge badge-secondary">' . $status . '</span>';
                 }
             })
             ->addColumn('aksi', function ($tugas) {
@@ -199,9 +202,9 @@ class SarprasController extends Controller
                 // $editUrl = route('sarpras.penugasan.edit', ['tugas_id' => $tugas->tugas_id]);
                 $deleteUrl = route('sarpras.penugasan.destroy', ['tugas_id' => $tugas->tugas_id]);
 
-                $btn = '<button onclick="modalAction(\''.$detailUrl.'\')" class="btn btn-info btn-sm">Detail</button> ';
+                $btn = '<button onclick="modalAction(\'' . $detailUrl . '\')" class="btn btn-info btn-sm">Detail</button> ';
                 // $btnEdit = '<button onclick="modalAction(\''.$editUrl.'\')" class="btn btn-info btn-sm btn-warning">Edit</button> ';
-                $btnDelete = '<button type="button" class="btn btn-danger btn-sm ml-1 btn-hapus" data-url="'.$deleteUrl.'">Hapus</button>';
+                $btnDelete = '<button type="button" class="btn btn-danger btn-sm ml-1 btn-hapus" data-url="' . $deleteUrl . '">Hapus</button>';
 
                 return $btn . $btnDelete;
             })
@@ -432,7 +435,7 @@ class SarprasController extends Controller
             })
             ->addColumn('aksi', function ($tugas) {
                 $detailUrl = route('sarpras.penugasan.show', ['tugas_id' => $tugas->tugas_id]);
-                $btn = '<button onclick="modalAction(\''.$detailUrl.'\')" class="btn btn-info btn-sm">Detail</button> ';
+                $btn = '<button onclick="modalAction(\'' . $detailUrl . '\')" class="btn btn-info btn-sm">Detail</button> ';
 
                 return $btn;
             })
@@ -462,40 +465,43 @@ class SarprasController extends Controller
     public function list(Request $request)
     {
         $laporans = LaporanModel::with(['details.fasilitas.ruangan.lantai', 'status', 'user'])
-        ->where('status_id', 5) // hanya mengambil status yang sedang dalam proses
-        ->get();
+            ->where('status_id', [3, 4, 5]) // Ambil laporan yang sedang diproses, selesai, atau disetujui
+            ->get();
 
         return DataTables::of($laporans)
             ->addIndexColumn()
             ->editColumn('status.status_nama', function ($laporan) {
                 $status = $laporan->status->status_nama ?? 'Tidak Diketahui';
                 switch ($laporan->status_id) {
-                    case 1: return '<span class="badge badge-warning">' . $status . '</span>';
-                    case 2: return '<span class="badge badge-danger">' . $status . '</span>';
-                    case 3: return '<span class="badge badge-info">' . $status . '</span>';
-                    case 4: return '<span class="badge badge-success">' . $status . '</span>';
-                    default: return '<span class="badge badge-secondary">' . $status . '</span>';
+                    case 1:
+                        return '<span class="badge badge-warning">' . $status . '</span>';
+                    case 2:
+                        return '<span class="badge badge-danger">' . $status . '</span>';
+                    case 3:
+                        return '<span class="badge badge-info">' . $status . '</span>';
+                    case 4:
+                        return '<span class="badge badge-success">' . $status . '</span>';
+                    default:
+                        return '<span class="badge badge-secondary">' . $status . '</span>';
                 }
             })
             ->addColumn('aksi', function ($laporan) {
                 $detailUrl = route('sarpras.laporan.show', ['laporan_id' => $laporan->laporan_id]);
-                $btn = '<button onclick="modalAction(\''.$detailUrl.'\')" class="btn btn-info btn-sm">Detail</button> ';
+                $btn = '<button onclick="modalAction(\'' . $detailUrl . '\')" class="btn btn-info btn-sm">Detail</button> ';
 
                 $btnSelesai = '';
                 $btnTolak = '';
 
                 // Tombol aksi hanya muncul jika statusnya "Menunggu Verifikasi" (ID 1)
-                if ($laporan->status_id == 3) {
-                    $btnSelesai = '<button type="button" class="btn btn-success btn-sm ml-1 btn-update-status" data-id="'.$laporan->laporan_id.'" data-status="4">Selesai</button>';
-                    $btnTolak = '<button type="button" class="btn btn-danger btn-sm ml-1 btn-update-status" data-id="'.$laporan->laporan_id.'" data-status="2">Tolak</button>';
+                if ($laporan->status_id != 2 && $laporan->status_id != 1) {
+                    $btnSelesai = '<button type="button" class="btn btn-success btn-sm ml-1 btn-update-status" data-id="' . $laporan->laporan_id . '" data-status="4">Selesai</button>';
+                    $btnTolak = '<button type="button" class="btn btn-danger btn-sm ml-1 btn-update-status" data-id="' . $laporan->laporan_id . '" data-status="2">Tolak</button>';
                 }
                 return $btn . $btnSelesai . $btnTolak;
             })
             ->rawColumns(['status.status_nama', 'aksi'])
             ->make(true);
     }
-
-
     public function showLaporan($laporan_id)
     {
         $laporan = LaporanModel::with(['details.fasilitas.ruangan.lantai', 'status'])
@@ -521,7 +527,6 @@ class SarprasController extends Controller
             $laporan->save();
 
             return response()->json(['status' => true, 'message' => 'Status laporan berhasil diperbarui.']);
-
         } catch (\Exception $e) {
             Log::error('Gagal update status laporan: ' . $e->getMessage());
             return response()->json(['status' => false, 'message' => 'Terjadi error di server.'], 500);
@@ -556,14 +561,17 @@ class SarprasController extends Controller
             ->editColumn('status.status_nama', function ($laporan) {
                 $status = $laporan->status->status_nama ?? 'Tidak Diketahui';
                 switch ($laporan->status_id) {
-                    case 2: return '<span class="badge badge-danger">' . $status . '</span>';
-                    case 4: return '<span class="badge badge-success">' . $status . '</span>';
-                    default: return '<span class="badge badge-secondary">' . $status . '</span>';
+                    case 2:
+                        return '<span class="badge badge-danger">' . $status . '</span>';
+                    case 4:
+                        return '<span class="badge badge-success">' . $status . '</span>';
+                    default:
+                        return '<span class="badge badge-secondary">' . $status . '</span>';
                 }
             })
             ->addColumn('aksi', function ($laporan) {
                 $detailUrl = route('sarpras.riwayat.show', ['laporan_id' => $laporan->laporan_id]);
-                $btn = '<button onclick="modalAction(\''.$detailUrl.'\')" class="btn btn-info btn-sm">Detail</button>';
+                $btn = '<button onclick="modalAction(\'' . $detailUrl . '\')" class="btn btn-info btn-sm">Detail</button>';
                 return $btn;
             })
             ->rawColumns(['status.status_nama', 'aksi'])
