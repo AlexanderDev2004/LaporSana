@@ -70,17 +70,17 @@
         <!-- User Dropdown Menu -->
         <li class="nav-item dropdown user-menu">
             <a href="#" class="nav-link dropdown-toggle" data-toggle="dropdown">
-                 @if($user->avatar)
+                 {{-- @if($user->avatar)
                     <img src="{{ asset('storage/'.$user->avatar) }}" width="28,5" class=" rounded-circle">
-                @endif
+                @endif --}}
                 <span class="d-none d-md-inline">{{ Auth::user()->name }}</span>
             </a>
             <ul class="dropdown-menu dropdown-menu-lg dropdown-menu-right">
                 <!-- User image -->
                 <li class="user-header bg-primary">
-                     @if($user->avatar)
+                     {{-- @if($user->avatar)
                     <img src="{{ asset('storage/'.$user->avatar) }}" width="100" class="mt-2 rounded-circle">
-                @endif
+                @endif --}}
                     <p>
                         {{ Auth::user()->name }}
                         <small>{{ Auth::user()->role->roles_nama }}</small>

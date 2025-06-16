@@ -1,16 +1,6 @@
  <!-- Sidebar -->
  <div class="sidebar">
-     <!-- Sidebar user panel (optional) -->
-     <div class="user-panel mt-3 pb-3 mb-3 d-flex">
-         <div class="image">
-             @if($user->avatar)
-                    <img src="{{ asset('storage/'.$user->avatar) }}" width="100" class="mt-2 rounded-circle">
-                @endif
-         </div>
-         <div class="info">
-             <a href="#" class="d-block"><strong>{{ Auth::user()->name }}</strong></a>
-         </div>
-     </div>
+
 
      <!-- Sidebar Menu -->
      <nav class="mt-2">
@@ -34,12 +24,6 @@
                  <a href="{{ route('teknisi.riwayat') }}" class="nav-link {{ $active_menu == 'riwayat' ? 'active' : '' }}">
                      <i class="nav-icon fas fa-business-time"></i>
                      <p>Riwayat Tugas</p>
-                 </a>
-             </li>
-             <li class="nav-item">
-                 <a href="{{ route('logout') }}" class="nav-link">
-                    <i class="nav-icon fas fa-sign-out-alt"></i>
-                     Logout
                  </a>
              </li>
          </ul>

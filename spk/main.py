@@ -274,7 +274,7 @@ def calculate_spk():
         ranking = perangkingan_edas(kriteria_data, bobot_kriteria, kriteria_info, alternatif_list)
 
         # 3. Ambil 5 alternatif terbaik
-        top_5 = ranking.head(5)
+        top_5 = ranking.head(10)
 
         # 4. Kembalikan hasil dalam format JSON
         return jsonify({

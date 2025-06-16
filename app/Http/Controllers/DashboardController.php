@@ -89,7 +89,7 @@ class DashboardController extends Controller
             // Directly query the database instead of making HTTP requests
             return \App\Models\RekomperbaikanModel::with('fasilitas')
                 ->orderBy('rank', 'asc')
-                ->limit(5)
+                ->limit(10)
                 ->get();
         } catch (\Exception $e) {
             Log::error('Error retrieving SPK data: ' . $e->getMessage());

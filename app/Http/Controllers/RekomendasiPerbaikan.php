@@ -81,7 +81,7 @@ class RekomendasiPerbaikan extends Controller
                 ->select('laporan_id')
                 ->where('status_id', 3)
                 ->orderByDesc('jumlah_pelapor')
-                ->limit(5)
+                ->limit(10)
                 ->pluck('laporan_id')
                 ->toArray();
 
@@ -99,7 +99,7 @@ class RekomendasiPerbaikan extends Controller
                     DB::raw('(SELECT jumlah_pelapor FROM m_laporan WHERE laporan_id = m_laporan_detail.laporan_id LIMIT 1) as Jumlah_Pelapor')
                 )
                 ->groupBy('m_fasilitas.fasilitas_id', 'm_fasilitas.fasilitas_nama', 'm_fasilitas.tingkat_urgensi', 'm_laporan_detail.laporan_id')
-                ->limit(5) // Batasi 5 fasilitas saja
+                ->limit(10) // Batasi 5 fasilitas saja
                 ->get();
 
             // 3. Format data untuk API Flask
