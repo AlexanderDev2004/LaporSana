@@ -5,11 +5,11 @@
         <div class="card-header">
             <h3 class="card-title">Daftar Lantai</h3>
             <div class="card-tools">
-                 <button onclick="modalAction(`{{ route('admin.lantai.import') }}`)" class="btn btn-info">Import Lantai</button>
+                 <button onclick="modalAction('{{ route('admin.lantai.import') }}')" class="btn btn-info">Import lantai</button>
                 <a href="{{ route('admin.lantai.export_excel') }}" class="btn btn-primary"><i class="fa fa-file-excel"></i> Export
-                    Lantai</a>
+                    lantai</a>
                     <a href="{{ route('admin.lantai.export_pdf') }}" class="btn btn-warning"><i class="fa fa-file-pdf"></i> Export
-                        Lantai</a>
+                        lantai</a>
                 <button onclick="modalAction('{{ route('admin.lantai.create') }}')" class="btn btn-primary">
                     <i class="fas fa-plus"></i> Tambah Lantai
                 </button>

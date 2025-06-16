@@ -7,7 +7,6 @@
                 <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span>&times;</span></button>
             </div>
             <div class="modal-body">
-                {{-- Field spesifik untuk Penugasan --}}
                 <div class="form-group">
                     <label>Pilih Teknisi</label>
                     <select name="user_id" id="user_id" class="form-control" required>
@@ -17,6 +16,7 @@
                         @endforeach
                     </select>
                 </div>
+
                 <div class="form-group">
                     <label>Jenis Tugas</label>
                     <select name="tugas_jenis" id="tugas_jenis" class="form-control" required>
@@ -25,31 +25,17 @@
                         <option value="Perbaikan">Perbaikan</option>
                     </select>
                 </div>
+
                 <hr>
-                
-                {{-- Chained Dropdown untuk Lokasi, mirip dengan form Pelapor --}}
-                <p class="font-weight-bold">Detail Lokasi & Fasilitas</p>
-                <div class="form-group">
-                    <label>Lantai</label>
-                    <select name="lantai_id" id="lantai_id" class="form-control" required>
-                        <option value="">- Pilih Lantai -</option>
-                        @foreach($lantai as $l)
-                            <option value="{{ $l->lantai_id }}">{{ $l->lantai_nama }}</option>
-                        @endforeach
-                    </select>
-                </div>
-                <div class="form-group">
-                    <label>Ruangan</label>
-                    <select name="ruangan_id" id="ruangan_id" class="form-control" required disabled>
-                        <option value="">- Pilih Lantai Terlebih Dahulu -</option>
-                    </select>
-                </div>
+                <p class="font-weight-bold">Fasilitas dari Laporan Aktif</p>
+
                 <div class="form-group">
                     <label>Fasilitas</label>
                     <select name="fasilitas_id" id="fasilitas_id" class="form-control" required disabled>
-                        <option value="">- Pilih Ruangan Terlebih Dahulu -</option>
+                        <option value="">- Pilih Jenis Tugas Dulu -</option>
                     </select>
-                </div>
+                    <input type="hidden" name="laporan_id" id="laporan_id">
+                </div>  
                 <div class="form-group">
                     <label>Deskripsi Tambahan (Opsional)</label>
                     <textarea name="deskripsi" id="deskripsi" class="form-control" rows="3"></textarea>
@@ -65,62 +51,58 @@
 
 <script>
 $(document).ready(function() {
-    // Event listener untuk chained dropdown Lantai -> Ruangan
-    $('#lantai_id').on('change', function() {
-        let lantaiId = $(this).val();
-        let ruanganSelect = $('#ruangan_id');
+    // Load fasilitas berdasarkan jenis tugas
+    $('#tugas_jenis').on('change', function () {
+        let jenisTugas = $(this).val();
         let fasilitasSelect = $('#fasilitas_id');
 
-        ruanganSelect.empty().append('<option value="">- Memuat...</option>').prop('disabled', true);
-        fasilitasSelect.empty().append('<option value="">- Pilih Ruangan Dulu -</option>').prop('disabled', true);
+        fasilitasSelect.empty().append('<option value="">- Memuat data... -</option>').prop('disabled', true);
+        $('#laporan_id').val('');
 
-        if (lantaiId) {
-            $.get('{{ url("/sarpras/get-ruangan") }}/' + lantaiId, function(data) {
-                ruanganSelect.empty().append('<option value="">- Pilih Ruangan -</option>').prop('disabled', false);
-                $.each(data, function(key, value) {
-                    ruanganSelect.append('<option value="' + value.ruangan_id + '">' + value.ruangan_nama + '</option>');
-                });
+        if (jenisTugas) {
+            $.get('/sarpras/get-fasilitas-laporan/' + jenisTugas, function (data) {
+                fasilitasSelect.empty().append('<option value="">- Pilih Fasilitas -</option>');
+
+                if (data.length === 0) {
+                    fasilitasSelect.append('<option disabled>Tidak ada data tersedia</option>');
+                } else {
+                    $.each(data, function (i, item) {
+                        fasilitasSelect.append(
+                            '<option value="' + item.fasilitas_id + '" data-laporan="' + item.laporan_id + '">' +
+                            item.fasilitas_nama + ' (' + item.ruangan_nama + ' - ' + item.lantai_nama + ')' +
+                            '</option>'
+                        );
+                    });
+                }
+
+                fasilitasSelect.prop('disabled', false);
             });
         } else {
-            ruanganSelect.empty().append('<option value="">- Pilih Lantai Dulu -</option>').prop('disabled', true);
+            fasilitasSelect.empty().append('<option value="">- Pilih Jenis Tugas Dulu -</option>').prop('disabled', true);
         }
     });
 
-    // Event listener untuk chained dropdown Ruangan -> Fasilitas
-    $('#ruangan_id').on('change', function() {
-        let ruanganId = $(this).val();
-        let fasilitasSelect = $('#fasilitas_id');
-        
-        fasilitasSelect.empty().append('<option value="">- Memuat...</option>').prop('disabled', true);
-
-        if (ruanganId) {
-            $.get('{{ url("/sarpras/get-fasilitas") }}/' + ruanganId, function(data) {
-                fasilitasSelect.empty().append('<option value="">- Pilih Fasilitas -</option>').prop('disabled', false);
-                $.each(data, function(key, value) {
-                    fasilitasSelect.append('<option value="' + value.fasilitas_id + '">' + value.fasilitas_nama + '</option>');
-                });
-            });
-        } else {
-            fasilitasSelect.empty().append('<option value="">- Pilih Ruangan Dulu -</option>').prop('disabled', true);
-        }
+    // Simpan laporan_id dari fasilitas terpilih
+    $('#fasilitas_id').on('change', function () {
+        let laporanId = $(this).find(':selected').data('laporan');
+        $('#laporan_id').val(laporanId);
     });
 
-    // Event listener untuk submit form
+    // Submit form
     $("#form-tambah-tugas").on('submit', function(e) {
         e.preventDefault();
-        
+
         let form = this;
-        // Karena form ini tidak ada file upload, kita bisa pakai .serialize()
         let formData = $(form).serialize();
 
-        $.ajax({ 
-            url: $(form).attr('action'), 
-            type: 'POST', 
+        $.ajax({
+            url: $(form).attr('action'),
+            type: 'POST',
             data: formData,
             dataType: 'json',
             success: function(response) {
-                if(response.status){
-                    $('#myModal').modal('hide'); 
+                if (response.status) {
+                    $('#myModal').modal('hide');
                     Swal.fire({ 
                         icon: 'success', 
                         title: 'Berhasil', 
@@ -128,11 +110,11 @@ $(document).ready(function() {
                     }).then(() => {
                         $('#table_tugas').DataTable().ajax.reload(null, false);
                     });
-                } else { 
-                    Swal.fire({ 
-                        icon: 'error', 
-                        title: 'Terjadi Kesalahan', 
-                        text: (response && response.message) ? response.message : 'Gagal menyimpan data.'
+                } else {
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Gagal',
+                        text: response.message || 'Tugas gagal ditambahkan.'
                     });
                 }
             },
@@ -152,7 +134,7 @@ $(document).ready(function() {
                     text: errorMsg
                 });
             }
-        }); 
+        });
     });
 });
 </script>

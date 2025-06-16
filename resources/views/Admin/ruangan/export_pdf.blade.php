@@ -92,23 +92,21 @@
         </tr>
     </table>
 
-    <h3 class="text-center">LAPORAN DATA RUANGAN</h4>
+    <h3 class="text-center">LAPORAN DATA ROLE</h4>
         <table class="border-all">
             <thead>
                 <tr>
                     <th class="text-center">No</th>
-                    <th>Kode Ruangan</th>
-                    <th>Nama Ruangan</th>
-                    <th>Lantai</th>
+                    <th>Kode Role</th>
+                    <th>Nama Role</th>
                 </tr>
             </thead>
             <tbody>
-                @foreach ($ruangan as $u)
+                @foreach ($roles as $u)
                     <tr>
                         <td class="text-center">{{ $loop->iteration }}</td>
-                        <td>{{ $u->ruangan_kode}}</td>
-                        <td>{{ $u->ruangan_nama }}</td>
-                        <td>{{ $u->lantai->lantai_nama }}</td>
+                        <td>{{ $u->roles_kode}}</td>
+                        <td>{{ $u->roles_nama }}</td>
                     </tr>
                 @endforeach
             </tbody>

@@ -110,7 +110,7 @@
             </thead>
             <tbody>
                 @foreach ($laporan as $u)
-                @php 
+                @php
                     $detail = $u->details->first();
                 @endphp
                     <tr>

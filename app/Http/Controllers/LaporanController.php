@@ -9,11 +9,11 @@ use App\Models\StatusModel;
 use App\Models\TugasModel;
 use App\Models\TugasDetail;
 use App\Models\UserModel;
+use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Http\Request;
 use Yajra\DataTables\Facades\DataTables;
 use Illuminate\Support\Facades\Log;
 use PhpOffice\PhpSpreadsheet\IOFactory;
-use Barryvdh\DomPDF\Facade\Pdf;
 
 class LaporanController extends Controller
 {
@@ -88,7 +88,6 @@ class LaporanController extends Controller
 
         return response()->json(['status' => false, 'message' => 'Aksi tidak valid']);
     }
-
     public function export_excel()
     {
         //ambil data user yang akan di export
@@ -152,7 +151,7 @@ class LaporanController extends Controller
     {
         $laporan = LaporanModel::select('user_id', 'status_id', 'tanggal_lapor', 'jumlah_pelapor', 'laporan_id')
             ->orderBy('user_id')
-            ->with('user', 'status', 'details.fasilitas')
+            ->with('user', 'status', 'details.fasilitas.ruangan.lantai')
             ->get();
 
         //use Barryvdh\DomPDF\Facade\Pdf;

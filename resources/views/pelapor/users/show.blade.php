@@ -38,10 +38,10 @@
                             <th>Role</th>
                             <td>{{ $user->role->roles_nama }}</td>
                         </tr>
-                        <tr>
+                        {{-- <tr>
                             <th>NIM</th>
                             <td>{{ $user->NIM ?? '-' }}</td>
-                        </tr>
+                        </tr> --}}
                         <tr>
                             <th>NIP</th>
                             <td>{{ $user->NIP ?? '-' }}</td>

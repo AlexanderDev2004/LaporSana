@@ -5,7 +5,7 @@
         <div class="card-header">
             <h3 class="card-title">Daftar Ruangan</h3>
             <div class="card-tools">
-                <button onclick="modalAction(`{{ route('admin.ruangan.import') }}`)" class="btn btn-info">Import Ruangan</button>
+                <button onclick="modalAction('{{ route('admin.ruangan.import') }}')" class="btn btn-info">Import User</button>
                 <a href="{{ route('admin.ruangan.export_excel') }}" class="btn btn-primary"><i class="fa fa-file-excel"></i> Export
                     Ruangan</a>
                     <a href="{{ route('admin.ruangan.export_pdf') }}" class="btn btn-warning"><i class="fa fa-file-pdf"></i> Export
@@ -61,7 +61,7 @@
                 $('#myModal').modal('show');
             });
         }
-        
+
         var dataRuangan;
         $(document).ready(function(){
             dataRuangan = $('#table_ruangan').DataTable({

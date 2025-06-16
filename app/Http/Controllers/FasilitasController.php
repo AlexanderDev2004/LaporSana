@@ -5,12 +5,12 @@ namespace App\Http\Controllers;
 use App\Models\LantaiModel;
 use App\Models\FasilitasModel;
 use App\Models\RuanganModel;
+use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Validator;
 use PhpOffice\PhpSpreadsheet\IOFactory;
 use Yajra\DataTables\Facades\DataTables;
-use Barryvdh\DomPDF\Facade\Pdf;
 
 class FasilitasController extends Controller
 {
@@ -64,18 +64,18 @@ class FasilitasController extends Controller
 
         $active_menu = 'fasilitas';
         $ruangan = RuanganModel::select('ruangan_id', 'ruangan_nama')->get();
-        
+
         return view('admin.fasilitas.create', compact('breadcrumb', 'active_menu'))
                     ->with('ruangan', $ruangan);
     }
-  
+
           public function store(Request $request)
         {
             // Validate the request
             $validator = Validator::make($request->all(), [
                 'fasilitas_kode' => 'required',
                 'fasilitas_nama' => 'required',
-                'tingkat_urgensi' => 'required|in:1,2,3,4,5', 
+                'tingkat_urgensi' => 'required|in:1,2,3,4,5',
                 'ruangan_id'    => 'required'
             ]);
 
@@ -112,7 +112,7 @@ class FasilitasController extends Controller
             $fasilitas = FasilitasModel::find(id: $id);
             $ruangan = RuanganModel::select('ruangan_id', 'ruangan_nama')->get();
 
-            return view('admin.fasilitas.edit', ['fasilitas' => $fasilitas, 'ruangan' => $ruangan]); 
+            return view('admin.fasilitas.edit', ['fasilitas' => $fasilitas, 'ruangan' => $ruangan]);
         }
 
       public function update(Request $request, $id) {
@@ -284,8 +284,8 @@ class FasilitasController extends Controller
                         $sheet->setCellValue('A' . $baris, $no);
                         $sheet->setCellValue('B' . $baris, $value->fasilitas_kode);
                         $sheet->setCellValue('C' . $baris, $value->fasilitas_nama);
-                        $sheet->setCellValue('D' . $baris, $value->ruangan->ruangan_nama); 
-                        $sheet->setCellValue('E' . $baris, $value->tingkat_urgensi); 
+                        $sheet->setCellValue('D' . $baris, $value->ruangan->ruangan_nama);
+                        $sheet->setCellValue('E' . $baris, $value->tingkat_urgensi);
                         $baris++;
                         $no++;
                 }
@@ -325,6 +325,4 @@ class FasilitasController extends Controller
 
                 return $pdf->stream('Data Fasilitas ' . date('Y-m-d H:i:s') . '.pdf');
         }
-
-        
 }

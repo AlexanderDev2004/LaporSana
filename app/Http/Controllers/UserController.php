@@ -4,49 +4,19 @@ namespace App\Http\Controllers;
 
 use App\Models\UserModel;
 use App\Models\RoleModel;
+use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
+use Yajra\DataTables\Facades\DataTables;
 use Illuminate\Support\Facades\Validator;
 use PhpOffice\PhpSpreadsheet\IOFactory;
-use Yajra\DataTables\Facades\DataTables;
-use Barryvdh\DomPDF\Facade\Pdf;
 
 class UserController extends Controller
 {
-    public function index(Request $request)
-    {
 
-
-        $active_menu = 'users';
-        $query = UserModel::with('role');
-
-        if ($request->filled('role')) {
-            $query->where('roles_id', $request->role);
-        }
-
-        if ($request->filled('search')) {
-            $search = $request->search;
-            $query->where(function ($q) use ($search) {
-                $q->where('username', 'like', "%$search%")
-                    ->orWhere('name', 'like', "%$search%");
-            });
-        }
-
-        $users = $query->paginate(10);
-        $roles = RoleModel::all();
-
-        return view('admin.users.index', compact( 'users', 'roles', 'active_menu'))
-            ->with('breadcrumb', (object) [
-                'title' => 'Manajemen User',
-                'list'  => ['Home', 'User']
-            ]);
-    }
-
-
-
-    public function create()
+    public function index()
     {
         $breadcrumb = (object) [
             'title' => 'Manajemen User',
@@ -130,6 +100,13 @@ class UserController extends Controller
             ]);
         }
     }
+
+    public function create()
+    {
+        $roles = RoleModel::all();
+        return view('Admin.users.create', compact('roles'));
+    }
+
 
     public function edit(UserModel $user, Request $request)
     {
@@ -351,7 +328,6 @@ class UserController extends Controller
 
         return view('admin.users.show', compact('user', 'active_menu', 'breadcrumb'));
     }
-
     public function import()
     {
         return view('admin.users.import');
@@ -450,7 +426,7 @@ class UserController extends Controller
             $sheet->setCellValue('C' . $baris, $value->name);
             $sheet->setCellValue('D' . $baris, $value->NIM);
             $sheet->setCellValue('E' . $baris, $value->NIP);
-           
+
             $baris++;
             $no++;
         }

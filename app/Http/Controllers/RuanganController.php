@@ -4,12 +4,12 @@ namespace App\Http\Controllers;
 
 use App\Models\LantaiModel;
 use App\Models\RuanganModel;
+use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Validator;
-use Yajra\DataTables\Facades\DataTables;
-use Barryvdh\DomPDF\Facade\Pdf;
 use PhpOffice\PhpSpreadsheet\IOFactory;
+use Yajra\DataTables\Facades\DataTables;
 
 class RuanganController extends Controller
 {
@@ -63,11 +63,11 @@ class RuanganController extends Controller
 
         $active_menu = 'fasilitas';
         $lantai = LantaiModel::select('lantai_id', 'lantai_nama')->get();
-        
+
         return view('admin.ruangan.create', compact('breadcrumb', 'active_menu'))
                     ->with('lantai', $lantai);
     }
-  
+
           public function store(Request $request)
         {
             // Validate the request
@@ -109,7 +109,7 @@ class RuanganController extends Controller
             $ruangan = RuanganModel::find(id: $id);
             $lantai = LantaiModel::select('lantai_id', 'lantai_nama')->get();
 
-            return view('admin.ruangan.edit', ['ruangan' => $ruangan, 'lantai' => $lantai]); 
+            return view('admin.ruangan.edit', ['ruangan' => $ruangan, 'lantai' => $lantai]);
         }
 
       public function update(Request $request, $id) {

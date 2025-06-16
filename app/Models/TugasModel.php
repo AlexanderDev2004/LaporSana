@@ -23,7 +23,7 @@ class TugasModel extends Model
     // Relasi dengan detail tugas
     public function details(): HasMany
     {
-        return $this->hasMany(TugasDetail::class, 'tugas_id', 'tugas_id');
+        return $this->hasMany(TugasDetailModel::class, 'tugas_id', 'tugas_id');
     }
 
     // Relasi dengan user (teknisi)
@@ -38,10 +38,10 @@ class TugasModel extends Model
         return $this->belongsTo(StatusModel::class, 'status_id', 'status_id');
     }
 
-    public function laporan()
-{
-    return $this->belongsTo(LaporanModel::class, 'laporan_id', 'laporan_id');
-}
+    public function laporan(): BelongsTo
+    {
+        return $this->belongsTo(LaporanModel::class, 'laporan_id', 'laporan_id');
+    }
     public function riwayat()
 {
     return $this->hasOne(RiwayatPerbaikan::class, 'tugas_id', 'tugas_id');

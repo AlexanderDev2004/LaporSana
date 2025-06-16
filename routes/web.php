@@ -11,7 +11,6 @@ use App\Http\Controllers\RekomendasiPerbaikan;
 use App\Http\Controllers\RoleController;
 use App\Http\Controllers\RuanganController;
 use App\Http\Controllers\SarprasController;
-use App\Http\Controllers\SpkController;
 use App\Http\Controllers\TeknisiController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\ValidlaporAController;
@@ -47,7 +46,7 @@ Route::middleware(['auth', 'authorize:1'])->group(function () {
     Route::get('/admin/dashboard/spk', [DashboardController::class, 'hitungSPK']);
     // Route::get('/admin/dashboard/py', [RekomendasiPerbaikan::class, 'hitungSPK'])->name('calculate');
     Route::get('/admin/spk', [RekomendasiPerbaikan::class, 'tampilkanSPK'])->name('admin.spk');
-
+    Route::post('admin/perbarui-data', [RekomendasiPerbaikan::class, 'perbaruiData'])->name('perbarui.data');
 
     // Profile
     Route::group(['prefix' => 'admin/profile'], function () {
@@ -67,10 +66,10 @@ Route::middleware(['auth', 'authorize:1'])->group(function () {
         Route::get('/{user}/show', [UserController::class, 'show'])->name('admin.users.show');
         Route::get('/{user}/confirm', [UserController::class, 'confirm'])->name('admin.users.confirm');
         Route::delete('/{user}/delete', [UserController::class, 'delete'])->name('admin.users.delete');
-         Route::get('/import', [UserController::class, 'import'])->name('admin.users.import');
-        Route::post('/import_ajax', [UserController::class, 'import_ajax'])->name('admin.users.import_ajax');   
-        Route::get('/export_excel', [UserController::class, 'export_excel'])->name('admin.users.export_excel');  
-        Route::get('export_pdf', [UserController::class, 'export_pdf'])->name('admin.users.export_pdf');  
+        Route::get('/import', [UserController::class, 'import'])->name('admin.users.import');
+        Route::post('/import_ajax', [UserController::class, 'import_ajax'])->name('admin.users.import_ajax');
+        Route::get('/export_excel', [UserController::class, 'export_excel'])->name('admin.users.export_excel');
+        Route::get('export_pdf', [UserController::class, 'export_pdf'])->name('admin.users.export_pdf');
     });
     // Role Management
 
@@ -86,9 +85,9 @@ Route::middleware(['auth', 'authorize:1'])->group(function () {
         Route::get('/{role}/confirm', [RoleController::class, 'confirm'])->name('admin.roles.confirm');
         Route::delete('/{role}/delete', [RoleController::class, 'delete'])->name('admin.roles.delete');
         Route::get('/import', [RoleController::class, 'import'])->name('admin.roles.import');
-        Route::post('/import_ajax', [RoleController::class, 'import_ajax'])->name('admin.roles.import_ajax');   
-        Route::get('/export_excel', [RoleController::class, 'export_excel'])->name('admin.roles.export_excel');  
-        Route::get('export_pdf', [RoleController::class, 'export_pdf'])->name('admin.roles.export_pdf');       
+        Route::post('/import_ajax', [RoleController::class, 'import_ajax'])->name('admin.roles.import_ajax');
+        Route::get('/export_excel', [RoleController::class, 'export_excel'])->name('admin.roles.export_excel');
+        Route::get('export_pdf', [RoleController::class, 'export_pdf'])->name('admin.roles.export_pdf');
     });
 
     //Lantai Management
@@ -103,9 +102,9 @@ Route::middleware(['auth', 'authorize:1'])->group(function () {
         Route::get('/{lantai}/confirm', [LantaiController::class, 'confirm'])->name('admin.lantai.confirm');
         Route::delete('/{lantai}/delete', [LantaiController::class, 'delete'])->name('admin.lantai.delete');
         Route::get('/import', [LantaiController::class, 'import'])->name('admin.lantai.import');
-        Route::post('/import_ajax', [LantaiController::class, 'import_ajax'])->name('admin.lantai.import_ajax');   
-        Route::get('/export_excel', [LantaiController::class, 'export_excel'])->name('admin.lantai.export_excel');  
-        Route::get('export_pdf', [LantaiController::class, 'export_pdf'])->name('admin.lantai.export_pdf');       
+        Route::post('/import_ajax', [LantaiController::class, 'import_ajax'])->name('admin.lantai.import_ajax');
+        Route::get('/export_excel', [LantaiController::class, 'export_excel'])->name('admin.lantai.export_excel');
+        Route::get('export_pdf', [LantaiController::class, 'export_pdf'])->name('admin.lantai.export_pdf');
     });
 
     //Ruangan Management
@@ -120,9 +119,9 @@ Route::middleware(['auth', 'authorize:1'])->group(function () {
         Route::get('/{ruangan}/confirm', [RuanganController::class, 'confirm'])->name('admin.ruangan.confirm');
         Route::delete('/{ruangan}/delete', [RuanganController::class, 'delete'])->name('admin.ruangan.delete');
         Route::get('/import', [RuanganController::class, 'import'])->name('admin.ruangan.import');
-        Route::post('/import_ajax', [RuanganController::class, 'import_ajax'])->name('admin.ruangan.import_ajax');  
-        Route::get('/export_excel', [RuanganController::class, 'export_excel'])->name('admin.ruangan.export_excel'); 
-        Route::get('export_pdf', [RuanganController::class, 'export_pdf'])->name('admin.ruangan.export_pdf');      
+        Route::post('/import_ajax', [RuanganController::class, 'import_ajax'])->name('admin.ruangan.import_ajax');
+        Route::get('/export_excel', [RuanganController::class, 'export_excel'])->name('admin.ruangan.export_excel');
+        Route::get('export_pdf', [RuanganController::class, 'export_pdf'])->name('admin.ruangan.export_pdf');
     });
 
     //Fasilitas Management
@@ -137,20 +136,19 @@ Route::middleware(['auth', 'authorize:1'])->group(function () {
         Route::get('/{fasilitas}/confirm', [FasilitasController::class, 'confirm'])->name('admin.fasilitas.confirm');
         Route::delete('/{fasilitas}/delete', [FasilitasController::class, 'delete'])->name('admin.fasilitas.delete');
         Route::get('/import', [FasilitasController::class, 'import'])->name('admin.fasilitas.import');
-        Route::post('/import_ajax', [FasilitasController::class, 'import_ajax'])->name('admin.fasilitas.import_ajax');   
-        Route::get('/export_excel', [FasilitasController::class, 'export_excel'])->name('admin.fasilitas.export_excel');  
-        Route::get('export_pdf', [FasilitasController::class, 'export_pdf'])->name('admin.fasilitas.export_pdf');       
+        Route::post('/import_ajax', [FasilitasController::class, 'import_ajax'])->name('admin.fasilitas.import_ajax');
+        Route::get('/export_excel', [FasilitasController::class, 'export_excel'])->name('admin.fasilitas.export_excel');
+        Route::get('export_pdf', [FasilitasController::class, 'export_pdf'])->name('admin.fasilitas.export_pdf');
     });
 
     //Laporan Verifikasi
-   Route::group(['prefix' => 'admin/validasi_laporan'], function () {
-    Route::get('/', [LaporanController::class, 'index'])->name('admin.validasi_laporan.index');
-    Route::get('/list', [LaporanController::class, 'list'])->name('admin.validasi_laporan.list');
-    Route::get('/{laporan}/show', [LaporanController::class, 'show'])->name('admin.validasi_laporan.show');
-    Route::post('/{laporan}/verify', [LaporanController::class, 'verify'])->name('admin.validasi_laporan.verify');
-    Route::get('/export_excel', [LaporanController::class, 'export_excel'])->name('admin.validasi_laporan.export_excel');  
-    Route::get('export_pdf', [LaporanController::class, 'export_pdf'])->name('admin.validasi_laporan.export_pdf');  
-
+    Route::group(['prefix' => 'admin/validasi_laporan'], function () {
+        Route::get('/', [LaporanController::class, 'index'])->name('admin.validasi_laporan.index');
+        Route::get('/list', [LaporanController::class, 'list'])->name('admin.validasi_laporan.list');
+        Route::get('/{laporan}/show', [LaporanController::class, 'show'])->name('admin.validasi_laporan.show');
+        Route::post('/{laporan}/verify', [LaporanController::class, 'verify'])->name('admin.validasi_laporan.verify');
+        Route::get('/export_excel', [LaporanController::class, 'export_excel'])->name('admin.validasi_laporan.export_excel');
+        Route::get('export_pdf', [LaporanController::class, 'export_pdf'])->name('admin.validasi_laporan.export_pdf');
     });
 });
 
@@ -190,15 +188,15 @@ Route::middleware(['authorize:2,3,4'])->group(function () {
 
 // Sarpras Management (role 5)
 Route::middleware(['authorize:5'])->group(callback: function () {
-        Route::get('/sarpras/dashboard', [SarprasController::class, 'index'])->name('sarpras.dashboard');
-        Route::get('/sarpras/profile', [SarprasController::class, 'show'])->name('sarpras.profile.show');
-        Route::get('/sarpras/profile/edit', [SarprasController::class, 'edit'])->name('sarpras.profile.edit');
-        Route::put('/sarpras/profile', [SarprasController::class, 'update'])->name('sarpras.profile.update');
-        Route::get('sarpras/verifikasi_laporan', [SarprasController::class, 'verifikasilaporan'])->name('sarpras.verifikasi');
-        Route::get('sarpras/laporan/list_laporan', [SarprasController::class, 'listLaporan'])->name('sarpras.list.Laporan');
-        Route::get('sarpras/laporan/{laporan_id}', [SarprasController::class, 'showLaporan'])->name('sarpras.show');
-        Route::post('sarpras/laporan/{laporan_id}/approve', [SarprasController::class, 'approve'])->name('sarpras.approve');
-        Route::post('sarpras/laporan/{laporan_id}/reject', [SarprasController::class, 'reject'])->name('sarpras.reject');
+    Route::get('/sarpras/dashboard', [SarprasController::class, 'index'])->name('sarpras.dashboard');
+    Route::get('/sarpras/profile', [SarprasController::class, 'show'])->name('sarpras.profile.show');
+    Route::get('/sarpras/profile/edit', [SarprasController::class, 'edit'])->name('sarpras.profile.edit');
+    Route::put('/sarpras/profile', [SarprasController::class, 'update'])->name('sarpras.profile.update');
+    Route::get('sarpras/verifikasi_laporan', [SarprasController::class, 'verifikasilaporan'])->name('sarpras.verifikasi');
+    Route::get('sarpras/laporan/list_laporan', [SarprasController::class, 'listLaporan'])->name('sarpras.list.Laporan');
+    Route::get('sarpras/laporan/{laporan_id}', [SarprasController::class, 'showLaporan'])->name('sarpras.show');
+    Route::post('sarpras/laporan/{laporan_id}/approve', [SarprasController::class, 'approve'])->name('sarpras.approve');
+    Route::post('sarpras/laporan/{laporan_id}/reject', [SarprasController::class, 'reject'])->name('sarpras.reject');
     Route::group(['prefix' => 'sarpras'], function () {
         Route::get('/dashboard', [SarprasController::class, 'index'])->name('sarpras.dashboard');
         Route::get('/profile', [SarprasController::class, 'show'])->name('sarpras.profile.show');
@@ -211,24 +209,36 @@ Route::middleware(['authorize:5'])->group(callback: function () {
         Route::get('/penugasan/{tugas_id}', [SarprasController::class, 'tugasShow'])->name('sarpras.penugasan.show');
         Route::get('/create_tugas', [SarprasController::class, 'tugasCreate'])->name('sarpras.penugasan.create');
         Route::post('/penugasan/store', [SarprasController::class, 'tugasStore'])->name('sarpras.penugasan.store');
-        Route::get('/penugasan/{tugas_id}/edit', [SarprasController::class, 'tugasEdit'])->name('sarpras.penugasan.edit');
+        // Route::get('/penugasan/{tugas_id}/edit', [SarprasController::class, 'tugasEdit'])->name('sarpras.penugasan.edit');
         Route::put('/penugasan/{tugas_id}', [SarprasController::class, 'tugasUpdate'])->name('sarpras.penugasan.update');
         Route::delete('/penugasan/{tugas_id}', [SarprasController::class, 'tugasDestroy'])->name('sarpras.penugasan.destroy');
+        Route::get('/riwayat-penugasan', [SarprasController::class, 'riwayatPenugasan'])->name('sarpras.riwayat.penugasan');
+        Route::get('/riwayat-penugasan/list', [SarprasController::class, 'riwayatPenugasanList'])->name('sarpras.riwayat.penugasan.list');
 
         // ajax chain
         Route::get('get-ruangan/{lantai_id}', [SarprasController::class, 'getRuangan'])->name('sarpras.getRuangan');
         Route::get('get-fasilitas/{ruangan_id}', [SarprasController::class, 'getFasilitas'])->name('sarpras.getFasilitas');
+        Route::get('get-fasilitas-laporan/{jenis_tugas}', [SarprasController::class, 'getFasilitasByJenisTugas'])->name('sarpras.getFasilitasByJenisTugas');
+        Route::get('/get-data-pemeriksaan/{fasilitas_id}', [SarprasController::class, 'getPemeriksaanTerakhir'])->name('sarpras.getPemeriksaanTerakhir');
 
         // laporan
         Route::get('/laporan', [SarprasController::class, 'laporan'])->name('sarpras.laporan');
         Route::POST('/laporan/list', [SarprasController::class, 'list'])->name('sarpras.laporan.list');
         Route::get('/laporan/{laporan_id}', [SarprasController::class, 'showLaporan'])->name('sarpras.laporan.show');
+        Route::post('/laporan/{laporan_id}/update-status', [SarprasController::class, 'updateStatusLaporan'])->name('sarpras.laporan.updateStatus');
+        Route::get('/riwayat', [SarprasController::class, 'riwayatLaporan'])->name('sarpras.riwayat');
+        Route::post('/riwayat/list', [SarprasController::class, 'riwayatList'])->name('sarpras.riwayat.list');
+        Route::get('/riwayat/{laporan_id}', [SarprasController::class, 'showRiwayatLaporan'])->name('sarpras.riwayat.show');
+
+        // spk
+        Route::get('/spk', [RekomendasiPerbaikan::class, 'tampilkanSPK'])->name('sarpras.spk');
+        Route::post('/perbarui-data', [RekomendasiPerbaikan::class, 'perbaruiData'])->name('sarpras.perbarui.data');
     });
 });
 
 // Rute untuk Teknisi (role 6)
 Route::group(['prefix' => 'teknisi', 'middleware' => 'authorize:6'], function () {
-        Route::get('/dashboard', [TeknisiController::class, 'dashboard'])->name('teknisi.dashboard'); 
+        Route::get('/dashboard', [TeknisiController::class, 'dashboard'])->name('teknisi.dashboard');
         Route::get('/profile', [TeknisiController::class, 'showProfile'])->name('teknisi.profile.show');
         Route::get('/profile/edit', [TeknisiController::class, 'editProfile'])->name('teknisi.profile.edit');
         Route::put('/profile', [TeknisiController::class, 'updateProfile'])->name('teknisi.profile.update');
@@ -243,7 +253,7 @@ Route::group(['prefix' => 'teknisi', 'middleware' => 'authorize:6'], function ()
         Route::get('/teknisi/riwayat', [TeknisiController::class, 'riwayat'])->name('teknisi.riwayat');
         Route::get('/teknisi/riwayat/list', [TeknisiController::class, 'riwayatList'])->name('teknisi.riwayat.list');
         Route::get('/laporan/{id}', [TeknisiController::class, 'showLaporan'])->name('teknisi.show_laporan');
-        
+
 });
 
 

@@ -72,10 +72,10 @@
                                     @endif
                                 </td>
                             </tr>
-                            <tr>
+                            {{-- <tr>
                                 <th>Deskripsi</th>
                                 <td>{!! nl2br(e($detail->deskripsi ?? '-')) !!}</td>
-                            </tr>
+                            </tr> --}}
                         </table>
                     </div>
                     <div class="col-md-6">

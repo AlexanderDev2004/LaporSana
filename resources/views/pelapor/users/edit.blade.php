@@ -45,7 +45,7 @@
                 @enderror
             </div>
 
-            <div class="form-group">
+            {{-- <div class="form-group">
                 <label for="NIM">NIM (Opsional)</label>
                 <input type="text" id="NIM" name="NIM"
                        class="form-control @error('NIM') is-invalid @enderror"
@@ -53,7 +53,7 @@
                 @error('NIM')
                     <div class="invalid-feedback">{{ $message }}</div>
                 @enderror
-            </div>
+            </div> --}}
 
             <div class="form-group">
                 <label for="NIP">NIP (Opsional)</label>

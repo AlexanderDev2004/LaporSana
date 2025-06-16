@@ -5,8 +5,9 @@
     <div class="card">
         <div class="card-header">
             <h3 class="card-title">Daftar User</h3>
+
             <div class="card-tools">
-                <button onclick="modalAction(`{{ route('admin.users.import') }}`)" class="btn btn-info">Import User</button>
+                <button onclick="modalAction('{{ route('admin.users.import') }}')" class="btn btn-info">Import User</button>
                 <a href="{{ route('admin.users.export_excel') }}" class="btn btn-primary"><i class="fa fa-file-excel"></i> Export
                     User</a>
                     <a href="{{ route('admin.users.export_pdf') }}" class="btn btn-warning"><i class="fa fa-file-pdf"></i> Export
@@ -14,6 +15,7 @@
                 <button onclick="modalAction('{{ route('admin.users.create') }}')" class="btn btn-primary">
                     <i class="fas fa-plus"></i> Tambah User
                 </button>
+
             </div>
         </div>
         <div class="card-body">

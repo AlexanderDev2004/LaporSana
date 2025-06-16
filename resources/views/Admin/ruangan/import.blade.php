@@ -1,10 +1,10 @@
 
-<form action="{{ route('admin.ruangan.import_ajax') }}" method="POST" id="form-import" enctype="multipart/form-data">
+<form action="{{ route('admin.roles.import_ajax') }}" method="POST" id="form-import" enctype="multipart/form-data">
     @csrf
     <div id="modal-master" class="modal-dialog modal-lg" role="document">
         <div class="modal-content">
             <div class="modal-header">
-                <h5 class="modal-title" id="exampleModalLabel">Import Data Ruangan</h5>
+                <h5 class="modal-title" id="exampleModalLabel">Import Data Roles</h5>
                 <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                     <span aria-hidden="true">&times;</span>
                 </button>
@@ -12,15 +12,15 @@
             <div class="modal-body">
                 <div class="form-group">
                     <label>Download Template</label>
-                    <a href="{{ asset('template_ruangan.xlsx') }}" class="btn btn-info btn-sm" download>
+                    <a href="{{ asset('template_roles.xlsx') }}" class="btn btn-info btn-sm" download>
                         <i class="fa fa-file-excel"></i> Download
                     </a>
-                    <small id="error-ruangan_id" class="error-text form-text text-danger"></small>
+                    <small id="error-roles_id" class="error-text form-text text-danger"></small>
                 </div>
                 <div class="form-group">
                     <label>Pilih File</label>
-                    <input type="file" name="file_ruangan" id="file_ruangan" class="form-control" required>
-                    <small id="error-file_ruangan" class="error-text form-text text-danger"></small>
+                    <input type="file" name="file_roles" id="file_roles" class="form-control" required>
+                    <small id="error-file_roles" class="error-text form-text text-danger"></small>
                 </div>
             </div>
             <div class="modal-footer">
@@ -35,7 +35,7 @@
     $(document).ready(function () {
         $("#form-import").validate({
             rules: {
-                file_ruangan: {
+                file_roles: {
                     required: true,
                     extension: "xlsx"
                 },
@@ -57,7 +57,7 @@
                                 title: 'Berhasil',
                                 text: response.message
                             });
-                            tableRuangan.ajax.reload();
+                            tableRoles.ajax.reload();
                         } else {
                             $('.error-text').text('');
                             $.each(response.msgField, function (prefix, val) {

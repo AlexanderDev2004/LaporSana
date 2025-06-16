@@ -3,12 +3,12 @@
 namespace App\Http\Controllers;
 
 use App\Models\LantaiModel;
+use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Validator;
 use PhpOffice\PhpSpreadsheet\IOFactory;
 use Yajra\DataTables\Facades\DataTables;
-use Barryvdh\DomPDF\Facade\Pdf;
 
 class LantaiController extends Controller
 {
@@ -178,7 +178,7 @@ class LantaiController extends Controller
         return view('admin.lantai.show', compact('breadcrumb', 'active_menu', 'lantai'));
     }
 
-    public function import()
+   public function import()
         {
                 return view('admin.lantai.import');
         }

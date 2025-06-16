@@ -53,42 +53,42 @@
                 type: "POST",
             },
             columns: [
-                { 
-                    data: "DT_RowIndex", 
-                    className: "text-center", 
-                    orderable: false, 
-                    searchable: false 
-                },{ 
-                    data: "details.0.fasilitas.fasilitas_nama", 
-                    defaultContent: "-" 
-                },{ 
-                    data: "details.0.fasilitas.ruangan.ruangan_nama", 
-                    defaultContent: "-" 
-                },{ 
-                    data: "details.0.fasilitas.ruangan.lantai.lantai_nama", 
-                    defaultContent: "-" 
-                },{ 
-                    data: "status.status_nama", 
-                    defaultContent: "-" 
-                },{ 
-                    data: "user.name", 
-                    defaultContent: "-" 
-                },{ 
-                    data: "jumlah_pelapor", 
-                    defaultContent: "-" 
-                },{ 
-                    data: "aksi", 
-                    className: "text-center", 
-                    orderable: false, 
-                    searchable: false 
+                {
+                    data: "DT_RowIndex",
+                    className: "text-center",
+                    orderable: false,
+                    searchable: false
+                },{
+                    data: "details.0.fasilitas.fasilitas_nama",
+                    defaultContent: "-"
+                },{
+                    data: "details.0.fasilitas.ruangan.ruangan_nama",
+                    defaultContent: "-"
+                },{
+                    data: "details.0.fasilitas.ruangan.lantai.lantai_nama",
+                    defaultContent: "-"
+                },{
+                    data: "status.status_nama",
+                    defaultContent: "-"
+                },{
+                    data: "user.name",
+                    defaultContent: "-"
+                },{
+                    data: "jumlah_pelapor",
+                    defaultContent: "-"
+                },{
+                    data: "aksi",
+                    className: "text-center",
+                    orderable: false,
+                    searchable: false
                 }
             ]
         });
 
         // Event listener untuk tombol "Ikut Melapor"
         $('#table_laporan_bersama').on('click', '.btn-dukung', function() {
-            let laporanId = $(this).data('id');
-            let url = '{{ url("/pelapor/laporan-bersama") }}/' + laporanId + '/dukung';
+            // Perbaikan: Ambil URL dari atribut 'data-url'
+            let url = $(this).data('url');
 
             Swal.fire({
                 title: 'Konfirmasi',
@@ -110,8 +110,9 @@
                                 Swal.fire('Gagal!', response.message, 'error');
                             }
                         })
-                        .fail(function() {
-                            Swal.fire('Error!', 'Tidak dapat menghubungi server.', 'error');
+                        .fail(function(jqXHR) {
+                            let errorMsg = jqXHR.responseJSON ? jqXHR.responseJSON.message : 'Tidak dapat menghubungi server.';
+                            Swal.fire('Gagal!', errorMsg, 'error');
                         });
                 }
             });

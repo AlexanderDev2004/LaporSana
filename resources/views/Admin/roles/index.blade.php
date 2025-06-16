@@ -5,11 +5,9 @@
         <div class="card-header">
             <h3 class="card-title">Daftar Role</h3>
             <div class="card-tools">
-                 <button onclick="modalAction(`{{ route('admin.roles.import') }}`)" class="btn btn-info">Import Role</button>
-                <a href="{{ route('admin.roles.export_excel') }}" class="btn btn-primary"><i class="fa fa-file-excel"></i> Export
-                    Role</a>
-                    <a href="{{ route('admin.roles.export_pdf') }}" class="btn btn-warning"><i class="fa fa-file-pdf"></i> Export
-                        Role</a>
+                <button onclick="modalAction('{{ route('admin.roles.import') }}')" class="btn btn-info">Impor Role </button>
+                <a href="{{ route('admin.roles.export_excel') }}" class="btn btn-primary"><i class="fa fa-file-excel"></i> Export Role</a>
+                <a href="{{ route('admin.roles.export_pdf') }}" class="btn btn-warning"><i class="fa fa-file-pdf"></i> Export Role</a>
                 <button onclick="modalAction('{{ route('admin.roles.create') }}')" class="btn btn-primary">
                     <i class="fas fa-plus"></i> Tambah role
                 </button>
@@ -45,7 +43,7 @@
                 $('#myModal').modal('show');
             });
         }
-        
+
         var dataRoles;
         $(document).ready(function(){
             dataRoles = $('#table_role').DataTable({

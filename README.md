@@ -1,3 +1,5 @@
+![LaporSana Logo](public/LaporSana.png)
+
 ## LaporSana 
 Laporsana adalah sebuah website untuk membuat dan mengelola masalah fasilitas yang ada di 
 kampus, perbaikan fasilitas dengan integrasi sistem pendukung keputusan, yang memberikan rekomendasi
@@ -13,37 +15,7 @@ php artisan migrate
 ```
 ## Contributors
 
-<table>
-  <tr>
-    <td align="center">
-      <a href="https://github.com/AlexanderDev2004">
-        <br />
-        <sub><b>Alexander</b></sub>
-      </a>
-    </td>
-    <td align="center">
-      <a href="https://github.com/NathanaelGracedo">
-        <br />
-        <sub><b>NathanaelGracedo</b></sub>
-      </a>
-    </td>
-    <td align="center">
-      <a href="https://github.com/Fatikah002">
-        <br />
-        <sub><b>Fatikah002</b></sub>
-      </a>
-    </td>
-    <td align="center">
-      <a href="https://github.com/Danennndraaa">
-        <br />
-        <sub><b>Danennndraaa</b></sub>
-      </a>
-    </td>
-    <td align="center">
-      <a href="https://github.com/om-ica">
-        <br />
-        <sub><b>om-ica</b></sub>
-      </a>
-    </td>
-  </tr>
-</table>
+| [![Alexander](https://github.com/AlexanderDev2004.png?size=80)](https://github.com/AlexanderDev2004) | [![NathanaelGracedo](https://github.com/NathanaelGracedo.png?size=80)](https://github.com/NathanaelGracedo) | [![Fatikah002](https://github.com/Fatikah002.png?size=80)](https://github.com/Fatikah002) | [![Danennndraaa](https://github.com/Danennndraaa.png?size=80)](https://github.com/Danennndraaa) | [![om-ica](https://github.com/om-ica.png?size=80)](https://github.com/om-ica) |
+|:---:|:---:|:---:|:---:|:---:|
+| [**Alexander**](https://github.com/AlexanderDev2004) | [**NathanaelGracedo**](https://github.com/NathanaelGracedo) | [**Fatikah002**](https://github.com/Fatikah002) | [**Danennndraaa**](https://github.com/Danennndraaa) | [**om-ica**](https://github.com/om-ica) |
+

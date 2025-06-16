@@ -6,6 +6,7 @@ use App\Models\FasilitasModel;
 use App\Models\RekomperbaikanModel;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 
 class RekomendasiPerbaikan extends Controller
@@ -78,6 +79,7 @@ class RekomendasiPerbaikan extends Controller
             // 1. Ambil 5 laporan dengan jumlah pelapor terbanyak
             $topLaporanIDs = DB::table('m_laporan')
                 ->select('laporan_id')
+                ->where('status_id', 3)
                 ->orderByDesc('jumlah_pelapor')
                 ->limit(5)
                 ->pluck('laporan_id')
@@ -153,9 +155,60 @@ class RekomendasiPerbaikan extends Controller
 
     public function tampilkanSPK()
     {
-        $spkData = RekomperbaikanModel::orderBy('rank')->get(); // Ambil ranking urut
+        $spkData = RekomperbaikanModel::orderBy('rank')->get();
         $fasilitasList = FasilitasModel::pluck('fasilitas_nama', 'fasilitas_id')->toArray();
 
-        return view('Admin.dashboard', compact('spkData', 'fasilitasList'));
+        // Tampilkan ke dua view: Admin dan Satpras
+        // return view('Admin.dashboard', compact('spkData', 'fasilitasList'));
+        return view('Admin.dashboard', compact('spkData', 'fasilitasList'))
+            ->with('satprasView', view('sarpras.dashboard', compact('spkData', 'fasilitasList'))->render());
     }
+
+    // Fungsi untuk tombol "Perbarui Data"
+    public function perbaruiData(Request $request)
+{
+    try {
+        $response = $this->hitungSPK();
+
+        if ($response instanceof \Illuminate\Http\JsonResponse) {
+            $responseData = $response->getData(true);
+            if (isset($responseData['status']) && $responseData['status'] === 'error') {
+                return redirect()->back()->with([
+                    'error' => $responseData['message'] ?? 'Terjadi kesalahan saat memperbarui data!',
+                ]);
+            }
+        }
+
+        $fasilitasList = FasilitasModel::pluck('fasilitas_nama', 'fasilitas_id')->toArray();
+        $spkData = RekomperbaikanModel::orderBy('rank')->get();
+
+        // Ambil role user yang sedang login
+        $userRole = Auth::user()->role_id; // Pastikan field-nya benar
+
+        // Redirect sesuai role
+        if ($userRole == 1) {
+            return redirect()->route('admin.dashboard')->with([
+                'spkData' => $spkData,
+                'fasilitasList' => $fasilitasList,
+                'success' => 'Data berhasil diperbarui!'
+            ]);
+        } elseif ($userRole == 5) {
+            return redirect()->route('sarpras.dashboard')->with([
+                'spkData' => $spkData,
+                'fasilitasList' => $fasilitasList,
+                'success' => 'Data berhasil diperbarui!'
+            ]);
+        } else {
+            return redirect()->back()->with([
+                'error' => 'Role tidak dikenali.'
+            ]);
+        }
+
+    } catch (\Exception $e) {
+        return redirect()->back()->with([
+            'error' => 'Terjadi kesalahan: ' . $e->getMessage()
+        ]);
+    }
+}
+
 }

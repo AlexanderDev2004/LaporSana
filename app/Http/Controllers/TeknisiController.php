@@ -157,7 +157,7 @@ class TeknisiController extends Controller
         ];
         $active_menu = 'riwayat';
 
-        // Kita bisa kirim data status untuk filter 
+        // Kita bisa kirim data status untuk filter
         $status = StatusModel::all();
 
         return view('teknisi.riwayat', compact('breadcrumb', 'active_menu', 'status'));
@@ -290,7 +290,7 @@ class TeknisiController extends Controller
             ], 422);
         }
 
-        // Update jenis tugas 
+        // Update jenis tugas
         $tugas = TugasModel::findOrFail($id);
         $tugas->update([
             'tugas_jenis' => $tugas->tugas_jenis === 'pemeriksaan' ? 'perbaikan' : $tugas->tugas_jenis,

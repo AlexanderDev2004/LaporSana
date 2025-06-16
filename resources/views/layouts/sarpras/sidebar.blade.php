@@ -26,8 +26,14 @@
              <li class="nav-header">Penugasan</li>
              <li class="nav-item">
                  <a href="{{ route('sarpras.penugasan') }}" class="nav-link {{ $active_menu == 'penugasan' ? 'active' : '' }}">
-                     <i class="nav-icon fas fa-toolbox"></i>
+                     <i class="nav-icon fas fa-tasks"></i>
                      <p>Penugasan</p>
+                 </a>
+             </li>
+             <li class="nav-item">
+                 <a href="{{ route('sarpras.riwayat.penugasan') }}" class="nav-link {{ $active_menu == 'riwayat penugasan' ? 'active' : '' }}">
+                     <i class="nav-icon fas fa-history"></i>
+                     <p>Riwayat Penugasan</p>
                  </a>
              </li>
              <li class="nav-header">laporan</li>
@@ -35,6 +41,12 @@
                  <a href="{{ route('sarpras.laporan') }}" class="nav-link {{ $active_menu == 'laporan' ? 'active' : '' }}">
                      <i class="nav-icon fas fa-file"></i>
                      <p>Laporan</p>
+                 </a>
+             </li>
+             <li class="nav-item">
+                 <a href="{{ route('sarpras.riwayat') }}" class="nav-link {{ $active_menu == 'riwayat laporan' ? 'active' : '' }}">
+                     <i class="nav-icon fas fa-archive"></i>
+                     <p>Riwayat Laporan</p>
                  </a>
              </li>
          </ul>

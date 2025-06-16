@@ -135,11 +135,21 @@
     <div class="row mt-4">
         <div class="col-12">
             <div class="card shadow-sm">
-                <div class="card-header">
-                    <h3 class="card-title">Rekomendasi Perbaikan (SPK)</h3>
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <div class="flex-grow-1 text-left">
+                        <h3 class="card-title mb-0">Rekomendasi Perbaikan (SPK)</h3>
+                    </div>
+                    <div class="flex-shrink-0 text-right">
+                        <form action="{{ route('perbarui.data') }}" method="POST" class="mb-0">
+                            @csrf
+                            <button type="submit" class="btn btn-sm btn-primary">
+                                <i class="fas fa-sync-alt"></i> Perbarui Data
+                            </button>
+                        </form>
+                    </div>
                 </div>
-                <div class="card-body table-responsive">
-                    <table class="table table-bordered table-hover">
+                <div class="card-body table-responsive p-0">
+                    <table class="table table-bordered table-hover mb-0">
                         <thead class="thead-light">
                             <tr>
                                 <th>No</th>
@@ -153,7 +163,7 @@
                                 @foreach ($spkData as $i => $item)
                                     <tr>
                                         <td>{{ $i + 1 }}</td>
-                                        <td>{{ $fasilitasList[$item->fasilitas_id] ?? $item->fasilitas->fasilitas_nama ?? 'Nama Tidak Ditemukan' }}
+                                        <td>{{ $fasilitasList[$item->fasilitas_id] ?? ($item->fasilitas->fasilitas_nama ?? 'Nama Tidak Ditemukan') }}
                                         </td>
                                         <td>{{ number_format($item->score_ranking, 4) }}</td>
                                         <td>{{ $item->rank }}</td>
@@ -167,9 +177,9 @@
                         </tbody>
                     </table>
                 </div>
-
             </div>
         </div>
+    </div>
     </div>
 
     </div>
@@ -178,11 +188,11 @@
         <script src="https://cdn.jsdelivr.net/npm/chart.js@3.9.1/dist/chart.min.js"></script>
         <script>
             // Drag functionality for cards
-            document.addEventListener('DOMContentLoaded', function () {
+            document.addEventListener('DOMContentLoaded', function() {
                 const cardWrapper = document.getElementById('card-wrapper');
                 const container = document.getElementById('card-container');
                 const monthlyDamageData = @json($monthly_damage_data);
-
+                const satisfactionData = @json($satisfactionData);
                 let isDown = false;
                 let startX;
                 let scrollLeft;
@@ -253,7 +263,7 @@
                         },
                         tooltip: {
                             callbacks: {
-                                title: function (context) {
+                                title: function(context) {
                                     const monthNames = ['Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni',
                                         'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember'
                                     ];
@@ -291,13 +301,28 @@
                         labels: ['1', '2', '3', '4', '5'],
                         datasets: [{
                             label: 'Kepuasan',
-                            data: [33, 27, 30, 18, 25],
+                            data: satisfactionData,
                             backgroundColor: '#0d6efd',
                             borderWidth: 0,
                             borderRadius: 4
                         }]
                     },
-                    options: chartOptions
+                    options: {
+                        ...chartOptions,
+                        plugins: {
+                            ...chartOptions.plugins,
+                            tooltip: {
+                                callbacks: {
+                                    title: function(context) {
+                                        return 'Rating: ' + context[0].label;
+                                    },
+                                    label: function(context) {
+                                        return 'Jumlah: ' + context.raw;
+                                    }
+                                }
+                            }
+                        }
+                    }
                 });
             });
         </script>

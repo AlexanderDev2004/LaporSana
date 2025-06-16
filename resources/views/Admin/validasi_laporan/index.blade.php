@@ -2,19 +2,19 @@
 
 @section('content')
     <div class="container-fluid">
-       <div class="card shadow mb-4">
-        <div class="card-header py-3 d-flex align-items-center">
-            <div class="form-inline">
-                <label class="mr-2" for="status_filter">Filter Status:</label>
-                <select id="status_filter" class="form-control form-control-sm">
-                    <option value="">Semua Status</option>
-                    <option value="1">Menunggu Verifikasi</option>
-                    <option value="2">Ditolak</option>
-                    <option value="3">Diproses</option>
-                    <option value="5">Disetujui</option>
-                </select>
-            </div>
-            <div class="ml-auto">
+        <div class="card shadow mb-4">
+            <div class="card-header py-3 d-flex justify-content-between align-items-center">
+                <div class="form-inline">
+                    <label class="mr-2" for="status_filter">Filter Status:</label>
+                    <select id="status_filter" class="form-control form-control-sm">
+                        <option value="">Semua Status</option>
+                        <option value="1">Menunggu Verifikasi</option>
+                        <option value="2">Ditolak</option>
+                        <option value="3">Diproses</option>
+                        <option value="5">Disetujui</option>
+                    </select>
+                </div>
+                <div class="ml-auto">
                 <a href="{{ route('admin.validasi_laporan.export_excel') }}" class="btn btn-primary mr-2">
                     <i class="fa fa-file-excel"></i> Export Laporan
                 </a>
@@ -22,7 +22,7 @@
                     <i class="fa fa-file-pdf"></i> Export Laporan
                 </a>
             </div>
-        </div>
+            </div>
             <div class="card-body">
                 <div class="table-responsive">
                     <table id="laporanTable" class="table table-bordered" width="100%" cellspacing="0">
@@ -52,13 +52,13 @@
 @push('scripts')
     <script>
         function modalAction(url = '') {
-            $('#myModal').load(url, function() {
+            $('#myModal').load(url, function () {
                 $('#myModal').modal('show');
             });
         }
 
         var dataLaporan; // Mengubah nama variabel agar konsisten dengan show.blade.php
-        $(document).ready(function() {
+        $(document).ready(function () {
             dataLaporan = $('#laporanTable').DataTable({
                 processing: true,
                 serverSide: true,
@@ -68,10 +68,10 @@
                     "url": "{{ route('admin.validasi_laporan.list') }}", // Mengubah URL ke route yang benar
                     "dataType": "json",
                     "type": "GET",
-                    "data": function(d) {
+                    "data": function (d) {
                         d.status_id = $('#status_filter').val();
                     },
-                    "error": function(xhr, error, thrown) {
+                    "error": function (xhr, error, thrown) {
                         console.log('Error pada DataTables:', error);
                         console.log('Status:', xhr.status);
                         console.log('Response:', xhr.responseText);
@@ -79,16 +79,9 @@
                         toastr.error('Gagal memuat data: ' + error);
                     }
                 },
-                columns: [{
-                        data: 'laporan_id',
-                        className: 'text-center'
-                    },
-                    {
-                        data: 'user.name',
-                        className: '',
-                        orderable: true,
-                        searchable: true
-                    },
+                columns: [
+                    { data: 'laporan_id', className: 'text-center' },
+                    { data: 'user.name', className: '', orderable: true, searchable: true },
                     {
                         data: 'status.status_nama',
                         className: 'text-center',
@@ -109,29 +102,14 @@
                             return '<span class="' + badgeClass + '">' + data + '</span>';
                         }
                     },
-                    {
-                        data: 'tanggal_lapor',
-                        className: '',
-                        orderable: true,
-                        searchable: true
-                    },
-                    {
-                        data: 'jumlah_pelapor',
-                        className: 'text-center',
-                        orderable: true,
-                        searchable: true
-                    },
-                    {
-                        data: 'aksi',
-                        className: 'text-center',
-                        orderable: false,
-                        searchable: false
-                    }
+                    { data: 'tanggal_lapor', className: '', orderable: true, searchable: true },
+                    { data: 'jumlah_pelapor', className: 'text-center', orderable: true, searchable: true },
+                    { data: 'aksi', className: 'text-center', orderable: false, searchable: false }
                 ]
             });
 
             // Filter berdasarkan status
-            $('#status_filter').on('change', function() {
+            $('#status_filter').on('change', function () {
                 dataLaporan.ajax.reload();
             });
         });

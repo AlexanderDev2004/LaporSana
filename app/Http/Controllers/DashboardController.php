@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\LaporanModel;
+use App\Models\RiwayatPerbaikan;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Http;
@@ -22,6 +23,9 @@ class DashboardController extends Controller
         $monthly_damage_data = $this->getMonthlyDamageData();
         $spk_data = $this->getSPKData(); // Tambahkan ini
 
+<<<<<<<<< Temporary merge branch 1
+        return view('Admin.dashboard', compact('breadcrumb', 'active_menu'));
+=========
         // Ambil daftar fasilitas (id => nama)
         $fasilitasList = \App\Models\FasilitasModel::pluck('fasilitas_nama', 'fasilitas_id')->toArray();
 
@@ -31,7 +35,8 @@ class DashboardController extends Controller
             'card_data' => $card_data,
             'monthly_damage_data' => $monthly_damage_data,
             'spkData' => collect($spk_data), // pastikan ini collection/array
-            'fasilitasList' => $fasilitasList
+            'fasilitasList' => $fasilitasList,
+            'satisfactionData' => $satisfactionData
         ]);
     }
 
@@ -87,5 +92,6 @@ class DashboardController extends Controller
             Log::error('Error retrieving SPK data: ' . $e->getMessage());
             return [];
         }
+>>>>>>>>> Temporary merge branch 2
     }
 }

@@ -26,7 +26,7 @@
                 </div>
 
                 <div class="form-group">
-                    <label>Ulasan</label>
+                    <label>Ulasan (Opsional)</label>
                     <textarea name="ulasan" class="form-control" rows="3" placeholder="Tulis ulasan Anda..."></textarea>
                 </div>
             </div>
