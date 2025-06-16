@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\LaporanModel;
+use App\Models\RiwayatPerbaikan;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Http;
@@ -21,7 +22,13 @@ class DashboardController extends Controller
         $card_data = $this->getCardData();
         $monthly_damage_data = $this->getMonthlyDamageData();
         $spk_data = $this->getSPKData(); // Tambahkan ini
-
+        $satisfactionData = [
+            RiwayatPerbaikan::where('rating', 1)->count(),
+            RiwayatPerbaikan::where('rating', 2)->count(),
+            RiwayatPerbaikan::where('rating', 3)->count(),
+            RiwayatPerbaikan::where('rating', 4)->count(),
+            RiwayatPerbaikan::where('rating', 5)->count()
+        ];
         // Ambil daftar fasilitas (id => nama)
         $fasilitasList = \App\Models\FasilitasModel::pluck('fasilitas_nama', 'fasilitas_id')->toArray();
 
@@ -31,7 +38,8 @@ class DashboardController extends Controller
             'card_data' => $card_data,
             'monthly_damage_data' => $monthly_damage_data,
             'spkData' => collect($spk_data), // pastikan ini collection/array
-            'fasilitasList' => $fasilitasList
+            'fasilitasList' => $fasilitasList,
+            'satisfactionData' => $satisfactionData
         ]);
     }
 

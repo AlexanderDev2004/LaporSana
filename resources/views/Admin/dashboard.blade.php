@@ -188,11 +188,11 @@
         <script src="https://cdn.jsdelivr.net/npm/chart.js@3.9.1/dist/chart.min.js"></script>
         <script>
             // Drag functionality for cards
-            document.addEventListener('DOMContentLoaded', function () {
+            document.addEventListener('DOMContentLoaded', function() {
                 const cardWrapper = document.getElementById('card-wrapper');
                 const container = document.getElementById('card-container');
                 const monthlyDamageData = @json($monthly_damage_data);
-
+                const satisfactionData = @json($satisfactionData);
                 let isDown = false;
                 let startX;
                 let scrollLeft;
@@ -263,7 +263,7 @@
                         },
                         tooltip: {
                             callbacks: {
-                                title: function (context) {
+                                title: function(context) {
                                     const monthNames = ['Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni',
                                         'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember'
                                     ];
@@ -301,13 +301,28 @@
                         labels: ['1', '2', '3', '4', '5'],
                         datasets: [{
                             label: 'Kepuasan',
-                            data: [33, 27, 30, 18, 25],
+                            data: satisfactionData,
                             backgroundColor: '#0d6efd',
                             borderWidth: 0,
                             borderRadius: 4
                         }]
                     },
-                    options: chartOptions
+                    options: {
+                        ...chartOptions,
+                        plugins: {
+                            ...chartOptions.plugins,
+                            tooltip: {
+                                callbacks: {
+                                    title: function(context) {
+                                        return 'Rating: ' + context[0].label;
+                                    },
+                                    label: function(context) {
+                                        return 'Jumlah: ' + context.raw;
+                                    }
+                                }
+                            }
+                        }
+                    }
                 });
             });
         </script>

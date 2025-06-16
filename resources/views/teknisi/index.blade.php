@@ -12,12 +12,11 @@
             <div id="filter" class="form-horizontal filter-date p-2 border-bottom mb-2">
                 <div class="row">
                     <div class="col-md-4">
-                        <label for="filter_status">Filter Status</label>
-                        <select name="filter_status" class="form-control form-control-sm filter_status">
+                        <label for="filter_tugas_jenis">Filter Jenis Tugas</label>
+                        <select name="filter_tugas_jenis" class="form-control form-control-sm filter_tugas_jenis">
                             <option value="">- Semua -</option>
-                            @foreach ($status as $s)
-                                <option value="{{ $s->status_id }}">{{ $s->status_nama }}</option>
-                            @endforeach
+                            <option value="perbaikan">Perbaikan</option>
+                            <option value="pemeriksaan">Pemeriksaan</option>
                         </select>
                     </div>
                 </div>
@@ -32,15 +31,16 @@
             @endif
 
             {{-- Tabel Tugas --}}
-            <table id="table_tugas" class="table table-bordered table-striped table-sm table-hover">
+            <table id="table-tugas" class="table table-bordered table-striped table-sm table-hover">
                 <thead>
                     <tr>
                         <th>No</th>
                         <th>Nama Teknisi</th>
                         <th>Status</th>
                         <th>Jenis Tugas</th>
-                        <th>Tanggal Pengerjaan</th>
-                        <th>Tanggal Selesai</th>
+                        <th>Tanggal Penugasan</th>
+                        <th>Tanggal Penyelesaian</th>
+                        <th>Laporan</th>
                         <th>Aksi</th>
                     </tr>
                 </thead>
@@ -48,7 +48,8 @@
             </table>
         </div>
     </div>
-    <div id="myModal" class="modal fade animate shake" tabindex="-1" role="dialog" data-backdrop="static" data-keyboard="false" data-width="75%" aria-hidden="true"></div>
+    <div id="myModal" class="modal fade animate shake" tabindex="-1" role="dialog" data-backdrop="static"
+        data-keyboard="false" data-width="75%" aria-hidden="true"></div>
 @endsection
 @push('css')
 @endpush
@@ -62,7 +63,7 @@
         var tableTugas;
 
         $(document).ready(function() {
-            tableTugas = $('#table_tugas').DataTable({
+            tableTugas = $('#table-tugas').DataTable({
                 processing: true,
                 serverSide: true,
                 ajax: {
@@ -70,7 +71,7 @@
                     "dataType": "json",
                     type: "GET",
                     data: function(d) {
-                        d.filter_status = $('.filter_status').val();
+                        d.filter_tugas_jenis = $('.filter_tugas_jenis').val();
                     }
                 },
                 columns: [{
@@ -130,6 +131,12 @@
                         searchable: true
                     },
                     {
+                        data: "laporan",
+                        className: "",
+                        orderable: true,
+                        searchable: true
+                    },
+                    {
                         data: "aksi",
                         className: "text-center",
                         orderable: false,
@@ -144,7 +151,7 @@
                 }
             });
 
-            $('.filter_status').change(function() {
+            $('.filter_tugas_jenis').change(function() {
                 tableTugas.draw();
             });
         });

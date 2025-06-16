@@ -1,5 +1,5 @@
- <!-- Sidebar -->
- <div class="sidebar">
+<!-- Sidebar -->
+<div class="sidebar">
      <!-- Sidebar user panel (optional) -->
      <div class="user-panel mt-3 pb-3 mb-3 d-flex">
          <div class="image">
@@ -36,7 +36,7 @@
                      <p>Riwayat Penugasan</p>
                  </a>
              </li>
-             <li class="nav-header">Laporan</li>
+             <li class="nav-header">laporan</li>
              <li class="nav-item">
                  <a href="{{ route('sarpras.laporan') }}" class="nav-link {{ $active_menu == 'laporan' ? 'active' : '' }}">
                      <i class="nav-icon fas fa-file"></i>
@@ -53,4 +53,4 @@
      </nav>
      <!-- /.sidebar-menu -->
  </div>
- <!-- /.sidebar -->
+<!-- /.sidebar -->

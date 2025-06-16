@@ -5,6 +5,11 @@
         <div class="card-header">
             <h3 class="card-title">Daftar Fasilitas</h3>
             <div class="card-tools">
+                <button onclick="modalAction('{{ route('admin.fasilitas.import') }}')" class="btn btn-info">Import fasilitas</button>
+                <a href="{{ route('admin.fasilitas.export_excel') }}" class="btn btn-primary"><i class="fa fa-file-excel"></i> Export
+                    fasilitas</a>
+                <a href="{{ route('admin.fasilitas.export_pdf') }}" class="btn btn-warning"><i class="fa fa-file-pdf"></i> Export
+                    fasilitas</a>
                 <button onclick="modalAction('{{ route('admin.fasilitas.create') }}')" class="btn btn-primary">
                     <i class="fas fa-plus"></i> Tambah Fasilitas
                 </button>

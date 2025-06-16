@@ -53,14 +53,35 @@
                 type: "POST",
             },
             columns: [
-                { data: "DT_RowIndex", className: "text-center", orderable: false, searchable: false },
-                { data: "details.0.fasilitas.fasilitas_nama", defaultContent: "-" },
-                { data: "details.0.fasilitas.ruangan.ruangan_nama", defaultContent: "-" },
-                { data: "details.0.fasilitas.ruangan.lantai.lantai_nama", defaultContent: "-" },
-                { data: "status.status_nama", defaultContent: "-" },
-                { data: "user.name", defaultContent: "-" },
-                { data: "jumlah_pelapor", defaultContent: "-" },
-                { data: "aksi", className: "text-center", orderable: false, searchable: false }
+                {
+                    data: "DT_RowIndex",
+                    className: "text-center",
+                    orderable: false,
+                    searchable: false
+                },{
+                    data: "details.0.fasilitas.fasilitas_nama",
+                    defaultContent: "-"
+                },{
+                    data: "details.0.fasilitas.ruangan.ruangan_nama",
+                    defaultContent: "-"
+                },{
+                    data: "details.0.fasilitas.ruangan.lantai.lantai_nama",
+                    defaultContent: "-"
+                },{
+                    data: "status.status_nama",
+                    defaultContent: "-"
+                },{
+                    data: "user.name",
+                    defaultContent: "-"
+                },{
+                    data: "jumlah_pelapor",
+                    defaultContent: "-"
+                },{
+                    data: "aksi",
+                    className: "text-center",
+                    orderable: false,
+                    searchable: false
+                }
             ]
         });
 
