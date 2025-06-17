@@ -257,7 +257,7 @@ class TeknisiController extends Controller
         }
     }
 
-    // HALAMAN TUGAS PEMERIKSAAN
+   // HALAMAN TUGAS PEMERIKSAAN
 
     public function pemeriksaan(Request $request)
     {
@@ -412,7 +412,6 @@ class TeknisiController extends Controller
             'message' => 'Data pemeriksaan berhasil diperbarui dan status menjadi selesai diperiksa.',
         ]);
     }
-
 
 
     // HALAMAN PROFIL
