@@ -88,8 +88,8 @@ class DashboardController extends Controller
     private function getSPKData()
     {
         try {
-            // Directly query the database instead of making HTTP requests
-            return \App\Models\RekomperbaikanModel::with('fasilitas')
+            // Eager load fasilitas, ruangan, and lantai relationships
+            return \App\Models\RekomperbaikanModel::with(['fasilitas.ruangan.lantai'])
                 ->orderBy('rank', 'asc')
                 ->limit(10)
                 ->get();

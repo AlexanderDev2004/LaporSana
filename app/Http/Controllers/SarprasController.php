@@ -805,10 +805,10 @@ class SarprasController extends Controller
     private function getSPKData()
     {
         try {
-            // Directly query the database instead of making HTTP requests
-            return RekomperbaikanModel::with('fasilitas')
+            // Eager load fasilitas, ruangan, and lantai relationships
+            return RekomperbaikanModel::with(['fasilitas.ruangan.lantai'])
                 ->orderBy('rank', 'asc')
-                ->limit(5)
+                ->limit(10)
                 ->get();
         } catch (\Exception $e) {
             Log::error('Error retrieving SPK data: ' . $e->getMessage());
