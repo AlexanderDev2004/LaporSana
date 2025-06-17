@@ -154,6 +154,8 @@
                             <tr>
                                 <th>No</th>
                                 <th>Nama Fasilitas</th>
+                                <th>Ruangan</th>
+                                <th>Lantai</th>
                                 <th>Score Ranking</th>
                                 <th>Ranking</th>
                             </tr>
@@ -165,13 +167,15 @@
                                         <td>{{ $i + 1 }}</td>
                                         <td>{{ $fasilitasList[$item->fasilitas_id] ?? ($item->fasilitas->fasilitas_nama ?? 'Nama Tidak Ditemukan') }}
                                         </td>
+                                        <td>{{ $item->fasilitas->ruangan->ruangan_nama ?? 'Tidak Tersedia' }}</td>
+                                        <td>{{ $item->fasilitas->ruangan->lantai->lantai_nama ?? 'Tidak Tersedia' }}</td>
                                         <td>{{ number_format($item->score_ranking, 4) }}</td>
                                         <td>{{ $item->rank }}</td>
                                     </tr>
                                 @endforeach
                             @else
                                 <tr>
-                                    <td colspan="4" class="text-center">Tidak ada data.</td>
+                                    <td colspan="6" class="text-center">Tidak ada data.</td>
                                 </tr>
                             @endif
                         </tbody>
@@ -188,7 +192,7 @@
         <script src="https://cdn.jsdelivr.net/npm/chart.js@3.9.1/dist/chart.min.js"></script>
         <script>
             // Drag functionality for cards
-            document.addEventListener('DOMContentLoaded', function() {
+            document.addEventListener('DOMContentLoaded', function () {
                 const cardWrapper = document.getElementById('card-wrapper');
                 const container = document.getElementById('card-container');
                 const monthlyDamageData = @json($monthly_damage_data);
@@ -263,7 +267,7 @@
                         },
                         tooltip: {
                             callbacks: {
-                                title: function(context) {
+                                title: function (context) {
                                     const monthNames = ['Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni',
                                         'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember'
                                     ];
@@ -313,10 +317,10 @@
                             ...chartOptions.plugins,
                             tooltip: {
                                 callbacks: {
-                                    title: function(context) {
+                                    title: function (context) {
                                         return 'Rating: ' + context[0].label;
                                     },
-                                    label: function(context) {
+                                    label: function (context) {
                                         return 'Jumlah: ' + context.raw;
                                     }
                                 }

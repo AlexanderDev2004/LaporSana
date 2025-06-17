@@ -22,9 +22,13 @@ class DashboardController extends Controller
         $card_data = $this->getCardData();
         $monthly_damage_data = $this->getMonthlyDamageData();
         $spk_data = $this->getSPKData(); // Tambahkan ini
-
-
-        return view('Admin.dashboard', compact('breadcrumb', 'active_menu'));
+        $satisfactionData = [
+            RiwayatPerbaikan::where('rating', 1)->count(),
+            RiwayatPerbaikan::where('rating', 2)->count(),
+            RiwayatPerbaikan::where('rating', 3)->count(),
+            RiwayatPerbaikan::where('rating', 4)->count(),
+            RiwayatPerbaikan::where('rating', 5)->count()
+        ];
 
         // Ambil daftar fasilitas (id => nama)
         $fasilitasList = \App\Models\FasilitasModel::pluck('fasilitas_nama', 'fasilitas_id')->toArray();
@@ -83,8 +87,8 @@ class DashboardController extends Controller
     private function getSPKData()
     {
         try {
-            // Directly query the database instead of making HTTP requests
-            return \App\Models\RekomperbaikanModel::with('fasilitas')
+            // Eager load fasilitas, ruangan, and lantai relationships
+            return \App\Models\RekomperbaikanModel::with(['fasilitas.ruangan.lantai'])
                 ->orderBy('rank', 'asc')
                 ->limit(10)
                 ->get();
