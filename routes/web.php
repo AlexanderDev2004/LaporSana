@@ -227,7 +227,7 @@ Route::middleware(['authorize:5'])->group(callback: function () {
     Route::get('get-ruangan/{lantai_id}', [SarprasController::class, 'getRuangan'])->name('sarpras.getRuangan');
     Route::get('get-fasilitas/{ruangan_id}', [SarprasController::class, 'getFasilitas'])->name('sarpras.getFasilitas');
     Route::get('get-fasilitas-laporan/{jenis_tugas}', [SarprasController::class, 'getFasilitasByJenisTugas'])->name('sarpras.getFasilitasByJenisTugas');
-    Route::get('/get-data-pemeriksaan/{fasilitas_id}', [SarprasController::class, 'getPemeriksaan'])->name('sarpras.getPemeriksaan');
+    Route::get('/get-data-pemeriksaan/{fasilitas_id}', [SarprasController::class, 'getDataPemeriksaan'])->name('sarpras.getPemeriksaan');
 
     // laporan
     Route::get('/laporan', [SarprasController::class, 'laporan'])->name('sarpras.laporan');

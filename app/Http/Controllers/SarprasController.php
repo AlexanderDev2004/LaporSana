@@ -194,8 +194,20 @@ class SarprasController extends Controller
 
         return DataTables::of($pemeriksaan)
             ->addIndexColumn()
-            ->editColumn('status.status_nama', function ($pemeriksaan) {
-                return '<span class="badge badge-primary">' . ($pemeriksaan->status->status_nama ?? 'Selesai') . '</span>';
+             ->editColumn('status.status_nama', function ($laporan) {
+                $status = $laporan->status->status_nama ?? 'Tidak Diketahui';
+                switch ($laporan->status_id) {
+                    case 1:
+                        return '<span class="badge badge-warning">' . $status . '</span>';
+                    case 2:
+                        return '<span class="badge badge-danger">' . $status . '</span>';
+                    case 3:
+                        return '<span class="badge badge-info">' . $status . '</span>';
+                    case 4:
+                        return '<span class="badge badge-success">' . $status . '</span>';
+                    default:
+                        return '<span class="badge badge-secondary">' . $status . '</span>';
+                }
             })
             ->addColumn('aksi', function ($pemeriksaan) {
                 $detailUrl = route('sarpras.pemeriksaan.show', ['tugas_id' => $pemeriksaan->tugas_id]);
@@ -328,8 +340,20 @@ class SarprasController extends Controller
 
         return DataTables::of($perbaikan)
             ->addIndexColumn()
-            ->editColumn('status.status_nama', function ($perbaikan) {
-                return '<span class="badge badge-primary">' . ($perbaikan->status->status_nama ?? 'Selesai') . '</span>';
+             ->editColumn('status.status_nama', function ($laporan) {
+                $status = $laporan->status->status_nama ?? 'Tidak Diketahui';
+                switch ($laporan->status_id) {
+                    case 1:
+                        return '<span class="badge badge-warning">' . $status . '</span>';
+                    case 2:
+                        return '<span class="badge badge-danger">' . $status . '</span>';
+                    case 3:
+                        return '<span class="badge badge-info">' . $status . '</span>';
+                    case 4:
+                        return '<span class="badge badge-success">' . $status . '</span>';
+                    default:
+                        return '<span class="badge badge-secondary">' . $status . '</span>';
+                }
             })
             ->addColumn('aksi', function ($perbaikan) {
                 $detailUrl = route('sarpras.perbaikan.show', ['tugas_id' => $perbaikan->tugas_id]);
@@ -452,51 +476,51 @@ class SarprasController extends Controller
     }
 
     // Helper untuk mendapatkan fasilitas berdasarkan jenis tugas
-    public function getFasilitasByJenisTugas($jenis_tugas)
-    {
-        $status_id = null;
+    // public function getFasilitasByJenisTugas($jenis_tugas)
+    // {
+    //     $status_id = null;
 
-        if ($jenis_tugas === 'Pemeriksaan') {
-            $status_id = 5;
-        } elseif ($jenis_tugas === 'Perbaikan') {
-            $status_id = 3;
-        }
+    //     if ($jenis_tugas === 'Pemeriksaan') {
+    //         $status_id = 5;
+    //     } elseif ($jenis_tugas === 'Perbaikan') {
+    //         $status_id = 6;
+    //     }
 
-        if (!$status_id) {
-            return response()->json([], 400);
-        }
+    //     if (!$status_id) {
+    //         return response()->json([], 400);
+    //     }
 
-        $query = DB::table('m_laporan_detail as d')
-            ->join('m_laporan as l', 'l.laporan_id', '=', 'd.laporan_id')
-            ->join('m_fasilitas as f', 'f.fasilitas_id', '=', 'd.fasilitas_id')
-            ->join('m_ruangan as r', 'r.ruangan_id', '=', 'f.ruangan_id')
-            ->join('m_lantai as lt', 'lt.lantai_id', '=', 'r.lantai_id')
-            ->leftJoin('m_tugas as t', 't.laporan_id', '=', 'l.laporan_id')
-            ->where('l.status_id', $status_id)
-            ->whereNull('t.laporan_id');
+    //     $query = DB::table('m_laporan_detail as d')
+    //         ->join('m_laporan as l', 'l.laporan_id', '=', 'd.laporan_id')
+    //         ->join('m_fasilitas as f', 'f.fasilitas_id', '=', 'd.fasilitas_id')
+    //         ->join('m_ruangan as r', 'r.ruangan_id', '=', 'f.ruangan_id')
+    //         ->join('m_lantai as lt', 'lt.lantai_id', '=', 'r.lantai_id')
+    //         ->leftJoin('m_tugas as t', 't.laporan_id', '=', 'l.laporan_id')
+    //         ->where('l.status_id', $status_id)
+    //         ->whereNull('t.laporan_id');
 
-        // Tambahkan filter khusus untuk PERBAIKAN → hanya ambil fasilitas yang ada di SPK
-        if ($jenis_tugas === 'Perbaikan') {
-            // Hanya ambil fasilitas yang ada di tabel t_rekomperbaikan (hasil rekomendasi)
-            $query->whereIn('f.fasilitas_id', function ($subquery) {
-            $subquery->select('fasilitas_id')
-                ->from('t_rekomperbaikan');
-            });
-        }
+    //     // Tambahkan filter khusus untuk PERBAIKAN → hanya ambil fasilitas yang ada di SPK
+    //     if ($jenis_tugas === 'Perbaikan') {
+    //         // Hanya ambil fasilitas yang ada di tabel t_rekomperbaikan (hasil rekomendasi)
+    //         $query->whereIn('f.fasilitas_id', function ($subquery) {
+    //         $subquery->select('fasilitas_id')
+    //             ->from('t_rekomperbaikan');
+    //         });
+    //     }
 
 
-        $fasilitas = $query
-            ->select(
-                'l.laporan_id',
-                'f.fasilitas_id',
-                'f.fasilitas_nama',
-                'r.ruangan_nama',
-                'lt.lantai_nama'
-            )
-            ->get();
+    //     $fasilitas = $query
+    //         ->select(
+    //             'l.laporan_id',
+    //             'f.fasilitas_id',
+    //             'f.fasilitas_nama',
+    //             'r.ruangan_nama',
+    //             'lt.lantai_nama'
+    //         )
+    //         ->get();
 
-        return response()->json($fasilitas);
-    }
+    //     return response()->json($fasilitas);
+    // }
 
     public function getDataPemeriksaan($fasilitas_id)
     {
@@ -557,8 +581,20 @@ class SarprasController extends Controller
 
         return DataTables::of($tugas)
             ->addIndexColumn()
-            ->editColumn('status.status_nama', function ($tugas) {
-                return '<span class="badge badge-success">' . ($tugas->status->status_nama ?? 'Selesai') . '</span>';
+             ->editColumn('status.status_nama', function ($laporan) {
+                $status = $laporan->status->status_nama ?? 'Tidak Diketahui';
+                switch ($laporan->status_id) {
+                    case 1:
+                        return '<span class="badge badge-warning">' . $status . '</span>';
+                    case 2:
+                        return '<span class="badge badge-danger">' . $status . '</span>';
+                    case 3:
+                        return '<span class="badge badge-info">' . $status . '</span>';
+                    case 4:
+                        return '<span class="badge badge-success">' . $status . '</span>';
+                    default:
+                        return '<span class="badge badge-secondary">' . $status . '</span>';
+                }
             })
             ->addColumn('aksi', function ($tugas) {
                 $detailUrl = route('sarpras.pemeriksaan.show', ['tugas_id' => $tugas->tugas_id]);
@@ -596,8 +632,20 @@ class SarprasController extends Controller
 
         return DataTables::of($tugas)
             ->addIndexColumn()
-            ->editColumn('status.status_nama', function ($tugas) {
-                return '<span class="badge badge-success">' . ($tugas->status->status_nama ?? 'Selesai') . '</span>';
+             ->editColumn('status.status_nama', function ($laporan) {
+                $status = $laporan->status->status_nama ?? 'Tidak Diketahui';
+                switch ($laporan->status_id) {
+                    case 1:
+                        return '<span class="badge badge-warning">' . $status . '</span>';
+                    case 2:
+                        return '<span class="badge badge-danger">' . $status . '</span>';
+                    case 3:
+                        return '<span class="badge badge-info">' . $status . '</span>';
+                    case 4:
+                        return '<span class="badge badge-success">' . $status . '</span>';
+                    default:
+                        return '<span class="badge badge-secondary">' . $status . '</span>';
+                }
             })
             ->addColumn('aksi', function ($tugas) {
                 $detailUrl = route('sarpras.perbaikan.show', ['tugas_id' => $tugas->tugas_id]);
