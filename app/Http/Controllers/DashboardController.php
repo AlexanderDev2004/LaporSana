@@ -23,8 +23,13 @@ class DashboardController extends Controller
         $monthly_damage_data = $this->getMonthlyDamageData();
         $spk_data = $this->getSPKData(); // Tambahkan ini
 
-
-        return view('Admin.dashboard', compact('breadcrumb', 'active_menu'));
+        $satisfactionData = [
+            RiwayatPerbaikan::where('rating', 1)->count(),
+            RiwayatPerbaikan::where('rating', 2)->count(),
+            RiwayatPerbaikan::where('rating', 3)->count(),
+            RiwayatPerbaikan::where('rating', 4)->count(),
+            RiwayatPerbaikan::where('rating', 5)->count()
+        ];
 
         // Ambil daftar fasilitas (id => nama)
         $fasilitasList = \App\Models\FasilitasModel::pluck('fasilitas_nama', 'fasilitas_id')->toArray();
@@ -36,7 +41,7 @@ class DashboardController extends Controller
             'monthly_damage_data' => $monthly_damage_data,
             'spkData' => collect($spk_data), // pastikan ini collection/array
             'fasilitasList' => $fasilitasList,
-            'satisfactionData' => $satisfactionData
+            'satisfactionData' => $satisfactionData,
         ]);
     }
 
