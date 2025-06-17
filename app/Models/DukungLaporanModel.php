@@ -10,4 +10,9 @@ class DukungLaporanModel extends Model
     use HasFactory;
     protected $table = 'dukungan_laporan';
     protected $guarded = ['dukungan_id'];
+
+    public function user()
+    {
+        return $this->belongsTo(UserModel::class, 'user_id', 'user_id');
+    }
 }

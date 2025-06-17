@@ -86,6 +86,35 @@
                         @endif
                     </div>
                 </div>
+
+                <hr>
+                <h5 class="mt-3">Daftar Pendukung Laporan</h5>
+                @if ($laporan->dukungan->isNotEmpty())
+                    <table class="table table-bordered table-sm mt-2">
+                        <thead>
+                            <tr>
+                                <th>No</th>
+                                <th>Nama</th>
+                                <th>Role</th>
+                                <th>Poin</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach ($laporan->dukungan as $i => $dukungan)
+                                <tr>
+                                    <td>{{ $i + 1 }}</td>
+                                    <td>{{ $dukungan->user->name ?? '-' }}</td>
+                                    <td>{{ $dukungan->user->role->roles_nama ?? '-' }}</td>
+                                    <td>{{ $dukungan->poin_roles }}</td>
+                                </tr>
+                            @endforeach
+                        </tbody>
+                    </table>
+                @else
+                    <div class="text-muted font-italic">
+                        Belum ada user lain yang ikut melaporkan kerusakan ini.
+                    </div>
+                @endif
             @else
                 <div class="alert alert-danger text-center">
                     Detail untuk laporan ini tidak ditemukan.

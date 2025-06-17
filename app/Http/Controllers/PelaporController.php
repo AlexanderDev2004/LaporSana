@@ -93,101 +93,110 @@ class PelaporController extends Controller
 
 
     public function store(Request $request)
-    {
-        // 1. Validasi Input
-        $validator = Validator::make($request->all(), [
-            'lantai_id' => 'required|exists:m_lantai,lantai_id',
-            'ruangan_id' => 'required|exists:m_ruangan,ruangan_id',
-            'fasilitas_id' => 'required|exists:m_fasilitas,fasilitas_id',
-            'foto_bukti' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:10240',
-            'deskripsi' => 'required|string',
-        ]);
+{
+    $validator = Validator::make($request->all(), [
+        'lantai_id' => 'required|exists:m_lantai,lantai_id',
+        'ruangan_id' => 'required|exists:m_ruangan,ruangan_id',
+        'fasilitas_id' => 'required|exists:m_fasilitas,fasilitas_id',
+        'foto_bukti' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:10240',
+        'deskripsi' => 'required|string',
+    ]);
 
-        if ($validator->fails()) {
-            return response()->json(['status' => false, 'message' => 'Validasi Gagal', 'msgField' => $validator->errors()], 422);
+    if ($validator->fails()) {
+        return response()->json([
+            'status' => false,
+            'message' => 'Validasi Gagal',
+            'msgField' => $validator->errors()
+        ], 422);
+    }
+
+    $validated = $validator->validated();
+    $user = Auth::user();
+    $userId = $user->user_id;
+
+    // Cari laporan aktif dengan fasilitas yang sama
+    $existingLaporan = LaporanModel::with('dukungan')
+        ->whereHas('details', function ($query) use ($validated) {
+            $query->where('fasilitas_id', $validated['fasilitas_id']);
+        })
+        ->whereIn('status_id', [3, 5]) // Diproses, Disetujui
+        ->first();
+
+    if ($existingLaporan) {
+        $isPelaporUtama = $existingLaporan->user_id == $userId;
+        $sudahMendukung = $existingLaporan->dukungan->contains('user_id', $userId);
+
+        if ($isPelaporUtama || $sudahMendukung) {
+            return response()->json([
+                'status' => false,
+                'message' => 'Anda sudah melaporkan kerusakan pada fasilitas ini sebelumnya.'
+            ], 409);
         }
 
-        $validated = $validator->validated();
-        $userId = Auth::id();
+        // Ambil poin dari role user
+        $poin = DB::table('m_roles')->where('roles_id', $user->roles_id)->value('poin_roles') ?? 0;
 
-        // 2. Cari laporan AKTIF yang sudah ada untuk fasilitas yang sama
-        // Laporan aktif adalah yang statusnya belum 'Selesai' atau 'Ditolak'
-        $existingLaporan = LaporanModel::with('dukungan')
-            ->whereHas('details', function ($query) use ($validated) {
-                $query->where('fasilitas_id', $validated['fasilitas_id']);
-            })
-            ->whereIn('status_id', [3, 5]) // 3=Diproses, 5=Disetujui
-            ->first();
-
-        // 3. Jika ADA laporan yang sudah ada
-        if ($existingLaporan) {
-            // Cek apakah user saat ini sudah terlibat di laporan tersebut
-            $isPelaporUtama = $existingLaporan->user_id == $userId;
-            $sudahMendukung = $existingLaporan->dukungan->contains('user_id', $userId);
-
-            if ($isPelaporUtama || $sudahMendukung) {
-                // Jika sudah terlibat, kembalikan pesan informasi
-                return response()->json([
-                    'status' => false,
-                    'message' => 'Anda sudah melaporkan kerusakan pada fasilitas ini sebelumnya.'
-                ], 409); // 409 Conflict adalah status yang cocok
-            }
-
-            // Jika belum terlibat, tambahkan sebagai pendukung
-            try {
-                DB::transaction(function () use ($existingLaporan, $userId) {
-                    // Catat dukungan di tabel pivot
-                    DukungLaporanModel::create([
-                        'laporan_id' => $existingLaporan->laporan_id,
-                        'user_id' => $userId,
-                    ]);
-
-                    // Tambah jumlah pelapor
-                    $existingLaporan->increment('jumlah_pelapor');
-                });
-
-                return response()->json([
-                    'status' => true,
-                    'message' => 'Laporan serupa sudah ada. Anda berhasil ditambahkan sebagai pendukung laporan.'
-                ]);
-            } catch (\Exception $e) {
-                Log::error('Gagal menambahkan dukungan: ' . $e->getMessage());
-                return response()->json(['status' => false, 'message' => 'Terjadi kesalahan saat menambahkan dukungan.'], 500);
-            }
-        }
-
-        // 4. Jika TIDAK ADA laporan, buat laporan baru
         try {
-            DB::transaction(function () use ($request, $validated, $userId) {
-                // Buat data laporan utama
-                $laporan = LaporanModel::create([
+            DB::transaction(function () use ($existingLaporan, $userId, $poin) {
+                DB::table('dukungan_laporan')->insert([
+                    'laporan_id' => $existingLaporan->laporan_id,
                     'user_id' => $userId,
-                    'status_id' => 1, // Status awal: Menunggu Konfirmasi
-                    'tanggal_lapor' => now(),
-                    'jumlah_pelapor' => 1,
+                    'poin_roles' => $poin,
+                    'created_at' => now(),
+                    'updated_at' => now(),
                 ]);
 
-                // Simpan foto jika ada
-                $fotoPath = null;
-                if ($request->hasFile('foto_bukti')) {
-                    $fotoPath = $request->file('foto_bukti')->store('foto_bukti', 'public');
-                }
-
-                // Buat data detail laporan
-                $laporan->details()->create([
-                    'fasilitas_id' => $validated['fasilitas_id'],
-                    'deskripsi' => $validated['deskripsi'],
-                    'foto_bukti' => $fotoPath,
-                ]);
+                $existingLaporan->increment('jumlah_pelapor');
             });
 
-            return response()->json(['status' => true, 'message' => 'Laporan baru berhasil dibuat.']);
-
+            return response()->json([
+                'status' => true,
+                'message' => 'Laporan serupa sudah ada. Anda berhasil ditambahkan sebagai pendukung laporan.'
+            ]);
         } catch (\Exception $e) {
-            Log::error('Gagal membuat laporan baru: ' . $e->getMessage());
-            return response()->json(['status' => false, 'message' => 'Terjadi kesalahan saat membuat laporan baru.'], 500);
+            Log::error('Gagal menambahkan dukungan: ' . $e->getMessage());
+            return response()->json([
+                'status' => false,
+                'message' => 'Terjadi kesalahan saat menambahkan dukungan.'
+            ], 500);
         }
     }
+
+    // Jika tidak ada laporan aktif, buat laporan baru
+    try {
+        DB::transaction(function () use ($request, $validated, $userId) {
+            $laporan = LaporanModel::create([
+                'user_id' => $userId,
+                'status_id' => 1, // Menunggu verifikasi
+                'tanggal_lapor' => now(),
+                'jumlah_pelapor' => 1,
+            ]);
+
+            $fotoPath = null;
+            if ($request->hasFile('foto_bukti')) {
+                $fotoPath = $request->file('foto_bukti')->store('foto_bukti', 'public');
+            }
+
+            $laporan->details()->create([
+                'fasilitas_id' => $validated['fasilitas_id'],
+                'deskripsi' => $validated['deskripsi'],
+                'foto_bukti' => $fotoPath,
+            ]);
+        });
+
+        return response()->json([
+            'status' => true,
+            'message' => 'Laporan baru berhasil dibuat.'
+        ]);
+    } catch (\Exception $e) {
+        Log::error('Gagal membuat laporan baru: ' . $e->getMessage());
+        return response()->json([
+            'status' => false,
+            'message' => 'Terjadi kesalahan saat membuat laporan baru.'
+        ], 500);
+    }
+}
+
 
     public function show($laporan_id)
     {
@@ -255,7 +264,7 @@ class PelaporController extends Controller
 
     public function showBersama($laporan_id)
     {
-        $laporan = LaporanModel::with(['details.fasilitas.ruangan.lantai', 'status'])
+        $laporan = LaporanModel::with(['details.fasilitas.ruangan.lantai', 'user', 'status', 'dukungan.user.role'])
             ->where('laporan_id', $laporan_id)
             ->firstOrFail();
 
@@ -265,36 +274,45 @@ class PelaporController extends Controller
     public function dukungLaporan($laporan_id)
     {
         try {
-            $userId = Auth::id();
-            $laporan = LaporanModel::findOrFail($laporan_id);
+            $user = auth()->user();
 
-            // Cek 1: Apakah user adalah pelapor asli?
-            if ($laporan->user_id == $userId) {
-                return response()->json(['status' => false, 'message' => 'Anda adalah pelapor utama laporan ini.'], 400);
-            }
-
-            // Cek 2: Apakah user sudah pernah mendukung sebelumnya?
-            $sudahDukung = DukungLaporanModel::where('laporan_id', $laporan_id)
-                                        ->where('user_id', $userId)
-                                        ->exists();
+            // Cek apakah user sudah pernah mendukung laporan ini
+            $sudahDukung = DB::table('dukungan_laporan')
+                ->where('laporan_id', $laporan_id)
+                ->where('user_id', $user->user_id)
+                ->exists();
 
             if ($sudahDukung) {
-                return response()->json(['status' => false, 'message' => 'Anda sudah ikut melapor untuk laporan ini.'], 400);
+                return response()->json([
+                    'status' => false,
+                    'message' => 'Kamu sudah ikut melapor untuk laporan ini.'
+                ]);
             }
 
-            // Jika semua pengecekan lolos, simpan dukungan
-            DukungLaporanModel::create([
+            // Ambil poin dari role user
+            $poinRole = DB::table('m_roles')->where('roles_id', $user->roles_id)->value('poin_roles');
+
+            // Simpan ke dukungan_laporan
+            DB::table('dukungan_laporan')->insert([
                 'laporan_id' => $laporan_id,
-                'user_id' => $userId
+                'user_id' => $user->user_id,
+                'poin_roles' => $poinRole ?? 0,
+                'created_at' => now(),
+                'updated_at' => now(),
             ]);
 
-            // Tambah jumlah pelapor
-            $laporan->increment('jumlah_pelapor');
+            // Tambah jumlah pelapor di laporan
+            DB::table('m_laporan')->where('laporan_id', $laporan_id)->increment('jumlah_pelapor');
 
-            return response()->json(['status' => true, 'message' => 'Terima kasih telah ikut melaporkan kerusakan ini!']);
-
+            return response()->json([
+                'status' => true,
+                'message' => 'Terima kasih telah ikut melaporkan kerusakan ini!'
+            ]);
         } catch (\Exception $e) {
-            return response()->json(['status' => false, 'message' => 'Terjadi kesalahan pada server.'], 500);
+            return response()->json([
+                'status' => false,
+                'message' => 'Gagal memberikan dukungan: ' . $e->getMessage()
+            ], 500);
         }
     }
 }
