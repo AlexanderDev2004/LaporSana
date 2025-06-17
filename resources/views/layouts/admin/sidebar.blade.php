@@ -13,6 +13,13 @@
                      <p>Dashboard</p>
                  </a>
              </li>
+             {{-- <li class="nav-item">
+                 <a href="{{ route('admin.dashboard') }}"
+                     class="nav-link {{ $active_menu == 'dashboard' ? 'active' : '' }}">
+                    <i class="nav-icon fas fa-calculator"></i>
+                     <p>SPK</p>
+                 </a> --}}
+             </li>
              <li class="nav-header">Manajemen Data Pengguna</li>
              <li class="nav-item">
                  <a href="{{ route('admin.roles.index') }}"
