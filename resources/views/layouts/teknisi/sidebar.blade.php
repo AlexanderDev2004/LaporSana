@@ -24,11 +24,28 @@
              </li>
             
              <li class="nav-item">
-                  <a href="{{ route('teknisi.index') }}" class="nav-link {{ $active_menu == 'index'  ? 'active' : '' }}">
-                     <i class="nav-icon fas fa-layer-group"></i>
-                     <p>Tugas</p>
-                 </a>
-             </li>
+            <a href="#" class="nav-link">
+                <i class="nav-icon fas fa-file"></i>
+                <p>
+                    Tugas
+                    <i class="right fas fa-angle-left"></i> <!-- Icon dropdown -->
+                </p>
+            </a>
+            <ul class="nav nav-treeview">
+                <li class="nav-item">
+                    <a href="{{ url('/teknisi/pemeriksaan') }}" class="nav-link {{ $active_menu == 'pemeriksaan' ? 'active' : '' }}">
+                        <i class="far fa-circle nav-icon"></i>
+                        <p>Pemeriksaan</p>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="{{ url('/teknisi/perbaikan') }}" class="nav-link {{ $active_menu == 'perbaikan' ? 'active' : '' }}">
+                        <i class="far fa-circle nav-icon"></i>
+                        <p>Perbaikan</p>
+                    </a>
+                </li>
+            </ul>
+        </li>
              <li class="nav-item">
                  <a href="{{ route('teknisi.riwayat') }}" class="nav-link {{ $active_menu == 'riwayat' ? 'active' : '' }}">
                      <i class="nav-icon fas fa-business-time"></i>

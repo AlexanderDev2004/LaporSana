@@ -53,84 +53,6 @@ class TeknisiController extends Controller
 
 
 
-    public function index(Request $request)
-    {
-        $active_menu = 'index';
-        $breadcrumb = (object) [
-            'title' => 'Daftar Tugas',
-            'list' => ['Home', 'Tugas']
-        ];
-
-        $tugas = TugasModel::with(['status', 'user', 'laporan'])
-            ->where('user_id', Auth::user()->user_id)
-            ->whereHas('status', function ($query) {
-                $query->where('status_nama', '!=', 'selesai');
-            });
-
-        if ($request->filled('status')) {
-            $tugas->where('status_id', $request->status);
-        }
-
-        $status = StatusModel::all();
-        $user = UserModel::all();
-        $laporan = LaporanModel::all();
-
-        return view('teknisi.index', compact('user', 'status', 'tugas', 'active_menu', 'breadcrumb', 'laporan'));
-    }
-
-
-    public function list(Request $request)
-    {
-        $tugas = TugasModel::with(['status', 'user'])
-            ->where('user_id', Auth::user()->user_id) // filter user
-            ->whereHas('status', function ($query) {
-                $query->where('status_nama', '!=', 'selesai');
-            });
-
-
-        // Filter status
-        if ($request->has('filter_tugas_jenis') && $request->filter_tugas_jenis != '') {
-            $tugas->where('tugas_jenis', $request->filter_tugas_jenis);
-        }
-
-        return DataTables::of($tugas->get())
-            ->addIndexColumn()
-            ->addColumn('laporan', function ($tugas) {
-                if ($tugas->laporan) {
-                    return '<a href="#" onclick="modalAction(\'' . route('teknisi.show_laporan', $tugas->laporan->laporan_id) . '\')" class="btn btn-link text-info"><i class="fas fa-eye"></i> <span class="ms-1">Laporan</span></a>';
-                } else {
-                    return '<span class="text-muted">Belum Ada</span>';
-                }
-            })
-            ->addColumn('aksi', function ($tugas) {
-                $btn = '<button onclick="modalAction(\'' . route('teknisi.show', $tugas->tugas_id) . '\')" class="btn btn-info btn-sm mx-1"><i class="fas fa-eye"></i></button>';
-                $btn .= '';
-                if ($tugas->tugas_jenis === 'pemeriksaan') {
-                    $btn .= '<button onclick="modalAction(\'' . route('teknisi.editpemeriksaan', $tugas->tugas_id) . '\')" class="btn btn-warning btn-sm"><i class="fas fa-edit"></i></button>';
-                } else {
-                    $btn .= '<button onclick="modalAction(\'' . route('teknisi.edit', $tugas->tugas_id) . '\')" class="btn btn-warning btn-sm"><i class="fas fa-edit"></i></button>';
-                }
-                return $btn;
-            })
-            ->rawColumns(['laporan', 'aksi'])
-            ->toJson();
-    }
-
-    public function show($id)
-    {
-        $tugas = TugasDetail::with(['tugas', 'fasilitas'])
-            ->whereHas('tugas', function ($q) {
-                $q->where('user_id', Auth::user()->user_id);
-            })
-            ->findOrFail($id);
-
-        $breadcrumb = (object) [
-            'title' => 'Detail Tugas',
-            'list'  => ['Home', 'Tugas', 'Detail']
-        ];
-        $active_menu = 'tugas';
-        return view('teknisi.show', compact('breadcrumb', 'active_menu', 'tugas'));
-    }
 
     public function showLaporan($id)
     {
@@ -166,7 +88,8 @@ class TeknisiController extends Controller
     public function riwayatList(Request $request)
     {
         $tugas = TugasModel::with(['status', 'user'])
-            ->where('user_id', Auth::user()->user_id) // filter user
+            ->where('user_id', Auth::user()->user_id)
+            ->orderBy('tugas_selesai', 'asc') // filter user
             ->whereHas('status', function ($query) {
                 $query->where('status_nama', 'selesai');
             });
@@ -191,7 +114,86 @@ class TeknisiController extends Controller
     }
 
 
-    public function edit($id)
+    // HALAMAN TUGAS PERBAIKAN  
+
+    public function perbaikan(Request $request)
+    {
+        $active_menu = 'perbaikan';
+        $breadcrumb = (object) [
+            'title' => 'Daftar Tugas Perbaikan',
+            'list' => ['Home', 'Perbaikan']
+        ];
+
+        $tugas = TugasModel::with(['status', 'user', 'laporan'])
+            ->where('user_id', Auth::user()->user_id)
+            ->whereHas('status', function ($query) {
+                $query->where('status_nama', '!=', 'selesai');
+            });
+
+        if ($request->filled('status')) {
+            $tugas->where('status_id', $request->status);
+        }
+
+        $status = StatusModel::all();
+        $user = UserModel::all();
+        $laporan = LaporanModel::all();
+
+        return view('teknisi.perbaikan', compact('user', 'status', 'tugas', 'active_menu', 'breadcrumb', 'laporan'));
+    }
+
+
+    public function listPerbaikan(Request $request)
+    {
+        $tugas = TugasModel::with(['status', 'user', 'laporan'])
+            ->where('user_id', Auth::user()->user_id)
+            ->where('tugas_jenis', 'perbaikan')
+            ->whereHas('status', function ($query) {
+                $query->where('status_nama', '!=', 'selesai');
+            });
+
+        if ($request->has('filter_tugas_jenis') && $request->filter_tugas_jenis != '') {
+            $tugas->where('tugas_jenis', $request->filter_tugas_jenis);
+        }
+
+        return DataTables::of($tugas->get())
+            ->addIndexColumn()
+            ->addColumn('laporan', function ($tugas) {
+                if ($tugas->laporan) {
+                    return '<a href="#" onclick="modalAction(\'' . route('teknisi.show_laporan', $tugas->laporan->laporan_id) . '\')" class="btn btn-link text-info"><i class="fas fa-eye"></i> <span class="ms-1">Laporan</span></a>';
+                } else {
+                    return '<span class="text-muted">Belum Ada</span>';
+                }
+            })
+            ->addColumn('aksi', function ($tugas) {
+                $btn = '<button onclick="modalAction(\'' . route('teknisi.showperbaikan', $tugas->tugas_id) . '\')" class="btn btn-info btn-sm mx-1"><i class="fas fa-eye"></i></button>';
+                $btn .= '<button onclick="modalAction(\'' . route('teknisi.editperbaikan', $tugas->tugas_id) . '\')" 
+            class="btn btn-warning btn-sm"><i class="fas fa-edit"></i></button>';
+                return $btn;
+            })
+            ->rawColumns(['laporan', 'aksi'])
+            ->toJson();
+    }
+
+    public function showPerbaikan($id)
+    {
+        $tugas = TugasDetail::with(['tugas', 'fasilitas'])
+            ->whereHas('tugas', function ($q) {
+                $q->where('user_id', Auth::user()->user_id);
+            })
+            ->where('detail_id', $id)
+            ->findOrFail($id);
+
+        $breadcrumb = (object) [
+            'title' => 'Detail Perbaikan',
+            'list'  => ['Home', 'Perbaikan', 'Detail']
+        ];
+        $active_menu = 'perbaikan';
+
+        return view('teknisi.showperbaikan', compact('breadcrumb', 'active_menu', 'tugas'));
+    }
+
+
+    public function editPerbaikan($id)
     {
         $tugas = TugasModel::with(['status', 'user'])
             ->where('user_id', Auth::user()->user_id)
@@ -199,12 +201,144 @@ class TeknisiController extends Controller
             ->findOrFail($id);
 
         $breadcrumb = (object) [
-            'title' => 'Edit Tugas',
-            'list'  => ['Home', 'Tugas', 'Edit']
+            'title' => 'Edit perbaikan',
+            'list'  => ['Home', 'Tugas', 'Edit Perbaikan']
         ];
         $active_menu = 'tugas';
-        return view('teknisi.edit', compact('breadcrumb', 'active_menu', 'tugas'));
+
+        return view('teknisi.editperbaikan', compact('breadcrumb', 'active_menu', 'tugas'));
     }
+
+    public function updatePerbaikan(Request $request, $id)
+    { {
+            // Cari status_id berdasarkan status_nama
+            $status = StatusModel::where('status_nama', $request->status_nama)->first();
+
+            if (!$status) {
+                return response()->json([
+                    'status' => false,
+                    'message' => 'Status tidak ditemukan.',
+                    'msgField' => ['status_nama' => ['Status tidak valid.']]
+                ]);
+            }
+
+            // Validasi input
+            $validator = Validator::make($request->all(), [
+                'tugas_selesai' => ['nullable', 'date', function ($attribute, $value, $fail) {
+                    if ($value != date('Y-m-d')) {
+                        $fail('Tanggal tidak sesuai! (' . date('Y-m-d') . ').');
+                    }
+                }],
+            ]);
+
+            if ($validator->fails()) {
+                return response()->json([
+                    'status' => false,
+                    'message' => 'Validasi gagal.',
+                    'msgField' => $validator->errors()
+                ]);
+            }
+
+            // Proses update
+            $tugas = TugasModel::findOrFail($id);
+
+
+            $formattedTugasSelesai = $request->tugas_selesai . ' ' . date('H:i:s');
+
+            $tugas->update([
+                'status_id'     => $status->status_id,
+                'tugas_selesai' => $formattedTugasSelesai,
+            ]);
+
+            return response()->json([
+                'status' => true,
+                'message' => 'Data tugas berhasil diperbarui.'
+            ]);
+        }
+    }
+
+    // HALAMAN TUGAS PEMERIKSAAN
+
+    public function pemeriksaan(Request $request)
+    {
+        $breadcrumb = (object) [
+            'title' => 'Daftar Pemeriksaan',
+            'list'  => ['Home', 'Pemeriksaan']
+        ];
+        $active_menu = 'pemeriksaan';
+        $tugas = TugasModel::with(['status', 'user', 'laporan'])
+            ->where('user_id', Auth::user()->user_id)
+            ->whereHas('status', function ($query) {
+                $query->where('status_nama', '!=', 'selesai');
+            });
+
+        if ($request->filled('status')) {
+            $tugas->where('status_id', $request->status);
+        }
+
+        $status = StatusModel::all();
+        $user = UserModel::all();
+        $laporan = LaporanModel::all();
+
+        return view('teknisi.pemeriksaan', compact('user', 'status', 'tugas', 'active_menu', 'breadcrumb', 'laporan'));
+    }
+
+    public function listPemeriksaan(Request $request)
+    {
+        $tugas = TugasModel::with(['status', 'user', 'laporan', 'details'])
+            ->where('user_id', Auth::user()->user_id)
+            ->where('tugas_jenis', 'pemeriksaan')
+            ->whereHas('status', function ($query) {
+                $query->where('status_nama', '!=', 'selesai');
+            });
+
+        if ($request->has('filter_tugas_jenis') && $request->filter_tugas_jenis != '') {
+            $tugas->where('tugas_jenis', $request->filter_tugas_jenis);
+        }
+
+        return DataTables::of($tugas->get())
+            ->addIndexColumn()
+            ->addColumn('tingkat_kerusakan', function ($tugas) {
+                // Ambil dari detail pertama, atau sesuaikan jika multi detail
+                return $tugas->details->first()->tingkat_kerusakan ?? '-';
+            })
+            ->addColumn('biaya_perbaikan', function ($tugas) {
+                return $tugas->details->first()->biaya_perbaikan ?? '-';
+            })
+            ->addColumn('laporan', function ($tugas) {
+                if ($tugas->laporan) {
+                    return '<a href="#" onclick="modalAction(\'' . route('teknisi.show_laporan', $tugas->laporan->laporan_id) . '\')" class="btn btn-link text-info"><i class="fas fa-eye"></i> <span class="ms-1">Laporan</span></a>';
+                } else {
+                    return '<span class="text-muted">Belum Ada</span>';
+                }
+            })
+            ->addColumn('aksi', function ($tugas) {
+                $btn = '<button onclick="modalAction(\'' . route('teknisi.showpemeriksaan', $tugas->tugas_id) . '\')" class="btn btn-info btn-sm mx-1"><i class="fas fa-eye"></i></button>';
+                $btn .= '<button onclick="modalAction(\'' . route('teknisi.editpemeriksaan', $tugas->tugas_id) . '\')" class="btn btn-warning btn-sm"><i class="fas fa-edit"></i></button>';
+                return $btn;
+            })
+            ->rawColumns(['laporan', 'aksi'])
+            ->toJson();
+    }
+
+    public function showPemeriksaan($id)
+    {
+        $tugas = TugasDetail::with(['tugas', 'fasilitas'])
+            ->whereHas('tugas', function ($q) {
+                $q->where('user_id', Auth::user()->user_id);
+            })
+            ->where('detail_id', $id)
+            ->findOrFail($id);
+
+        $breadcrumb = (object) [
+            'title' => 'Detail Pemeriksaan',
+            'list'  => ['Home', 'Pemeriksaan', 'Detail']
+        ];
+        $active_menu = 'pemeriksaan';
+
+        return view('teknisi.showpemeriksaan', compact('breadcrumb', 'active_menu', 'tugas'));
+    }
+
 
     public function editPemeriksaan($id)
     {
@@ -219,57 +353,7 @@ class TeknisiController extends Controller
         ];
         $active_menu = 'tugas';
 
-        return view('teknisi.editPemeriksaan', compact('breadcrumb', 'active_menu', 'tugas'));
-    }
-
-    public function update(Request $request, $id)
-    {
-        // Cari status_id berdasarkan status_nama
-        $status = StatusModel::where('status_nama', $request->status_nama)->first();
-
-        if (!$status) {
-            return response()->json([
-                'status' => false,
-                'message' => 'Status tidak ditemukan.',
-                'msgField' => ['status_nama' => ['Status tidak valid.']]
-            ]);
-        }
-
-        // Validasi input
-        $validator = Validator::make($request->all(), [
-            'tugas_selesai' => ['nullable', 'date', function ($attribute, $value, $fail) {
-                if ($value != date('Y-m-d')) {
-                    $fail('Tanggal tidak sesuai! (' . date('Y-m-d') . ').');
-                }
-            }],
-        ]);
-
-        if ($validator->fails()) {
-            return response()->json([
-                'status' => false,
-                'message' => 'Validasi gagal.',
-                'msgField' => $validator->errors()
-            ]);
-        }
-
-        // Proses update
-        $tugas = TugasModel::findOrFail($id);
-
-        // Jika jenis tugas sebelumnya adalah pemeriksaan, ubah ke perbaikan
-        $jenis_tugas_baru = $tugas->tugas_jenis === 'pemeriksaan' ? 'perbaikan' : $tugas->tugas_jenis;
-
-        $formattedTugasSelesai = $request->tugas_selesai . ' ' . date('H:i:s');
-
-        $tugas->update([
-            'status_id'     => $status->status_id,
-            'tugas_jenis'   => $jenis_tugas_baru,
-            'tugas_selesai' => $formattedTugasSelesai,
-        ]);
-
-        return response()->json([
-            'status' => true,
-            'message' => 'Data tugas berhasil diperbarui.'
-        ]);
+        return view('teknisi.editpemeriksaan', compact('breadcrumb', 'active_menu', 'tugas'));
     }
 
 
@@ -290,12 +374,22 @@ class TeknisiController extends Controller
             ], 422);
         }
 
-        // Update jenis tugas
-        $tugas = TugasModel::findOrFail($id);
-        $tugas->update([
-            'tugas_jenis' => $tugas->tugas_jenis === 'pemeriksaan' ? 'perbaikan' : $tugas->tugas_jenis,
-        ]);
+        // Ambil status_id untuk "selesai diperiksa"
+        $status = StatusModel::where('status_nama', 'selesai diperiksa')->first();
+        if (!$status) {
+            return response()->json([
+                'status' => false,
+                'message' => 'Status "selesai diperiksa" tidak ditemukan.',
+            ], 422);
+        }
 
+        $tugas = TugasModel::findOrFail($id);
+
+        // Update status saja, jenis tugas tetap "pemeriksaan"
+        $tugas->update([
+            'status_id' => $status->status_id,
+            // 'tugas_jenis' => $tugas->tugas_jenis, // Tidak perlu diubah
+        ]);
 
         $tugasDetail = TugasDetail::where('tugas_id', $tugas->tugas_id)->firstOrFail();
         $dataDetail = [
@@ -311,14 +405,15 @@ class TeknisiController extends Controller
             $dataDetail['tugas_image'] = $imagePath;
         }
 
-        // Update data pada TugasDetail
         $tugasDetail->update($dataDetail);
 
         return response()->json([
             'status' => true,
-            'message' => 'Data pemeriksaan berhasil diperbarui. Silakan lanjutkan ke perbaikan.',
+            'message' => 'Data pemeriksaan berhasil diperbarui dan status menjadi selesai diperiksa.',
         ]);
     }
+
+
 
     // HALAMAN PROFIL
     public function showProfile()

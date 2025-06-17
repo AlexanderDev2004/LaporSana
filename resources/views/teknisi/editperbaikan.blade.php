@@ -12,11 +12,11 @@
                     <h5><i class="icon fas fa-ban"></i> Kesalahan!!!</h5>
                     Data yang anda cari tidak ditemukan
                 </div>
-                <a href="{{ url('/tugas') }}" class="btn btn-warning">Kembali</a>
+                <a href="{{ url('/teknisi/perbaikan') }}" class="btn btn-warning">Kembali</a>
             </div>
         </div>
     @else
-        <form action="{{ route('teknisi.update', $tugas->tugas_id) }}" method="POST" id="form-edit">
+        <form action="{{ route('teknisi.updateperbaikan', $tugas->tugas_id) }}" method="POST" id="form-edit">
             @csrf
             @method('PUT')
             <div id="modal-master" class="modal-dialog modal-lg" role="document">

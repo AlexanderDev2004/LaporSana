@@ -23,9 +23,9 @@ class DashboardController extends Controller
         $monthly_damage_data = $this->getMonthlyDamageData();
         $spk_data = $this->getSPKData(); // Tambahkan ini
 
-<<<<<<<<< Temporary merge branch 1
+
         return view('Admin.dashboard', compact('breadcrumb', 'active_menu'));
-=========
+
         // Ambil daftar fasilitas (id => nama)
         $fasilitasList = \App\Models\FasilitasModel::pluck('fasilitas_nama', 'fasilitas_id')->toArray();
 
@@ -92,6 +92,6 @@ class DashboardController extends Controller
             Log::error('Error retrieving SPK data: ' . $e->getMessage());
             return [];
         }
->>>>>>>>> Temporary merge branch 2
+
     }
 }

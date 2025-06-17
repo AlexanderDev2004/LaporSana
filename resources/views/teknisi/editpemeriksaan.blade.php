@@ -12,7 +12,7 @@
                     <h5><i class="icon fas fa-ban"></i> Kesalahan!!!</h5>
                     Data yang anda cari tidak ditemukan
                 </div>
-                <a href="{{ url('/tugas') }}" class="btn btn-warning">Kembali</a>
+                <a href="{{ url('/teknisi/pemeriksaan') }}" class="btn btn-warning">Kembali</a>
             </div>
         </div>
     </div>
@@ -20,7 +20,6 @@
     <form action="{{ route('teknisi.updatepemeriksaan', $tugas->tugas_id) }}" method="POST" id="form-edit" enctype="multipart/form-data">
         @csrf
         @method('PUT')
-
         <div id="modal-master" class="modal-dialog modal-lg" role="document">
             <div class="modal-content">
                 <div class="modal-header">
