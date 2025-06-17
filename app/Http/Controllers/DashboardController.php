@@ -95,6 +95,6 @@ class DashboardController extends Controller
             Log::error('Error retrieving SPK data: ' . $e->getMessage());
             return [];
         }
-        return view('Admin.dashboard', compact('breadcrumb', 'active_menu'));
+        return view('admin.dashboard', compact('breadcrumb', 'active_menu'));
     }
 }
