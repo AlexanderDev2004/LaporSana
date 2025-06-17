@@ -5,7 +5,7 @@
     <div class="card-header">
         <h3 class="card-title">{{ $page->title }}</h3>
         <div class="card-tools">
-            <button type="button" onclick="modalAction('{{ route('sarpras.penugasan.create') }}')" class="btn btn-primary">Tambah Tugas</button>
+            <button type="button" onclick="modalAction('{{ route('sarpras.perbaikan.create') }}')" class="btn btn-primary">Tambah Perbaikan</button>
         </div>
     </div>
     <div class="card-body">
@@ -13,7 +13,6 @@
             <thead>
                 <tr>
                     <th>No</th>
-                    <th>Jenis Tugas</th>
                     <th>Fasilitas</th>
                     <th>Ruangan</th>
                     <th>Lantai</th>
@@ -32,7 +31,7 @@
 
 @push('js')
 <script>
-    function modalAction(url = ''){
+    function modalAction(url = '') {
         $('#myModal').load(url, function(response, status, xhr){
             if (status == "error") {
                 var msg = "Maaf, terjadi kesalahan saat memuat detail: ";
@@ -51,7 +50,7 @@
             processing: true,
             serverSide: true,
             ajax: {
-                url: "{{ route('sarpras.penugasan.list') }}",
+                url: "{{ route('sarpras.perbaikan.list') }}",
                 dataType: "json",
                 type: "GET",
             },
@@ -61,9 +60,6 @@
                     className: "text-center", 
                     orderable: false, 
                     searchable: false 
-                },{ 
-                    data: "tugas_jenis", 
-                    defaultContent: "-" 
                 },{ 
                     data: "details.0.fasilitas.fasilitas_nama", 
                     defaultContent: "-" 
@@ -88,13 +84,12 @@
             ]
         });
 
-        // --- TAMBAHKAN BLOK SCRIPT INI ---
         $('#table_tugas').on('click', '.btn-hapus', function() {
             let deleteUrl = $(this).data('url');
-            
+
             Swal.fire({
                 title: 'Konfirmasi',
-                text: "Anda yakin ingin menghapus tugas ini secara permanen?",
+                text: "Anda yakin ingin menghapus data perbaikan ini?",
                 icon: 'warning',
                 showCancelButton: true,
                 confirmButtonColor: '#d33',
@@ -105,12 +100,12 @@
                 if (result.isConfirmed) {
                     $.ajax({
                         url: deleteUrl,
-                        type: 'DELETE', // Menggunakan metode DELETE
+                        type: 'DELETE',
                         dataType: 'json',
                         success: function(response) {
                             if (response.status) {
                                 Swal.fire('Berhasil!', response.message, 'success');
-                                table.ajax.reload(); // Muat ulang tabel
+                                table.ajax.reload();
                             } else {
                                 Swal.fire('Gagal!', response.message, 'error');
                             }
