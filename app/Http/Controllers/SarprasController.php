@@ -195,7 +195,7 @@ class SarprasController extends Controller
 
         return DataTables::of($pemeriksaan)
             ->addIndexColumn()
-             ->editColumn('status.status_nama', function ($laporan) {
+            ->editColumn('status.status_nama', function ($laporan) {
                 $status = $laporan->status->status_nama ?? 'Tidak Diketahui';
                 switch ($laporan->status_id) {
                     case 1:
@@ -286,7 +286,7 @@ class SarprasController extends Controller
             // Simpan data tugas pemeriksaan
             $tugas = new TugasModel();
             $tugas->user_id       = $validated['user_id'];
-            $tugas->status_id     = 3; // Diproses
+            $tugas->status_id     = 6; // Selesai diperiksa
             $tugas->tugas_jenis   = 'Pemeriksaan';
             $tugas->tugas_mulai   = now();
             $tugas->tugas_selesai = null;
@@ -294,7 +294,7 @@ class SarprasController extends Controller
             $tugas->save();
 
             // Simpan detail tugas
-            $detail = new TugasDetailModel();
+            $detail = new TugasDetail();
             $detail->tugas_id         = $tugas->tugas_id;
             $detail->fasilitas_id     = $validated['fasilitas_id'];
             $detail->deskripsi        = $validated['deskripsi'] ?? '';
@@ -336,12 +336,12 @@ class SarprasController extends Controller
     {
         $perbaikan = TugasModel::with(['details.fasilitas.ruangan.lantai', 'user', 'status'])
             ->where('tugas_jenis', 'Perbaikan') // Hanya ambil tugas jenis Perbaikan
-            ->where('status_id', 3) // Ambil semua tugas yang diproses (Perbaikan)
+            ->where('status_id', 6) // Ambil semua tugas yang diproses (Perbaikan) //selesai diperiksa
             ->get();
 
         return DataTables::of($perbaikan)
             ->addIndexColumn()
-             ->editColumn('status.status_nama', function ($laporan) {
+            ->editColumn('status.status_nama', function ($laporan) {
                 $status = $laporan->status->status_nama ?? 'Tidak Diketahui';
                 switch ($laporan->status_id) {
                     case 1:
@@ -351,6 +351,8 @@ class SarprasController extends Controller
                     case 3:
                         return '<span class="badge badge-info">' . $status . '</span>';
                     case 4:
+                        return '<span class="badge badge-success">' . $status . '</span>';
+                    case 6:
                         return '<span class="badge badge-success">' . $status . '</span>';
                     default:
                         return '<span class="badge badge-secondary">' . $status . '</span>';
@@ -434,13 +436,13 @@ class SarprasController extends Controller
                 'laporan_id'   => $validated['laporan_id'],
                 'status_id'    => 3,
                 'tugas_mulai'  => now(),
-                'tugas_selesai'=> null,
+                'tugas_selesai' => null,
             ]);
 
-            TugasDetailModel::create([
+            TugasDetail::create([
                 'tugas_id'         => $tugas->tugas_id,
                 'fasilitas_id'     => $validated['fasilitas_id'],
-                'tingkat_kerusakan'=> $validated['tingkat_kerusakan'],
+                'tingkat_kerusakan' => $validated['tingkat_kerusakan'],
                 'biaya_perbaikan'  => $validated['biaya_perbaikan'],
                 'deskripsi'        => $validated['deskripsi'] ?? '',
                 'tugas_image'      => '',
@@ -529,7 +531,7 @@ class SarprasController extends Controller
             ->join('m_tugas as t', 't.tugas_id', '=', 'td.tugas_id')
             ->where('td.fasilitas_id', $fasilitas_id)
             ->where('t.tugas_jenis', 'Pemeriksaan')
-            ->where('t.status_id', 4) // pastikan sudah selesai
+            ->where('t.status_id', 6) // pastikan sudah selesai
             ->orderByDesc('t.tugas_mulai')
             ->select('td.tingkat_kerusakan', 'td.biaya_perbaikan')
             ->first();
@@ -542,7 +544,7 @@ class SarprasController extends Controller
         DB::beginTransaction();
         try {
             // Hapus detail terlebih dahulu
-            TugasDetailModel::where('tugas_id', $tugas_id)->delete();
+            TugasDetail::where('tugas_id', $tugas_id)->delete();
 
             // Hapus tugas utamanya
             TugasModel::findOrFail($tugas_id)->delete();
@@ -576,13 +578,13 @@ class SarprasController extends Controller
     {
         $tugas = TugasModel::with(['details.fasilitas.ruangan.lantai', 'user', 'status'])
             ->where('tugas_jenis', 'Pemeriksaan')
-            ->where('status_id', 4) // status selesai
+            ->where('status_id', 6) // status selesai diperiksa
             ->orderByDesc('tugas_mulai')
             ->get();
 
         return DataTables::of($tugas)
             ->addIndexColumn()
-             ->editColumn('status.status_nama', function ($laporan) {
+            ->editColumn('status.status_nama', function ($laporan) {
                 $status = $laporan->status->status_nama ?? 'Tidak Diketahui';
                 switch ($laporan->status_id) {
                     case 1:
@@ -592,6 +594,8 @@ class SarprasController extends Controller
                     case 3:
                         return '<span class="badge badge-info">' . $status . '</span>';
                     case 4:
+                        return '<span class="badge badge-success">' . $status . '</span>';
+                    case 6:
                         return '<span class="badge badge-success">' . $status . '</span>';
                     default:
                         return '<span class="badge badge-secondary">' . $status . '</span>';
@@ -633,7 +637,7 @@ class SarprasController extends Controller
 
         return DataTables::of($tugas)
             ->addIndexColumn()
-             ->editColumn('status.status_nama', function ($laporan) {
+            ->editColumn('status.status_nama', function ($laporan) {
                 $status = $laporan->status->status_nama ?? 'Tidak Diketahui';
                 switch ($laporan->status_id) {
                     case 1:
@@ -680,7 +684,7 @@ class SarprasController extends Controller
     public function list(Request $request)
     {
         $laporans = LaporanModel::with(['details.fasilitas.ruangan.lantai', 'status', 'user'])
-            ->whereIn('status_id', [3, 4, 5]) // Ambil laporan yang sedang diproses, selesai, atau disetujui
+            ->whereIn('status_id', [3, 4, 6]) // Ambil laporan yang sedang diproses, selesai, atau disetujui
             ->get();
 
         return DataTables::of($laporans)
@@ -695,6 +699,8 @@ class SarprasController extends Controller
                     case 3:
                         return '<span class="badge badge-info">' . $status . '</span>';
                     case 4:
+                        return '<span class="badge badge-success">' . $status . '</span>';
+                    case 6:
                         return '<span class="badge badge-success">' . $status . '</span>';
                     default:
                         return '<span class="badge badge-secondary">' . $status . '</span>';
