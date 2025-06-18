@@ -24,7 +24,7 @@ class FasilitasController extends Controller
         $active_menu = 'fasilitas';
         $ruangan = RuanganModel::all();
 
-        return view('admin.fasilitas.index', compact('breadcrumb', 'active_menu', 'ruangan'));
+        return view('Admin.fasilitas.index', compact('breadcrumb', 'active_menu', 'ruangan'));
     }
 
      public function list(Request $request)

@@ -22,7 +22,7 @@ class RoleController extends Controller
         $active_menu = 'roles';
         $role = RoleModel::all();
 
-        return view('admin.roles.index', compact('breadcrumb', 'active_menu', 'role'));
+        return view('Admin.roles.index', compact('breadcrumb', 'active_menu', 'role'));
     }
 
     public function list(Request $request)

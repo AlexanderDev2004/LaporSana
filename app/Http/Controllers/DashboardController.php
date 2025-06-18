@@ -32,7 +32,7 @@ class DashboardController extends Controller
         // Ambil daftar fasilitas (id => nama)
         $fasilitasList = \App\Models\FasilitasModel::pluck('fasilitas_nama', 'fasilitas_id')->toArray();
 
-        return view('admin.dashboard', [
+        return view('Admin.dashboard', [
             'breadcrumb' => $breadcrumb,
             'active_menu' => $active_menu,
             'card_data' => $card_data,

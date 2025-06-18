@@ -31,7 +31,7 @@ class LaporanController extends Controller
 
 
 
-        return view('admin.validasi_laporan.index', compact('breadcrumb', 'active_menu', 'user', 'status', 'details'));
+        return view('Admin.validasi_laporan.index', compact('breadcrumb', 'active_menu', 'user', 'status', 'details'));
     }
 
     public function list(Request $request)
@@ -63,7 +63,7 @@ class LaporanController extends Controller
             ->where('laporan_id', $laporan_id)
             ->firstOrFail();
 
-        return view('admin.validasi_laporan.show', compact('laporan'));
+        return view('Admin.validasi_laporan.show', compact('laporan'));
     }
 
 
