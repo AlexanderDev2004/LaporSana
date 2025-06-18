@@ -48,6 +48,11 @@ Route::middleware(['auth', 'authorize:1'])->group(function () {
     Route::get('/admin/spk', [RekomendasiPerbaikan::class, 'tampilkanSPK'])->name('admin.spk');
     Route::post('admin/perbarui-data', [RekomendasiPerbaikan::class, 'perbaruiData'])->name('perbarui.data');
 
+    // Step-by-step SPK
+    Route::group(['prefix' => 'admin/spk'], function (): void {
+      Route::get('/spk_steps', [RekomendasiPerbaikan::class, 'tampilkanStepSPK'])->name('admin.spk.spk_steps');
+    });
+
     // Profile
     Route::group(['prefix' => 'admin/profile'], function () {
         Route::get('/profile', [ProfileController::class, 'show'])->name('admin.profile.show');
@@ -202,6 +207,11 @@ Route::middleware(['authorize:5'])->group(callback: function () {
     Route::get('/profile', [SarprasController::class, 'show'])->name('sarpras.profile.show');
     Route::get('/profile/edit', [SarprasController::class, 'edit'])->name('sarpras.profile.edit');
     Route::put('/profile', [SarprasController::class, 'update'])->name('sarpras.profile.update');
+
+        // Step-by-step SPK
+        Route::group(['prefix' => 'sarpras/spk'], function (): void {
+            Route::get('/spk_steps', [RekomendasiPerbaikan::class, 'tampilkanStepSPK'])->name('sarpras.spk.spk_steps');
+        });
 
     // penugasan teknisi
     //pemeriksaan

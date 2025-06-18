@@ -13,17 +13,17 @@
                      <p>Dashboard</p>
                  </a>
              </li>
-             {{-- <li class="nav-item">
-                 <a href="{{ route('admin.dashboard') }}"
-                     class="nav-link {{ $active_menu == 'dashboard' ? 'active' : '' }}">
-                    <i class="nav-icon fas fa-calculator"></i>
+             <li class="nav-item">
+                 <a href="{{ route('admin.spk.spk_steps', [], false) }}"
+                     class="nav-link {{ Auth::user()->role_id == 1 && $active_menu == 'spk_steps_admin' ? 'active' : '' }}">
+                     <i class="nav-icon fas fa-calculator"></i>
                      <p>SPK</p>
-                 </a> --}}
+                 </a>
              </li>
              <li class="nav-header">Manajemen Data Pengguna</li>
              <li class="nav-item">
                  <a href="{{ route('admin.roles.index') }}"
-                 class="nav-link {{ $active_menu == 'roles' ? 'active' : '' }}">
+                     class="nav-link {{ $active_menu == 'roles' ? 'active' : '' }}">
                      <i class="nav-icon fas fa-layer-group"></i>
                      <p>Role User</p>
                  </a>
@@ -60,7 +60,7 @@
              <li class="nav-header">Arsip</li>
              <li class="nav-item">
                  <a href="{{ route('admin.validasi_laporan.index') }}"
-                 class="nav-link  {{ $active_menu == 'laporan' ? 'active' : '' }}">
+                     class="nav-link  {{ $active_menu == 'laporan' ? 'active' : '' }}">
                      <i class="nav-icon fas fa-file"></i>
                      <p>Laporan</p>
                  </a>
