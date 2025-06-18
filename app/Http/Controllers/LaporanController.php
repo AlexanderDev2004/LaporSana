@@ -37,7 +37,12 @@ class LaporanController extends Controller
     public function list(Request $request)
     {
         $laporan = LaporanModel::select('laporan_id', 'user_id', 'status_id', 'tanggal_lapor', 'jumlah_pelapor')
-            ->with('user', 'status');
+            ->with([
+                'user',
+                'status',
+                'details.fasilitas.ruangan.lantai'
+            ]);
+
         if ($request->user_id) {
             $laporan->where('user_id', $request->user_id);
         }
@@ -47,6 +52,21 @@ class LaporanController extends Controller
 
         return DataTables::of($laporan)
             ->addIndexColumn()
+            ->addColumn('fasilitas_nama', function ($laporan) {
+                // Ambil data fasilitas dari relasi details pertama
+                $detail = $laporan->details->first();
+                return $detail ? $detail->fasilitas->fasilitas_nama : '-';
+            })
+            ->addColumn('ruangan', function ($laporan) {
+                // Ambil data ruangan dari relasi details->fasilitas->ruangan
+                $detail = $laporan->details->first();
+                return $detail ? $detail->fasilitas->ruangan->ruangan_nama : '-';
+            })
+            ->addColumn('lantai', function ($laporan) {
+                // Ambil data lantai dari relasi details->fasilitas->ruangan->lantai
+                $detail = $laporan->details->first();
+                return $detail ? $detail->fasilitas->ruangan->lantai->lantai_nama : '-';
+            })
             ->addColumn('aksi', function ($laporan) {
                 $btn = '<button onclick="modalAction(\'' . route('admin.validasi_laporan.show', $laporan->laporan_id) . '\')" class="btn btn-info btn-sm mr-1"><i class="fas fa-eye"></i></button>';
                 return $btn;
@@ -54,8 +74,6 @@ class LaporanController extends Controller
             ->rawColumns(['aksi'])
             ->make(true);
     }
-
-
 
     public function show($laporan_id)
     {

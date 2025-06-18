@@ -107,7 +107,7 @@
                                 Swal.fire('Berhasil!', response.message, 'success');
                                 table.ajax.reload(null, false); // Reload tabel
                             } else {
-                                Swal.fire('Gagal!', response.message, 'error');
+                                Swal.fire('Info', response.message, 'info');
                             }
                         })
                         .fail(function(jqXHR) {
