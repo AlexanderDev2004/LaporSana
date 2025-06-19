@@ -44,13 +44,12 @@ Route::get('logout', [AuthController::class, 'logout'])->middleware('auth')->nam
 Route::middleware(['auth', 'authorize:1'])->group(function () {
     Route::get('/admin/dashboard', [DashboardController::class, 'index'])->name('admin.dashboard');
     Route::get('/admin/dashboard/spk', [DashboardController::class, 'hitungSPK']);
-    // Route::get('/admin/dashboard/py', [RekomendasiPerbaikan::class, 'hitungSPK'])->name('calculate');
     Route::get('/admin/spk', [RekomendasiPerbaikan::class, 'tampilkanSPK'])->name('admin.spk');
     Route::post('admin/perbarui-data', [RekomendasiPerbaikan::class, 'perbaruiData'])->name('perbarui.data');
 
     // Step-by-step SPK
-    Route::group(['prefix' => 'admin/spk'], function (): void {
-      Route::get('/spk_steps', [RekomendasiPerbaikan::class, 'tampilkanStepSPK'])->name('admin.spk.spk_steps');
+    Route::group(['prefix' => 'admin/spk'], function () {
+        Route::get('/spk_steps', [RekomendasiPerbaikan::class, 'showStepByStep'])->name('admin.spk.step_by_step');
     });
 
     // Profile
@@ -203,54 +202,54 @@ Route::middleware(['authorize:5'])->group(callback: function () {
     Route::post('sarpras/laporan/{laporan_id}/approve', [SarprasController::class, 'approve'])->name('sarpras.approve');
     Route::post('sarpras/laporan/{laporan_id}/reject', [SarprasController::class, 'reject'])->name('sarpras.reject');
     Route::group(['prefix' => 'sarpras'], function () {
-    Route::get('/dashboard', [SarprasController::class, 'index'])->name('sarpras.dashboard');
-    Route::get('/profile', [SarprasController::class, 'show'])->name('sarpras.profile.show');
-    Route::get('/profile/edit', [SarprasController::class, 'edit'])->name('sarpras.profile.edit');
-    Route::put('/profile', [SarprasController::class, 'update'])->name('sarpras.profile.update');
+        Route::get('/dashboard', [SarprasController::class, 'index'])->name('sarpras.dashboard');
+        Route::get('/profile', [SarprasController::class, 'show'])->name('sarpras.profile.show');
+        Route::get('/profile/edit', [SarprasController::class, 'edit'])->name('sarpras.profile.edit');
+        Route::put('/profile', [SarprasController::class, 'update'])->name('sarpras.profile.update');
 
         // Step-by-step SPK
         Route::group(['prefix' => 'sarpras/spk'], function (): void {
-            Route::get('/spk_steps', [RekomendasiPerbaikan::class, 'tampilkanStepSPK'])->name('sarpras.spk.spk_steps');
+            Route::get('/spk_steps', [RekomendasiPerbaikan::class, 'showStepByStep'])->name('sarpras.spk.step_by_step');
         });
 
-    // penugasan teknisi
-    //pemeriksaan
-    Route::get('/penugasan/pemeriksaan', [SarprasController::class, 'pemeriksaan'])->name('sarpras.pemeriksaan');
-    Route::get('/penugasan/pemeriksaan/list', [SarprasController::class, 'pemeriksaanList'])->name('sarpras.pemeriksaan.list');
-    Route::get('/penugasan/pemeriksaan/{tugas_id}', [SarprasController::class, 'pemeriksaanShow'])->name('sarpras.pemeriksaan.show');
-    Route::get('/pemeriksaan/create', [SarprasController::class, 'pemeriksaanCreate'])->name('sarpras.pemeriksaan.create');
-    Route::post('/penugasan/pemeriksaan/store', [SarprasController::class, 'pemeriksaanStore'])->name('sarpras.pemeriksaan.store');
-    Route::get('/pemeriksaan/riwayat', [SarprasController::class, 'riwayatPemeriksaan'])->name('sarpras.riwayat.pemeriksaan');
-    Route::get('/pemeriksaan/riwayat/list', [SarprasController::class, 'riwayatPemeriksaanList'])->name('sarpras.riwayat.pemeriksaan.list');
-    //Perbaikan
-    Route::get('/penugasan/perbaikan', [SarprasController::class, 'perbaikan'])->name('sarpras.perbaikan');
-    Route::get('/penugasan/perbaikan/list', [SarprasController::class, 'perbaikanList'])->name('sarpras.perbaikan.list');
-    Route::get('/penugasan/perbaikan/{tugas_id}', [SarprasController::class, 'perbaikanShow'])->name('sarpras.perbaikan.show');
-    Route::get('/perbaikan/create', [SarprasController::class, 'perbaikanCreate'])->name('sarpras.perbaikan.create');
-    Route::post('/penugasan/perbaikan/store', [SarprasController::class, 'perbaikanStore'])->name('sarpras.perbaikan.store');
-    Route::get('/perbaikan/riwayat', [SarprasController::class, 'riwayatPerbaikan'])->name('sarpras.riwayat.perbaikan');
-    Route::get('/perbaikan/riwayat/list', [SarprasController::class, 'riwayatPerbaikanList'])->name('sarpras.riwayat.perbaikan.list');
+        // penugasan teknisi
+        //pemeriksaan
+        Route::get('/penugasan/pemeriksaan', [SarprasController::class, 'pemeriksaan'])->name('sarpras.pemeriksaan');
+        Route::get('/penugasan/pemeriksaan/list', [SarprasController::class, 'pemeriksaanList'])->name('sarpras.pemeriksaan.list');
+        Route::get('/penugasan/pemeriksaan/{tugas_id}', [SarprasController::class, 'pemeriksaanShow'])->name('sarpras.pemeriksaan.show');
+        Route::get('/pemeriksaan/create', [SarprasController::class, 'pemeriksaanCreate'])->name('sarpras.pemeriksaan.create');
+        Route::post('/penugasan/pemeriksaan/store', [SarprasController::class, 'pemeriksaanStore'])->name('sarpras.pemeriksaan.store');
+        Route::get('/pemeriksaan/riwayat', [SarprasController::class, 'riwayatPemeriksaan'])->name('sarpras.riwayat.pemeriksaan');
+        Route::get('/pemeriksaan/riwayat/list', [SarprasController::class, 'riwayatPemeriksaanList'])->name('sarpras.riwayat.pemeriksaan.list');
+        //Perbaikan
+        Route::get('/penugasan/perbaikan', [SarprasController::class, 'perbaikan'])->name('sarpras.perbaikan');
+        Route::get('/penugasan/perbaikan/list', [SarprasController::class, 'perbaikanList'])->name('sarpras.perbaikan.list');
+        Route::get('/penugasan/perbaikan/{tugas_id}', [SarprasController::class, 'perbaikanShow'])->name('sarpras.perbaikan.show');
+        Route::get('/perbaikan/create', [SarprasController::class, 'perbaikanCreate'])->name('sarpras.perbaikan.create');
+        Route::post('/penugasan/perbaikan/store', [SarprasController::class, 'perbaikanStore'])->name('sarpras.perbaikan.store');
+        Route::get('/perbaikan/riwayat', [SarprasController::class, 'riwayatPerbaikan'])->name('sarpras.riwayat.perbaikan');
+        Route::get('/perbaikan/riwayat/list', [SarprasController::class, 'riwayatPerbaikanList'])->name('sarpras.riwayat.perbaikan.list');
 
-    Route::delete('/penugasan/{tugas_id}', [SarprasController::class, 'tugasDestroy'])->name('sarpras.penugasan.destroy');
+        Route::delete('/penugasan/{tugas_id}', [SarprasController::class, 'tugasDestroy'])->name('sarpras.penugasan.destroy');
 
-    // ajax chain
-    Route::get('get-ruangan/{lantai_id}', [SarprasController::class, 'getRuangan'])->name('sarpras.getRuangan');
-    Route::get('get-fasilitas/{ruangan_id}', [SarprasController::class, 'getFasilitas'])->name('sarpras.getFasilitas');
-    Route::get('get-fasilitas-laporan/{jenis_tugas}', [SarprasController::class, 'getFasilitasByJenisTugas'])->name('sarpras.getFasilitasByJenisTugas');
-    Route::get('/get-data-pemeriksaan/{fasilitas_id}', [SarprasController::class, 'getDataPemeriksaan'])->name('sarpras.getPemeriksaan');
+        // ajax chain
+        Route::get('get-ruangan/{lantai_id}', [SarprasController::class, 'getRuangan'])->name('sarpras.getRuangan');
+        Route::get('get-fasilitas/{ruangan_id}', [SarprasController::class, 'getFasilitas'])->name('sarpras.getFasilitas');
+        Route::get('get-fasilitas-laporan/{jenis_tugas}', [SarprasController::class, 'getFasilitasByJenisTugas'])->name('sarpras.getFasilitasByJenisTugas');
+        Route::get('/get-data-pemeriksaan/{fasilitas_id}', [SarprasController::class, 'getDataPemeriksaan'])->name('sarpras.getPemeriksaan');
 
-    // laporan
-    Route::get('/laporan', [SarprasController::class, 'laporan'])->name('sarpras.laporan');
-    Route::POST('/laporan/list', [SarprasController::class, 'list'])->name('sarpras.laporan.list');
-    Route::get('/laporan/{laporan_id}', [SarprasController::class, 'showLaporan'])->name('sarpras.laporan.show');
-    Route::post('/laporan/{laporan_id}/update-status', [SarprasController::class, 'updateStatusLaporan'])->name('sarpras.laporan.updateStatus');
-    Route::get('/riwayat', [SarprasController::class, 'riwayatLaporan'])->name('sarpras.riwayat');
-    Route::post('/riwayat/list', [SarprasController::class, 'riwayatList'])->name('sarpras.riwayat.list');
-    Route::get('/riwayat/{laporan_id}', [SarprasController::class, 'showRiwayatLaporan'])->name('sarpras.riwayat.show');
+        // laporan
+        Route::get('/laporan', [SarprasController::class, 'laporan'])->name('sarpras.laporan');
+        Route::POST('/laporan/list', [SarprasController::class, 'list'])->name('sarpras.laporan.list');
+        Route::get('/laporan/{laporan_id}', [SarprasController::class, 'showLaporan'])->name('sarpras.laporan.show');
+        Route::post('/laporan/{laporan_id}/update-status', [SarprasController::class, 'updateStatusLaporan'])->name('sarpras.laporan.updateStatus');
+        Route::get('/riwayat', [SarprasController::class, 'riwayatLaporan'])->name('sarpras.riwayat');
+        Route::post('/riwayat/list', [SarprasController::class, 'riwayatList'])->name('sarpras.riwayat.list');
+        Route::get('/riwayat/{laporan_id}', [SarprasController::class, 'showRiwayatLaporan'])->name('sarpras.riwayat.show');
 
-    // spk
-    Route::get('/spk', [RekomendasiPerbaikan::class, 'tampilkanSPK'])->name('sarpras.spk');
-    Route::post('/perbarui-data', [RekomendasiPerbaikan::class, 'perbaruiData'])->name('sarpras.perbarui.data');
+        // spk
+        Route::get('/spk', [RekomendasiPerbaikan::class, 'tampilkanSPK'])->name('sarpras.spk');
+        Route::post('/perbarui-data', [RekomendasiPerbaikan::class, 'perbaruiData'])->name('sarpras.perbarui.data');
     });
 });
 

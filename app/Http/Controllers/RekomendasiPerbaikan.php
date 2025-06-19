@@ -86,28 +86,27 @@ class RekomendasiPerbaikan extends Controller
                 ->toArray();
 
             // 2. Ambil fasilitas terkait dari laporan_detail
-            // 2. Ambil fasilitas terkait dari laporan_detail
-        $fasilitasData = DB::table('m_laporan_detail')
-            ->join('m_fasilitas', 'm_laporan_detail.fasilitas_id', '=', 'm_fasilitas.fasilitas_id')
-            ->whereIn('m_laporan_detail.laporan_id', $topLaporanIDs)
-            ->select(
-                'm_fasilitas.fasilitas_id',
-                'm_fasilitas.fasilitas_nama as Alternatif',
-                'm_fasilitas.tingkat_urgensi as Urgensi',
-                DB::raw('(SELECT tingkat_kerusakan FROM m_tugas_detail WHERE fasilitas_id = m_fasilitas.fasilitas_id LIMIT 1) as Kerusakan'),
-                DB::raw('(SELECT biaya_perbaikan FROM m_tugas_detail WHERE fasilitas_id = m_fasilitas.fasilitas_id LIMIT 1) as Biaya_Perbaikan'),
-                DB::raw('(
+            $fasilitasData = DB::table('m_laporan_detail')
+                ->join('m_fasilitas', 'm_laporan_detail.fasilitas_id', '=', 'm_fasilitas.fasilitas_id')
+                ->whereIn('m_laporan_detail.laporan_id', $topLaporanIDs)
+                ->select(
+                    'm_fasilitas.fasilitas_id',
+                    'm_fasilitas.fasilitas_nama as Alternatif',
+                    'm_fasilitas.tingkat_urgensi as Urgensi',
+                    DB::raw('(SELECT tingkat_kerusakan FROM m_tugas_detail WHERE fasilitas_id = m_fasilitas.fasilitas_id LIMIT 1) as Kerusakan'),
+                    DB::raw('(SELECT biaya_perbaikan FROM m_tugas_detail WHERE fasilitas_id = m_fasilitas.fasilitas_id LIMIT 1) as Biaya_Perbaikan'),
+                    DB::raw('(
                     SELECT COALESCE(SUM(r.poin_roles), 0)
                     FROM dukungan_laporan dl
                     JOIN m_user u ON dl.user_id = u.user_id
                     JOIN m_roles r ON u.roles_id = r.roles_id
                     WHERE dl.laporan_id = m_laporan_detail.laporan_id
                 ) as Poin_Derajat'),
-                DB::raw('(SELECT jumlah_pelapor FROM m_laporan WHERE laporan_id = m_laporan_detail.laporan_id LIMIT 1) as Jumlah_Pelapor')
-            )
-            ->groupBy('m_fasilitas.fasilitas_id', 'm_fasilitas.fasilitas_nama', 'm_fasilitas.tingkat_urgensi', 'm_laporan_detail.laporan_id')
-            ->limit(10) // Batasi 5 fasilitas saja
-            ->get();
+                    DB::raw('(SELECT jumlah_pelapor FROM m_laporan WHERE laporan_id = m_laporan_detail.laporan_id LIMIT 1) as Jumlah_Pelapor')
+                )
+                ->groupBy('m_fasilitas.fasilitas_id', 'm_fasilitas.fasilitas_nama', 'm_fasilitas.tingkat_urgensi', 'm_laporan_detail.laporan_id')
+                ->limit(10) // Batasi 5 fasilitas saja
+                ->get();
 
             // 3. Format data untuk API Flask
             $data = $fasilitasData->map(function ($item) {
@@ -218,51 +217,58 @@ class RekomendasiPerbaikan extends Controller
         }
     }
 
-     public function tampilkanStepSPK(Request $request)
-    {
-        try {
-            $response = $this->hitungSPK();
+    public function showStepByStep()
+{
 
-            if ($response instanceof \Illuminate\Http\JsonResponse) {
-                $responseData = $response->getData(true);
-                if (isset($responseData['status']) && $responseData['status'] === 'error') {
-                    return redirect()->back()->with([
-                        'error' => $responseData['message'] ?? 'Terjadi kesalahan saat mengambil data SPK!'
-                    ]);
-                }
+    try {
 
-                $spkData = $responseData['data'];
-                $psiSteps = $spkData['psi_steps'] ?? [];
-                $edasSteps = $spkData['edas_steps'] ?? [];
+        $response = $this->hitungSPK();
 
-                $userRole = Auth::user()->role_id;
-
-                // Define breadcrumb
-                $breadcrumb = (object) [
-                    'title' => 'Langkah-langkah SPK',
-                    'list'  => ['Home', 'Langkah-langkah SPK']
-                ];
-
-                // Set active_menu based on role
-                $active_menu = ($userRole == 1) ? 'spk_steps_admin' : 'spk_steps_sarpras';
-
-                // Define view based on role, only for admin (role 1) and sarpras (role 5)
-                if ($userRole == 1) {
-                    $viewName = 'admin.spk.spk_steps';
-                    return view($viewName, compact('psiSteps', 'edasSteps', 'breadcrumb', 'active_menu'));
-                } elseif ($userRole == 5) {
-                    $viewName = 'sarpras.spk.spk_steps'; // Updated to match the new route name
-                    return view($viewName, compact('psiSteps', 'edasSteps', 'breadcrumb', 'active_menu'));
-                } else {
-                    return redirect()->back()->with([
-                        'error' => 'Akses ditolak. Hanya Admin dan Satpras yang diizinkan.'
-                    ]);
-                }
-            }
-        } catch (\Exception $e) {
-            return redirect()->back()->with([
-                'error' => 'Terjadi kesalahan: ' . $e->getMessage()
-            ]);
+        if ($response instanceof \Illuminate\Http\JsonResponse && $response->getData(true)['status'] === 'success') {
+            $responseData = $response->getData(true)['data'];
+            $spkData = $responseData['ranking'] ?? [];
+            $psiSteps = $responseData['psi'] ?? [];
+            $edasSteps = $responseData['edas'] ?? [];
+        } else {
+            return redirect()->back()->with('error', 'Gagal memuat langkah-langkah SPK. Silakan coba lagi.');
         }
+
+        $fasilitasList = FasilitasModel::pluck('fasilitas_nama', 'fasilitas_id')->toArray();
+        $breadcrumb = (object) [
+            'title' => 'Step By Step SPK',
+            'list' => ['Home', 'Step by Step SPK']
+        ];
+
+        $active_menu = 'spk_step_by_step';
+
+        $userRole = Auth::user()->role_id ?? null;
+
+        if ($userRole == 1) {
+            return view('admin.spk.step_by_step', compact(
+                'spkData',
+                'fasilitasList',
+                'psiSteps',
+                'edasSteps',
+                'breadcrumb',
+                'active_menu'
+            ));
+        } elseif ($userRole == 5) {
+            return view('sarpras.spk.step_by_step', compact(
+                'spkData',
+                'fasilitasList',
+                'psiSteps',
+                'edasSteps',
+                'breadcrumb',
+                'active_menu'
+            ));
+        } else {
+            return redirect()->back()->with('error', 'Role tidak dikenali atau Anda tidak memiliki akses.');
+        }
+    } catch (\Exception $e) {
+        return redirect()->back()->with('error', 'Terjadi kesalahan: ' . $e->getMessage());
     }
+
+
+}
+
 }
