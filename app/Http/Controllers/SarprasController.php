@@ -286,7 +286,7 @@ class SarprasController extends Controller
             // Simpan data tugas pemeriksaan
             $tugas = new TugasModel();
             $tugas->user_id       = $validated['user_id'];
-            $tugas->status_id     = 6; // Selesai diperiksa
+            $tugas->status_id     = 3; // diproses
             $tugas->tugas_jenis   = 'Pemeriksaan';
             $tugas->tugas_mulai   = now();
             $tugas->tugas_selesai = null;

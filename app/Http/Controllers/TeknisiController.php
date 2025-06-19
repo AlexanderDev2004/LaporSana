@@ -391,6 +391,12 @@ class TeknisiController extends Controller
             // 'tugas_jenis' => $tugas->tugas_jenis, // Tidak perlu diubah
         ]);
 
+        // Update status laporan jika ada
+        if ($tugas->laporan_id) {
+            LaporanModel::where('laporan_id', $tugas->laporan_id)
+                ->update(['status_id' => $status->status_id]);
+        }
+
         $tugasDetail = TugasDetail::where('tugas_id', $tugas->tugas_id)->firstOrFail();
         $dataDetail = [
             'tingkat_kerusakan' => $request->tingkat_kerusakan,
