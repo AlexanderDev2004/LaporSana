@@ -683,9 +683,19 @@ class SarprasController extends Controller
 
     public function list(Request $request)
     {
-        $laporans = LaporanModel::with(['details.fasilitas.ruangan.lantai', 'status', 'user'])
-            ->whereIn('status_id', [3, 4, 6]) // Ambil laporan yang sedang diproses, selesai, atau disetujui
-            ->get();
+        $laporans3 = LaporanModel::with(['details.fasilitas.ruangan.lantai', 'status', 'user'])
+        ->where('status_id', 3)
+        ->get();
+
+        $laporans4 = LaporanModel::with(['details.fasilitas.ruangan.lantai', 'status', 'user'])
+        ->where('status_id', 4)
+        ->get();
+
+        $laporans6 = LaporanModel::with(['details.fasilitas.ruangan.lantai', 'status', 'user'])
+        ->where('status_id', 6)
+        ->get();
+
+        $laporans = $laporans3->concat($laporans4)->concat($laporans6);
 
         return DataTables::of($laporans)
             ->addIndexColumn()
@@ -701,7 +711,7 @@ class SarprasController extends Controller
                     case 4:
                         return '<span class="badge badge-success">' . $status . '</span>';
                     case 6:
-                        return '<span class="badge badge-success">' . $status . '</span>';
+                        return '<span class="badge badge-primary">' . $status . '</span>';
                     default:
                         return '<span class="badge badge-secondary">' . $status . '</span>';
                 }
