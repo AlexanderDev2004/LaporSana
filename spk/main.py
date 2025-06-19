@@ -118,7 +118,6 @@ kriteria_info = {
 # ------------------- FUNGSI PSI -------------------
 # Fungsi untuk menghitung bobot kriteria berdasarkan metode PSI
 def hitung_bobot_psi(data, kriteria_info):
-    print("\n=== [1] Metode PSI ===")
     A = data.copy()
     m, n = A.shape
     print("1. Matriks Keputusan (A):\n", A)
@@ -146,8 +145,7 @@ def hitung_bobot_psi(data, kriteria_info):
     print("\n4. Preference Variation (PVₖ):\n", PV)
 
     # 5. Deviation Φj = 1 - PVj
-    PHI = abs(1- PV)
-    # PHI = PV / R_mean
+    PHI = abs(1 - PV)
     print("\n5. Deviation (Φₖ):\n", PHI)
 
     # 6. Preference Index ψj = Φj / ΣΦ
@@ -155,11 +153,7 @@ def hitung_bobot_psi(data, kriteria_info):
     print("\n6. Overall Preference (ψₖ) - Bobot Kriteria:\n", psi)
 
     return psi.to_dict()
-
-# ------------------- FUNGSI EDAS -------------------
-# Fungsi untuk menghitung bobot kriteria berdasarkan metode EDAS
 def perangkingan_edas(kriteria_data, bobot, kriteria_info, alternatif_list):
-    print("\n=== [2] Metode EDAS ===")
     matrix = kriteria_data.copy()
     print("\n=== [1] Matriks Keputusan ===")
     print(matrix)
