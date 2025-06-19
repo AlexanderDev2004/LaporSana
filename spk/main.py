@@ -118,16 +118,9 @@ kriteria_info = {
 # ------------------- FUNGSI PSI -------------------
 # Fungsi untuk menghitung bobot kriteria berdasarkan metode PSI
 def hitung_bobot_psi(data, kriteria_info):
-    steps = []
-    print("\n=== [1] Metode PSI ===")
     A = data.copy()
     m, n = A.shape
     print("1. Matriks Keputusan (A):\n", A)
-    steps.append({
-        "step": 1,
-        "description": "Matriks Keputusan (A)",
-        "data": A.to_dict(orient='index')
-    })
 
     # 2. Normalisasi
     R = pd.DataFrame(index=A.index, columns=A.columns)
@@ -138,84 +131,37 @@ def hitung_bobot_psi(data, kriteria_info):
             R[col] = A[col].min() / A[col]
 
     print("\n2. Matriks Normalisasi (R):\n", R)
-    steps.append({
-        "step": 2,
-        "description": "Matriks Normalisasi (R)",
-        "data": R.to_dict(orient='index')
-    })
 
     # 🔢 Total per kolom setelah normalisasi
     R_total_per_kriteria = R.sum()
     print("\n2b. Total per Kriteria (Jumlah Normalisasi Kolom):\n", R_total_per_kriteria)
-    steps.append({
-        "step": 2.1,
-        "description": "Total per Kriteria (Jumlah Normalisasi Kolom)",
-        "data": R_total_per_kriteria.to_dict()
-    })
 
     # 3. Mean tiap kriteria
     R_mean = R.mean()
     print("\n3. Rata-rata (Ēₖ):\n", R_mean)
-    steps.append({
-        "step": 3,
-        "description": "Rata-rata (Ēₖ)",
-        "data": R_mean.to_dict()
-    })
 
     # 4. Preference Variation PVj
     PV = ((R - R_mean) ** 2).sum()
     print("\n4. Preference Variation (PVₖ):\n", PV)
-    steps.append({
-        "step": 4,
-        "description": "Preference Variation (PVₖ)",
-        "data": PV.to_dict()
-    })
 
     # 5. Deviation Φj = 1 - PVj
-    PHI = abs(1- PV)
-    # PHI = PV / R_mean
+    PHI = abs(1 - PV)
     print("\n5. Deviation (Φₖ):\n", PHI)
-    steps.append({
-        "step": 5,
-        "description": "Deviation (Φₖ)",
-        "data": PHI.to_dict()
-    })
 
     # 6. Preference Index ψj = Φj / ΣΦ
     psi = PHI / PHI.sum()
     print("\n6. Overall Preference (ψₖ) - Bobot Kriteria:\n", psi)
-    steps.append({
-        "step": 6,
-        "description": "Overall Preference (ψₖ) - Bobot Kriteria",
-        "data": psi.to_dict()
-    })
 
-
-    return psi.to_dict(), steps
-
-# ------------------- FUNGSI EDAS -------------------
-# Fungsi untuk menghitung bobot kriteria berdasarkan metode EDAS
+    return psi.to_dict()
 def perangkingan_edas(kriteria_data, bobot, kriteria_info, alternatif_list):
-    steps = []
-    print("\n=== [2] Metode EDAS ===")
     matrix = kriteria_data.copy()
     print("\n=== [1] Matriks Keputusan ===")
     print(matrix)
-    steps.append({
-        "step": 1,
-        "description": "Matriks Keputusan",
-        "data": matrix.to_dict(orient='index')
-    })
 
     # 2. Menghitung Solusi Rata-rata (AVG)
     avg = matrix.mean()
     print("\n=== [2] Solusi Rata-rata (AVG) per Kriteria ===")
     print(avg)
-    steps.append({
-        "step": 2,
-        "description": "Solusi Rata-rata (AVG) per Kriteria",
-        "data": avg.to_dict()
-    })
 
     # 3. Hitung PDA dan NDA
     pda, nda = [], []
@@ -236,18 +182,8 @@ def perangkingan_edas(kriteria_data, bobot, kriteria_info, alternatif_list):
 
     print("\n=== [3] Positive Distance from Average (PDA) ===")
     print(pda_df)
-    steps.append({
-        "step": 3,
-        "description": "Positive Distance from Average (PDA)",
-        "data": pda_df.to_dict(orient='index')
-    })
     print("\n=== [4] Negative Distance from Average (NDA) ===")
     print(nda_df)
-    steps.append({
-        "step": 4,
-        "description": "Negative Distance from Average (NDA)",
-        "data": nda_df.to_dict(orient='index')
-    })
 
     # 4. SP dan SN: Total nilai positif dan negatif yang sudah diberi bobot
     bobot_array = np.array(list(bobot.values()))
@@ -259,36 +195,16 @@ def perangkingan_edas(kriteria_data, bobot, kriteria_info, alternatif_list):
 
     print("\n=== [5] SP (Weighted PDA) ===")
     print(sp_df)
-    steps.append({
-        "step": 5,
-        "description": "SP (Weighted PDA)",
-        "data": sp_df.to_dict(orient='index')
-    })
     print("\n=== [6] SN (Weighted NDA) ===")
     print(sn_df)
-    steps.append({
-        "step": 6,
-        "description": "SN (Weighted NDA)",
-        "data": sn_df.to_dict(orient='index')
-    })
 
     sum_sp = sp.sum(axis=1)
     sum_sn = sn.sum(axis=1)
 
     print("\n=== [7] Total SP per Alternatif ===")
     print(pd.Series(sum_sp, index=alternatif_list))
-    steps.append({
-        "step": 7,
-        "description": "Total SP per Alternatif",
-        "data": sum_sp.to_dict()
-    })
     print("\n=== [8] Total SN per Alternatif ===")
     print(pd.Series(sum_sn, index=alternatif_list))
-    steps.append({
-        "step": 8,
-        "description": "Total SN per Alternatif",
-        "data": sum_sn.to_dict()
-    })
 
     # 5. Normalisasi nilai SP (NSP) dan SN (NSN)
     max_sp = max(sum_sp) if max(sum_sp) != 0 else 1
@@ -299,29 +215,14 @@ def perangkingan_edas(kriteria_data, bobot, kriteria_info, alternatif_list):
 
     print("\n=== [9] Normalized SP (NSP) ===")
     print(pd.Series(nsp, index=alternatif_list))
-    steps.append({
-        "step": 9,
-        "description": "Normalized SP (NSP)",
-        "data": nsp.to_dict()
-    })
     print("\n=== [10] Normalized SN (NSN) ===")
     print(pd.Series(nsn, index=alternatif_list))
-    steps.append({
-        "step": 10,
-        "description": "Normalized SN (NSN)",
-        "data": nsn.to_dict()
-    })
 
     # 6. Appraisal Score
     appraisal_score = 0.5 * nsp + 0.5 * nsn
 
     print("\n=== [11] Appraisal Score ===")
     print(pd.Series(appraisal_score, index=alternatif_list))
-    steps.append({
-        "step": 11,
-        "description": "Appraisal Score",
-        "data": appraisal_score.to_dict()
-    })
 
     # 7. Hasil akhir ranking
     results = pd.DataFrame({
@@ -333,13 +234,8 @@ def perangkingan_edas(kriteria_data, bobot, kriteria_info, alternatif_list):
     results = results.sort_values(by='AppraisalScore', ascending=False)
     print("\n=== [12] Hasil Perangkingan Akhir ===")
     print(results)
-    steps.append({
-        "step": 12,
-        "description": "Hasil Perangkingan Akhir",
-        "data": results.to_dict(orient='records')
-    })
 
-    return results, steps
+    return results
 
 # ------------------- API ROUTE -------------------
 # Endpoint yang menerima data dari Laravel dan menjalankan perhitungan SPK
@@ -383,9 +279,7 @@ def calculate_spk():
         # 4. Kembalikan hasil dalam format JSON
         return jsonify({
             'bobot': bobot_kriteria,
-            'ranking': top_5.to_dict(orient='records'),
-            'psi_steps': psi_steps,
-            'edas_steps': edas_steps
+            'ranking': top_5.to_dict(orient='records')
         })
 
     except Exception as e:
