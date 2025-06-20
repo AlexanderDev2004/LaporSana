@@ -2,26 +2,21 @@
 
 @section('content')
     <div class="card">
-        <div class="card-header">
-            <h3 class="card-title">Daftar Tugas</h3>
-        </div>
-
         <div class="card-body">
 
             {{-- Filter Status --}}
-            {{-- <div id="filter" class="form-horizontal filter-date p-2 border-bottom mb-2">
+            <div id="filter" class="form-horizontal filter-date p-2 border-bottom mb-2">
                 <div class="row">
                     <div class="col-md-4">
-                        <label for="filter_status">Filter Status</label>
-                        <select name="filter_status" class="form-control form-control-sm filter_status">
+                        <label for="filter_tugas_jenis">Filter Jenis Tugas</label>
+                        <select name="filter_tugas_jenis" class="form-control form-control-sm filter_tugas_jenis">
                             <option value="">- Semua -</option>
-                            @foreach ($status as $s)
-                                <option value="{{ $s->status_id }}">{{ $s->status_nama }}</option>
-                            @endforeach
+                            <option value="perbaikan">Perbaikan</option>
+                            <option value="pemeriksaan">Pemeriksaan</option>
                         </select>
                     </div>
                 </div>
-            </div> --}}
+            </div>
 
             {{-- Alert --}}
             @if (session('success'))
@@ -32,16 +27,17 @@
             @endif
 
             {{-- Tabel Tugas --}}
-            <table id="table_tugas" class="table table-bordered table-striped table-sm table-hover">
+            <table id="table-tugas" class="table table-bordered table-striped table-sm table-hover">
                 <thead>
                     <tr>
                         <th>No</th>
                         <th>Nama Teknisi</th>
                         <th>Status</th>
                         <th>Jenis Tugas</th>
-                        <th>Tanggal Pengerjaan</th>
-                        <th>Tanggal Selesai</th>
-                        <th>Feedback</th>
+                        <th>Tanggal Penugasan</th>
+                        <th>Tingkat Kerusakan</th>
+                        <th>Biaya Perbaikan</th>
+                        <th>Laporan</th>
                         <th>Aksi</th>
                     </tr>
                 </thead>
@@ -56,23 +52,30 @@
 @endpush
 @push('js')
     <script>
+        $.ajaxSetup({
+            headers: {
+                'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+            }
+        });
+
         function modalAction(url = '') {
             $('#myModal').load(url, function() {
                 $('#myModal').modal('show');
             });
         }
+
         var tableTugas;
 
         $(document).ready(function() {
-            tableTugas = $('#table_tugas').DataTable({
+            tableTugas = $('#table-tugas').DataTable({
                 processing: true,
                 serverSide: true,
                 ajax: {
-                    url: "{{ route('teknisi.riwayat.list') }}",
-                    "dataType": "json",
+                    url: "{{ route('teknisi.listpemeriksaan') }}",
+                    dataType: "json",
                     type: "GET",
                     data: function(d) {
-                        d.filter_status = $('.filter_status').val();
+                        d.filter_tugas_jenis = $('.filter_tugas_jenis').val();
                     }
                 },
                 columns: [{
@@ -86,56 +89,50 @@
                         }
                     },
                     {
-                        data: "user.name",
-                        className: "",
-                        orderable: true,
-                        searchable: true
+                        data: "user.name"
                     },
                     {
                         data: "status.status_nama",
-                        className: "",
-                        render: function(data, type, row) {
+                        render: function(data) {
                             let badgeClass = 'secondary';
                             switch (data.toLowerCase()) {
-                                case 'pending':
+                                case 'menunggu verifikasi':
                                     badgeClass = 'warning';
                                     break;
-                                case 'dalam proses':
+                                case 'ditolak':
+                                    badgeClass = 'danger';
+                                    break;
+                                case 'diproses':
                                     badgeClass = 'primary';
+                                    break;
+                                case 'disetujui':
+                                    badgeClass = 'info';
                                     break;
                                 case 'selesai':
                                     badgeClass = 'success';
                                     break;
-                                case 'dibatalkan':
-                                    badgeClass = 'danger';
+                                case 'selesai diperiksa':
+                                    badgeClass = 'success';
                                     break;
                             }
                             return `<span class="badge badge-${badgeClass}">${data}</span>`;
                         }
                     },
+
                     {
-                        data: "tugas_jenis",
-                        className: "",
-                        orderable: true,
-                        searchable: true
+                        data: "tugas_jenis"
                     },
                     {
-                        data: "tugas_mulai",
-                        className: "",
-                        orderable: true,
-                        searchable: true
+                        data: "tugas_mulai"
                     },
                     {
-                        data: "tugas_selesai",
-                        className: "",
-                        orderable: true,
-                        searchable: true
+                        data: "tingkat_kerusakan"
                     },
                     {
-                        data: "feedback",
-                        className: "",
-                        orderable: false,
-                        searchable: false
+                        data: "biaya_perbaikan"
+                    },
+                    {
+                        data: "laporan"
                     },
                     {
                         data: "aksi",
@@ -146,13 +143,7 @@
                 ]
             });
 
-            $('#table_tugas_filter input').unbind().bind().on('keyup', function(e) {
-                if (e.keyCode == 13) {
-                    tableTugas.search(this.value).draw();
-                }
-            });
-
-            $('.filter_status').change(function() {
+            $('.filter_tugas_jenis').change(function() {
                 tableTugas.draw();
             });
         });

@@ -8,17 +8,11 @@ use App\Models\LaporanDetail;
 use App\Models\LantaiModel;
 use App\Models\RuanganModel;
 use App\Models\FasilitasModel;
-use App\Models\RiwayatPerbaikan;
-use App\Models\TugasDetailModel;
-use App\Models\TugasModel;
-use App\Models\UserModel;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Hash;
 use Yajra\DataTables\Facades\DataTables;
 use Illuminate\Support\Facades\Log;
-use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Validator;
 
 class PelaporController extends Controller
@@ -32,73 +26,6 @@ class PelaporController extends Controller
 
         $active_menu = 'dashboard';
         return view('pelapor.dashboard', compact('breadcrumb', 'active_menu'));
-    }
-
-    public function showProfile()
-    {
-        $user = auth()->user()->load('role');
-
-        $breadcrumb = (object) [
-            'title' => 'Profil Saya',
-            'list'  => ['Home', 'Profil']
-        ];
-
-        $active_menu = 'profile';
-
-        return view('pelapor.users.show', compact('user', 'breadcrumb', 'active_menu'));
-    }
-
-    public function edit()
-    {
-        $user = auth()->user();
-
-        $breadcrumb = (object) [
-            'title' => 'Edit Profil Saya',
-            'list'  => ['Home', 'Profil', 'Edit']
-        ];
-
-        $active_menu = 'profile';
-
-        return view('pelapor.users.edit', compact('user', 'active_menu', 'breadcrumb'));
-    }
-
-    public function update(Request $request)
-    {
-        $user = auth()->user();
-
-        $validated = $request->validate([
-            'name' => 'required|string|max:100',
-            'NIM' => 'nullable|string|max:20',
-            'NIP' => 'nullable|string|max:20',
-            'avatar' => 'nullable|image|mimes:jpeg,png,jpg,gif,svg|max:2048',
-            'password' => 'nullable|string|min:6',
-        ]);
-
-        try {
-            $data = [
-                'name' => $validated['name'],
-                'NIM' => $validated['NIM'] ?? null,
-                'NIP' => $validated['NIP'] ?? null,
-            ];
-
-            if ($request->filled('password')) {
-                $data['password'] = Hash::make($validated['password']);
-            }
-
-            if ($request->hasFile('avatar')) {
-                if ($user->avatar && Storage::exists('public/' . $user->avatar)) {
-                    Storage::delete('public/' . $user->avatar);
-                }
-                $data['avatar'] = $request->file('avatar')->store('avatars', 'public');
-            }
-
-            $user->update($data);
-
-            return redirect()->route('pelapor.profile.show')->with('success', 'Profil berhasil diperbarui.');
-        } catch (\Exception $e) {
-            Log::error('Gagal update profil: ' . $e->getMessage());
-            return back()->withErrors(['error' => 'Gagal memperbarui profil'])->withInput();
-        }
     }
 
     public function laporan()
@@ -127,21 +54,16 @@ class PelaporController extends Controller
             ->editColumn('status.status_nama', function ($laporan) {
                 $status = $laporan->status->status_nama ?? 'Tidak Diketahui';
                 switch ($laporan->status_id) {
-                    case 1:
-                        return '<span class="badge badge-warning">' . $status . '</span>';
-                    case 2:
-                        return '<span class="badge badge-danger">' . $status . '</span>';
-                    case 3:
-                        return '<span class="badge badge-info">' . $status . '</span>';
-                    case 4:
-                        return '<span class="badge badge-success">' . $status . '</span>';
-                    default:
-                        return '<span class="badge badge-secondary">' . $status . '</span>';
+                    case 1: return '<span class="badge badge-warning">' . $status . '</span>';
+                    case 2: return '<span class="badge badge-danger">' . $status . '</span>';
+                    case 3: return '<span class="badge badge-info">' . $status . '</span>';
+                    case 4: return '<span class="badge badge-success">' . $status . '</span>';
+                    default: return '<span class="badge badge-secondary">' . $status . '</span>';
                 }
             })
             ->addColumn('aksi', function ($laporan) {
                 $detailUrl = route('pelapor.show', ['laporan_id' => $laporan->laporan_id]);
-                $btn = '<button onclick="modalAction(\'' . $detailUrl . '\')" class="btn btn-info btn-sm">Detail</button> ';
+                $btn = '<button onclick="modalAction(\''.$detailUrl.'\')" class="btn btn-info btn-sm">Detail</button> ';
                 return $btn;
             })
             ->rawColumns(['status.status_nama', 'aksi'])
@@ -171,100 +93,110 @@ class PelaporController extends Controller
 
 
     public function store(Request $request)
-    {
-        // 1. Validasi Input
-        $validator = Validator::make($request->all(), [
-            'lantai_id' => 'required|exists:m_lantai,lantai_id',
-            'ruangan_id' => 'required|exists:m_ruangan,ruangan_id',
-            'fasilitas_id' => 'required|exists:m_fasilitas,fasilitas_id',
-            'foto_bukti' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:10240',
-            'deskripsi' => 'required|string',
-        ]);
+{
+    $validator = Validator::make($request->all(), [
+        'lantai_id' => 'required|exists:m_lantai,lantai_id',
+        'ruangan_id' => 'required|exists:m_ruangan,ruangan_id',
+        'fasilitas_id' => 'required|exists:m_fasilitas,fasilitas_id',
+        'foto_bukti' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:10240',
+        'deskripsi' => 'required|string',
+    ]);
 
-        if ($validator->fails()) {
-            return response()->json(['status' => false, 'message' => 'Validasi Gagal', 'msgField' => $validator->errors()], 422);
+    if ($validator->fails()) {
+        return response()->json([
+            'status' => false,
+            'message' => 'Validasi Gagal',
+            'msgField' => $validator->errors()
+        ], 422);
+    }
+
+    $validated = $validator->validated();
+    $user = Auth::user();
+    $userId = $user->user_id;
+
+    // Cari laporan aktif dengan fasilitas yang sama
+    $existingLaporan = LaporanModel::with('dukungan')
+        ->whereHas('details', function ($query) use ($validated) {
+            $query->where('fasilitas_id', $validated['fasilitas_id']);
+        })
+        ->whereIn('status_id', [3, 5]) // Diproses, Disetujui
+        ->first();
+
+    if ($existingLaporan) {
+        $isPelaporUtama = $existingLaporan->user_id == $userId;
+        $sudahMendukung = $existingLaporan->dukungan->contains('user_id', $userId);
+
+        if ($isPelaporUtama || $sudahMendukung) {
+            return response()->json([
+                'status' => false,
+                'message' => 'Anda sudah melaporkan kerusakan pada fasilitas ini sebelumnya.'
+            ], 409);
         }
 
-        $validated = $validator->validated();
-        $userId = Auth::id();
+        // Ambil poin dari role user
+        $poin = DB::table('m_roles')->where('roles_id', $user->roles_id)->value('poin_roles') ?? 0;
 
-        // 2. Cari laporan AKTIF yang sudah ada untuk fasilitas yang sama
-        // Laporan aktif adalah yang statusnya belum 'Selesai' atau 'Ditolak'
-        $existingLaporan = LaporanModel::with('dukungan')
-            ->whereHas('details', function ($query) use ($validated) {
-                $query->where('fasilitas_id', $validated['fasilitas_id']);
-            })
-            ->whereIn('status_id', [3, 5]) // 3=Diproses, 5=Disetujui
-            ->first();
-
-        // 3. Jika ADA laporan yang sudah ada
-        if ($existingLaporan) {
-            // Cek apakah user saat ini sudah terlibat di laporan tersebut
-            $isPelaporUtama = $existingLaporan->user_id == $userId;
-            $sudahMendukung = $existingLaporan->dukungan->contains('user_id', $userId);
-
-            if ($isPelaporUtama || $sudahMendukung) {
-                // Jika sudah terlibat, kembalikan pesan informasi
-                return response()->json([
-                    'status' => false,
-                    'message' => 'Anda sudah melaporkan kerusakan pada fasilitas ini sebelumnya.'
-                ], 409); // 409 Conflict adalah status yang cocok
-            }
-
-            // Jika belum terlibat, tambahkan sebagai pendukung
-            try {
-                DB::transaction(function () use ($existingLaporan, $userId) {
-                    // Catat dukungan di tabel pivot
-                    DukungLaporanModel::create([
-                        'laporan_id' => $existingLaporan->laporan_id,
-                        'user_id' => $userId,
-                    ]);
-
-                    // Tambah jumlah pelapor
-                    $existingLaporan->increment('jumlah_pelapor');
-                });
-
-                return response()->json([
-                    'status' => true,
-                    'message' => 'Laporan serupa sudah ada. Anda berhasil ditambahkan sebagai pendukung laporan.'
-                ]);
-            } catch (\Exception $e) {
-                Log::error('Gagal menambahkan dukungan: ' . $e->getMessage());
-                return response()->json(['status' => false, 'message' => 'Terjadi kesalahan saat menambahkan dukungan.'], 500);
-            }
-        }
-
-        // 4. Jika TIDAK ADA laporan, buat laporan baru
         try {
-            DB::transaction(function () use ($request, $validated, $userId) {
-                // Buat data laporan utama
-                $laporan = LaporanModel::create([
+            DB::transaction(function () use ($existingLaporan, $userId, $poin) {
+                DB::table('dukungan_laporan')->insert([
+                    'laporan_id' => $existingLaporan->laporan_id,
                     'user_id' => $userId,
-                    'status_id' => 1, // Status awal: Menunggu Konfirmasi
-                    'tanggal_lapor' => now(),
-                    'jumlah_pelapor' => 1,
+                    'poin_roles' => $poin,
+                    'created_at' => now(),
+                    'updated_at' => now(),
                 ]);
 
-                // Simpan foto jika ada
-                $fotoPath = null;
-                if ($request->hasFile('foto_bukti')) {
-                    $fotoPath = $request->file('foto_bukti')->store('foto_bukti', 'public');
-                }
-
-                // Buat data detail laporan
-                $laporan->details()->create([
-                    'fasilitas_id' => $validated['fasilitas_id'],
-                    'deskripsi' => $validated['deskripsi'],
-                    'foto_bukti' => $fotoPath,
-                ]);
+                $existingLaporan->increment('jumlah_pelapor');
             });
 
-            return response()->json(['status' => true, 'message' => 'Laporan baru berhasil dibuat.']);
+            return response()->json([
+                'status' => true,
+                'message' => 'Laporan serupa sudah ada. Anda berhasil ditambahkan sebagai pendukung laporan.'
+            ]);
         } catch (\Exception $e) {
-            Log::error('Gagal membuat laporan baru: ' . $e->getMessage());
-            return response()->json(['status' => false, 'message' => 'Terjadi kesalahan saat membuat laporan baru.'], 500);
+            Log::error('Gagal menambahkan dukungan: ' . $e->getMessage());
+            return response()->json([
+                'status' => false,
+                'message' => 'Terjadi kesalahan saat menambahkan dukungan.'
+            ], 500);
         }
     }
+
+    // Jika tidak ada laporan aktif, buat laporan baru
+    try {
+        DB::transaction(function () use ($request, $validated, $userId) {
+            $laporan = LaporanModel::create([
+                'user_id' => $userId,
+                'status_id' => 1, // Menunggu verifikasi
+                'tanggal_lapor' => now(),
+                'jumlah_pelapor' => 1,
+            ]);
+
+            $fotoPath = null;
+            if ($request->hasFile('foto_bukti')) {
+                $fotoPath = $request->file('foto_bukti')->store('foto_bukti', 'public');
+            }
+
+            $laporan->details()->create([
+                'fasilitas_id' => $validated['fasilitas_id'],
+                'deskripsi' => $validated['deskripsi'],
+                'foto_bukti' => $fotoPath,
+            ]);
+        });
+
+        return response()->json([
+            'status' => true,
+            'message' => 'Laporan baru berhasil dibuat.'
+        ]);
+    } catch (\Exception $e) {
+        Log::error('Gagal membuat laporan baru: ' . $e->getMessage());
+        return response()->json([
+            'status' => false,
+            'message' => 'Terjadi kesalahan saat membuat laporan baru.'
+        ], 500);
+    }
+}
+
 
     public function show($laporan_id)
     {
@@ -302,22 +234,17 @@ class PelaporController extends Controller
             ->editColumn('status.status_nama', function ($laporan) {
                 $status = $laporan->status->status_nama ?? 'Tidak Diketahui';
                 switch ($laporan->status_id) {
-                    case 1:
-                        return '<span class="badge badge-warning">' . $status . '</span>';
-                    case 2:
-                        return '<span class="badge badge-danger">' . $status . '</span>';
-                    case 3:
-                        return '<span class="badge badge-info">' . $status . '</span>';
-                    case 4:
-                        return '<span class="badge badge-success">' . $status . '</span>';
-                    default:
-                        return '<span class="badge badge-secondary">' . $status . '</span>';
+                    case 1: return '<span class="badge badge-warning">' . $status . '</span>';
+                    case 2: return '<span class="badge badge-danger">' . $status . '</span>';
+                    case 3: return '<span class="badge badge-info">' . $status . '</span>';
+                    case 4: return '<span class="badge badge-success">' . $status . '</span>';
+                    default: return '<span class="badge badge-secondary">' . $status . '</span>';
                 }
             })
             ->addColumn('aksi', function ($laporan) {
                 $detailUrl = route('pelapor.show.bersama', ['laporan_id' => $laporan->laporan_id]);
                 $dukungUrl = route('pelapor.dukungLaporan', ['laporan_id' => $laporan->laporan_id]);
-                $btn = '<button onclick="modalAction(\'' . $detailUrl . '\')" class="btn btn-info btn-sm">Detail</button> ';
+                $btn = '<button onclick="modalAction(\''.$detailUrl.'\')" class="btn btn-info btn-sm">Detail</button> ';
                 $btnDukung = '';
 
                 $userId = Auth::id();
@@ -326,7 +253,7 @@ class PelaporController extends Controller
 
                 if (!$sudahTerlibat) {
                     // Hanya tampilkan tombol jika user belum terlibat
-                    $btnDukung = '<button class="btn btn-primary btn-sm ml-1 btn-dukung" data-url="' . $dukungUrl . '">Ikut Melapor</button>';
+                    $btnDukung = '<button class="btn btn-primary btn-sm ml-1 btn-dukung" data-url="'.$dukungUrl.'">Ikut Melapor</button>';
                 }
 
                 return $btn . $btnDukung;
@@ -337,7 +264,7 @@ class PelaporController extends Controller
 
     public function showBersama($laporan_id)
     {
-        $laporan = LaporanModel::with(['details.fasilitas.ruangan.lantai', 'status'])
+        $laporan = LaporanModel::with(['details.fasilitas.ruangan.lantai', 'user', 'status', 'dukungan.user.role'])
             ->where('laporan_id', $laporan_id)
             ->firstOrFail();
 
@@ -347,177 +274,45 @@ class PelaporController extends Controller
     public function dukungLaporan($laporan_id)
     {
         try {
-            $userId = Auth::id();
-            $laporan = LaporanModel::findOrFail($laporan_id);
+            $user = auth()->user();
 
-            // Cek 1: Apakah user adalah pelapor asli?
-            if ($laporan->user_id == $userId) {
-                return response()->json([
-                    'status' => false,
-                    'message' => 'Anda adalah pelapor utama laporan ini.'
-                ], 400);
-            }
-
-            // Cek 2: Apakah user sudah pernah mendukung sebelumnya?
-            // INI BAGIAN PENTING: Mengecek ke tabel 'DukunganLaporan'
-            $sudahDukung = DukungLaporanModel::where('laporan_id', $laporan_id)
-                ->where('user_id', $userId)
+            // Cek apakah user sudah pernah mendukung laporan ini
+            $sudahDukung = DB::table('dukungan_laporan')
+                ->where('laporan_id', $laporan_id)
+                ->where('user_id', $user->user_id)
                 ->exists();
 
             if ($sudahDukung) {
                 return response()->json([
                     'status' => false,
-                    'message' => 'Anda sudah ikut melapor untuk laporan ini.'
-                ], 400);
+                    'message' => 'Kamu sudah ikut melapor untuk laporan ini.'
+                ]);
             }
 
-            // Jika semua pengecekan lolos, simpan dukungan ke tabel baru
-            DukungLaporanModel::create([
+            // Ambil poin dari role user
+            $poinRole = DB::table('m_roles')->where('roles_id', $user->roles_id)->value('poin_roles');
+
+            // Simpan ke dukungan_laporan
+            DB::table('dukungan_laporan')->insert([
                 'laporan_id' => $laporan_id,
-                'user_id' => $userId
+                'user_id' => $user->user_id,
+                'poin_roles' => $poinRole ?? 0,
+                'created_at' => now(),
+                'updated_at' => now(),
             ]);
 
-            // Tambah jumlah pelapor
-            $laporan->increment('jumlah_pelapor');
+            // Tambah jumlah pelapor di laporan
+            DB::table('m_laporan')->where('laporan_id', $laporan_id)->increment('jumlah_pelapor');
 
             return response()->json([
                 'status' => true,
                 'message' => 'Terima kasih telah ikut melaporkan kerusakan ini!'
             ]);
         } catch (\Exception $e) {
-            Log::error('Gagal memberikan dukungan: ' . $e->getMessage());
             return response()->json([
                 'status' => false,
-                'message' => 'Terjadi kesalahan pada server.'
+                'message' => 'Gagal memberikan dukungan: ' . $e->getMessage()
             ], 500);
-        }
-    }
-
-    public function feedback()
-    {
-        $breadcrumb = (object) [
-            'title' => 'Feedback',
-            'list'  => ['Home', 'Feedback']
-        ];
-
-        $page = (object) [
-            'title' => 'Daftar Feedback Laporan'
-        ];
-
-        $active_menu = 'feedback';
-
-        return view('pelapor.feedback', compact('breadcrumb', 'page', 'active_menu'));
-    }
-
-    public function feedbackList(Request $request)
-    {
-        $tugas = TugasModel::with(['details.fasilitas', 'user', 'status', 'riwayat'])
-            ->where('tugas_jenis', 'perbaikan')
-            ->where('status_id', 4)
-            ->get();
-
-        return DataTables::of($tugas)
-            ->addIndexColumn()
-            ->editColumn('status.status_nama', function ($tugas) {
-                $status = $tugas->status->status_nama ?? 'Tidak Diketahui';
-                switch ($tugas->status_id) {
-                    case 4:
-                        return '<span class="badge badge-success">' . $status . '</span>';
-                    default:
-                        return '<span class="badge badge-primary">' . $status . '</span>';
-                }
-            })
-            ->addColumn('rating', function ($tugas) {
-                $rating = $tugas->riwayat->rating ?? null;
-                if (!$rating) return 'Belum ada ulasan';
-
-                $stars = '';
-                for ($i = 1; $i <= 5; $i++) {
-                    $stars .= $i <= $rating
-                        ? '<i class="fas fa-star text-warning"></i>'
-                        : '<i class="far fa-star text-warning"></i>';
-                }
-                return $stars . "<span class='ml-1'>($rating)</span>";
-            })
-            ->addColumn('aksi', function ($tugas) {
-                $feedbackUrl = route('pelapor.feedback.create', ['tugas_id' => $tugas->tugas_id]);
-                $detailUrl = route('pelapor.feedback.show', ['tugas_id' => $tugas->tugas_id]);
-
-                $btnFeedback = '<button onclick="modalAction(\'' . $feedbackUrl . '\')" class="btn btn-success btn-sm">Beri Ulasan</button> ';
-                $btn = '<button onclick="modalAction(\'' . $detailUrl . '\')" class="btn btn-info btn-sm">Detail</button> ';
-
-                if (empty($tugas->riwayat->rating)) {
-                    $btnFeedback = '<button onclick="modalAction(\'' . $feedbackUrl . '\')" class="btn btn-success btn-sm">Beri Ulasan</button> ';
-                } else {
-                    $btnFeedback = '<button class="btn btn-secondary btn-sm" disabled>Sudah Diulas</button> ';
-                }
-
-                return $btnFeedback . $btn;
-            })
-            ->rawColumns(['status.status_nama', 'rating', 'aksi'])
-            ->make(true);
-    }
-
-
-
-    public function feedbackShow($tugas_id)
-    {
-        $tugas = TugasModel::with(['details.fasilitas', 'status'])
-            ->where('tugas_id', $tugas_id)
-            ->firstOrFail();
-
-        return view('pelapor.feedback_show', compact('tugas'));
-    }
-
-    public function feedbackData($tugas_id)
-    {
-        $riwayat = RiwayatPerbaikan::where('tugas_id', $tugas_id)->first();
-
-        if (!$riwayat) {
-            return response()->json(['success' => false, 'message' => 'Tidak ada feedback.']);
-        }
-
-        return response()->json([
-            'success' => true,
-            'data' => [
-                'rating' => $riwayat->rating,
-                'ulasan' => $riwayat->ulasan,
-                'created_at' => $riwayat->created_at->format('d-m-Y H:i')
-            ]
-        ]);
-    }
-
-    public function feedbackCreate($tugas_id)
-    {
-        $tugas = TugasModel::with(['details.fasilitas'])->findOrFail($tugas_id);
-        return view('pelapor.feedback_form', compact('tugas'));
-    }
-
-    public function feedbackStore(Request $request)
-    {
-        $validated = $request->validate([
-            'tugas_id' => 'required|exists:m_tugas,tugas_id',
-            'rating' => 'required|integer|min:1|max:5',
-            'ulasan' => 'nullable|string|min:10|max:255',
-        ]);
-
-        try {
-            RiwayatPerbaikan::updateOrCreate(
-                ['tugas_id' => $validated['tugas_id']],
-                [
-                    'rating' => $validated['rating'],
-                    'ulasan' => $validated['ulasan'],
-                ]
-            );
-
-            return redirect()
-                ->route('pelapor.feedback')
-                ->with('success', 'Feedback berhasil disimpan.');
-        } catch (\Exception $e) {
-            return redirect()
-                ->back()
-                ->withInput()
-                ->with('error', 'Gagal menyimpan feedback. ' . $e->getMessage());
         }
     }
 }

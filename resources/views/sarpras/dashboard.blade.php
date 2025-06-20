@@ -154,6 +154,8 @@
                             <tr>
                                 <th>No</th>
                                 <th>Nama Fasilitas</th>
+                                <th>Ruangan</th>
+                                <th>Lantai</th>
                                 <th>Score Ranking</th>
                                 <th>Ranking</th>
                             </tr>
@@ -165,13 +167,15 @@
                                         <td>{{ $i + 1 }}</td>
                                         <td>{{ $fasilitasList[$item->fasilitas_id] ?? ($item->fasilitas->fasilitas_nama ?? 'Nama Tidak Ditemukan') }}
                                         </td>
+                                        <td>{{ $item->fasilitas->ruangan->ruangan_nama ?? 'Tidak Tersedia' }}</td>
+                                        <td>{{ $item->fasilitas->ruangan->lantai->lantai_nama ?? 'Tidak Tersedia' }}</td>
                                         <td>{{ number_format($item->score_ranking, 4) }}</td>
                                         <td>{{ $item->rank }}</td>
                                     </tr>
                                 @endforeach
                             @else
                                 <tr>
-                                    <td colspan="4" class="text-center">Tidak ada data.</td>
+                                    <td colspan="6" class="text-center">Tidak ada data.</td>
                                 </tr>
                             @endif
                         </tbody>

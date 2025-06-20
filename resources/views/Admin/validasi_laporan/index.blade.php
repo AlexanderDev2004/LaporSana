@@ -29,7 +29,9 @@
                         <thead>
                             <tr>
                                 <th>ID</th>
-                                <th>Pelapor</th>
+                                <th>Fasilitas</th>
+                                <th>Ruangan</th>
+                                <th>Lantai</th>
                                 <th>Status</th>
                                 <th>Tanggal Lapor</th>
                                 <th>Jumlah Pelapor</th>
@@ -65,7 +67,7 @@
                 responsive: true,
 
                 ajax: {
-                    "url": "{{ route('admin.validasi_laporan.list') }}", // Mengubah URL ke route yang benar
+                    "url": "{{ route('admin.validasi_laporan.list') }}",
                     "dataType": "json",
                     "type": "GET",
                     "data": function (d) {
@@ -81,7 +83,9 @@
                 },
                 columns: [
                     { data: 'laporan_id', className: 'text-center' },
-                    { data: 'user.name', className: '', orderable: true, searchable: true },
+                    { data: 'fasilitas_nama', className: '', orderable: true, searchable: true },
+                    { data: 'ruangan', className: '', orderable: true, searchable: true },
+                    { data: 'lantai', className: '', orderable: true, searchable: true },
                     {
                         data: 'status.status_nama',
                         className: 'text-center',
