@@ -14,12 +14,13 @@
                  </a>
              </li>
              <li class="nav-item">
-                 <a href="{{ route('admin.spk.spk_steps', [], false) }}"
-                     class="nav-link {{ Auth::user()->role_id == 1 && $active_menu == 'spk_steps_admin' ? 'active' : '' }}">
+                 <a href="{{ route('admin.spk.step_by_step') }}"
+                     class="nav-link {{ $active_menu == 'spk_step_by_step' ? 'active' : '' }}">
                      <i class="nav-icon fas fa-calculator"></i>
                      <p>SPK</p>
                  </a>
              </li>
+
              <li class="nav-header">Manajemen Data Pengguna</li>
              <li class="nav-item">
                  <a href="{{ route('admin.roles.index') }}"
