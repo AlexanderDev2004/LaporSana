@@ -22,9 +22,13 @@
                     <select name="fasilitas_id" id="fasilitas_id" class="form-control" required>
                         <option value="">- Pilih Fasilitas -</option>
                         @foreach($fasilitasLaporan as $f)
-                            <option value="{{ $f->fasilitas_id }}" data-laporan="{{ $f->laporan_id }}">
-                                {{ $f->fasilitas_nama }} ({{ $f->ruangan_nama }} - {{ $f->lantai_nama }})
-                            </option>
+                            @if ($f->fasilitas)
+                                <option value="{{ $f->fasilitas->fasilitas_id }}">
+                                    {{ $f->fasilitas->fasilitas_nama }}
+                                    ({{ $f->fasilitas->ruangan->ruangan_nama ?? '-' }} - 
+                                    {{ $f->fasilitas->ruangan->lantai->lantai_nama ?? '-' }})
+                                </option>
+                            @endif
                         @endforeach
                     </select>
                     <input type="hidden" name="laporan_id" id="laporan_id">
