@@ -336,7 +336,7 @@ class SarprasController extends Controller
     {
         $perbaikan = TugasModel::with(['details.fasilitas.ruangan.lantai', 'user', 'status'])
             ->where('tugas_jenis', 'Perbaikan') // Hanya ambil tugas jenis Perbaikan
-            ->where('status_id', 6) // Ambil semua tugas yang diproses (Perbaikan) //selesai diperiksa
+            ->whereIn('status_id', [3, 6]) // Ambil semua tugas yang diproses (Perbaikan) //selesai diperiksa
             ->get();
 
         return DataTables::of($perbaikan)
@@ -378,35 +378,14 @@ class SarprasController extends Controller
         return view('sarpras.perbaikan.show', compact('perbaikan'));
     }
 
-        public function perbaikanCreate()
+    public function perbaikanCreate()
     {
         $teknisi = UserModel::where('roles_id', 6)->get();
         $lantai = LantaiModel::all();
 
-        // Ambil fasilitas yang sudah dilaporkan dan belum pernah ditugaskan
-      $fasilitasLaporan = DB::table('t_rekomperbaikan as spk')
-            ->join('m_fasilitas as f', 'f.fasilitas_id', '=', 'spk.fasilitas_id')
-            ->join('m_ruangan as r', 'r.ruangan_id', '=', 'f.ruangan_id')
-            ->join('m_lantai as lt', 'lt.lantai_id', '=', 'r.lantai_id')
-            ->join('m_laporan_detail as d', 'd.fasilitas_id', '=', 'f.fasilitas_id')
-            ->join('m_laporan as l', 'l.laporan_id', '=', 'd.laporan_id')
-            ->leftJoin('m_tugas as t', function ($join) {
-                $join->on('t.laporan_id', '=', 'l.laporan_id')
-                    ->where('t.tugas_jenis', '=', 'Perbaikan');
-            })
-            ->whereNull('t.laporan_id')
-            // ->where('l.status_id', '=', 6) // Status "selesai diperiksa"
-            ->select(
-                'l.laporan_id',
-                'f.fasilitas_id',
-                'f.fasilitas_nama',
-                'r.ruangan_nama',
-                'lt.lantai_nama',
-                'spk.rank as prioritas',
-                'spk.score_ranking as skor'
-            )
-            ->orderBy('spk.rank', 'asc')
-            // ->limit(10) // Get only top 10 ranked facilities
+        // Ambil data dari model Rekomperbaikan dan relasi fasilitasnya
+        $fasilitasLaporan = RekomperbaikanModel::with(['fasilitas.ruangan.lantai'])
+            ->orderBy('rank', 'asc')
             ->get();
 
         return view('sarpras.perbaikan.create', compact('teknisi', 'lantai', 'fasilitasLaporan'));

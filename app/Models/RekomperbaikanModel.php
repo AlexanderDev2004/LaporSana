@@ -21,7 +21,4 @@ class RekomperbaikanModel extends Model
     {
         return $this->belongsTo(FasilitasModel::class, 'fasilitas_id', 'fasilitas_id');
     }
-
-
-
 }
