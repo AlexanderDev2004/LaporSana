@@ -122,7 +122,7 @@ def hitung_bobot_psi(data, kriteria_info):
     m, n = A.shape
     print("1. Matriks Keputusan (A):\n", A)
     steps['step_1_matriks_keputusan'] = {
-        'description': 'Matriks Keputusan (A)',
+        'description': 'Matriks Keputusan (A)\nRumus: A = [a_ij], i=1..m, j=1..n',
         'data': A.reset_index().to_dict(orient='records'),
         'shape': {'rows': m, 'columns': n}
     }
@@ -139,15 +139,15 @@ def hitung_bobot_psi(data, kriteria_info):
 
     print("\n2. Matriks Normalisasi (R):\n", R)
     steps['step_2_matriks_normalisasi'] = {
-        'description': 'Matriks Normalisasi (R)',
-        'data': R.reset_index().to_dict(orient='records')
+        'description': 'Matriks Normalisasi (R)\nRumus: r_ij = a_ij / max(a_j) untuk benefit, r_ij = min(a_j) / a_ij untuk cost',
+        'data': R.astype(float).reset_index().to_dict(orient='records')
     }
 
     # 2b. Total per kolom setelah normalisasi
     R_total_per_kriteria = R.sum()
     print("\n2b. Total per Kriteria (Jumlah Normalisasi Kolom):\n", R_total_per_kriteria)
     steps['step_2b_total_per_kriteria'] = {
-        'description': 'Total per Kriteria (Jumlah Normalisasi Kolom)',
+        'description': 'Total per Kriteria (Jumlah Normalisasi Kolom)\nRumus: Σ r_ij untuk setiap kriteria j',
         'data': R_total_per_kriteria.to_dict()
     }
 
@@ -155,7 +155,7 @@ def hitung_bobot_psi(data, kriteria_info):
     R_mean = R.mean()
     print("\n3. Rata-rata (Ēₖ):\n", R_mean)
     steps['step_3_rata_rata'] = {
-        'description': 'Rata-rata (Ēₖ)',
+        'description': 'Rata-rata (Ēₖ)\nRumus: Ēₖ = (1/m) Σ r_ij untuk setiap kriteria k',
         'data': R_mean.to_dict()
     }
 
@@ -163,7 +163,7 @@ def hitung_bobot_psi(data, kriteria_info):
     PV = ((R - R_mean) ** 2).sum()
     print("\n4. Preference Variation (PVₖ):\n", PV)
     steps['step_4_preference_variation'] = {
-        'description': 'Preference Variation (PVₖ)',
+        'description': 'Preference Variation (PVₖ)\nRumus: PVₖ = Σ (r_ik - Ēₖ)^2 untuk setiap kriteria k',
         'data': PV.to_dict()
     }
 
@@ -171,7 +171,7 @@ def hitung_bobot_psi(data, kriteria_info):
     PHI = abs(1 - PV)
     print("\n5. Deviation (Φₖ):\n", PHI)
     steps['step_5_deviation'] = {
-        'description': 'Deviation (Φₖ)',
+        'description': 'Deviation (Φₖ)\nRumus: Φₖ = |1 - PVₖ|',
         'data': PHI.to_dict()
     }
 
@@ -179,7 +179,7 @@ def hitung_bobot_psi(data, kriteria_info):
     psi = PHI / PHI.sum()
     print("\n6. Overall Preference (ψₖ) - Bobot Kriteria:\n", psi)
     steps['step_6_preference_index'] = {
-        'description': 'Overall Preference (ψₖ) - Bobot Kriteria',
+        'description': 'Overall Preference (ψₖ) - Bobot Kriteria\nRumus: ψₖ = Φₖ / ΣΦₖ',
         'data': psi.to_dict()
     }
 
@@ -192,7 +192,7 @@ def perangkingan_edas(kriteria_data, bobot, kriteria_info, alternatif_list):
     print("\n=== [1] Matriks Keputusan ===")
     print(matrix)
     steps['step_1_matriks_keputusan'] = {
-        'description': 'Matriks Keputusan (A)',
+        'description': 'Matriks Keputusan (A)\nRumus: A = [a_ij], i=1..m, j=1..n',
         'data': matrix.reset_index().to_dict(orient='records'),
         'shape': {'rows': len(matrix), 'columns': len(matrix.columns)}
     }
@@ -202,7 +202,7 @@ def perangkingan_edas(kriteria_data, bobot, kriteria_info, alternatif_list):
     print("\n=== [2] Solusi Rata-rata (AVG) per Kriteria ===")
     print(avg)
     steps['step_2_solusi_rata_rata'] = {
-        'description': 'Solusi Rata-rata (AVG) per Kriteria',
+        'description': 'Solusi Rata-rata (AVG) per Kriteria\nRumus: AVG_j = (1/m) Σ a_ij',
         'data': avg.to_dict()
     }
 
@@ -226,13 +226,13 @@ def perangkingan_edas(kriteria_data, bobot, kriteria_info, alternatif_list):
     print("\n=== [3] Positive Distance from Average (PDA) ===")
     print(pda_df)
     steps['step_3_positive_distance'] = {
-        'description': 'Positive Distance from Average (PDA)',
+        'description': 'Positive Distance from Average (PDA)\nRumus: PDA_ij = max(0, (a_ij - AVG_j) / AVG_j) untuk benefit, max(0, (AVG_j - a_ij) / AVG_j) untuk cost',
         'data': pda_df.reset_index().to_dict(orient='records')
     }
     print("\n=== [4] Negative Distance from Average (NDA) ===")
     print(nda_df)
     steps['step_4_negative_distance'] = {
-        'description': 'Negative Distance from Average (NDA)',
+        'description': 'Negative Distance from Average (NDA)\nRumus: NDA_ij = max(0, (AVG_j - a_ij) / AVG_j) untuk benefit, max(0, (a_ij - AVG_j) / AVG_j) untuk cost',
         'data': nda_df.reset_index().to_dict(orient='records')
     }
 
@@ -247,13 +247,13 @@ def perangkingan_edas(kriteria_data, bobot, kriteria_info, alternatif_list):
     print("\n=== [5] SP (Weighted PDA) ===")
     print(sp_df)
     steps['step_5_weighted_positive_distance'] = {
-        'description': 'SP (Weighted PDA)',
+        'description': 'SP (Weighted PDA)\nRumus: SP_i = Σ (PDA_ij * w_j)',
         'data': sp_df.reset_index().to_dict(orient='records')
     }
     print("\n=== [6] SN (Weighted NDA) ===")
     print(sn_df)
     steps['step_6_weighted_negative_distance'] = {
-        'description': 'SN (Weighted NDA)',
+        'description': 'SN (Weighted NDA)\nRumus: SN_i = Σ (NDA_ij * w_j)',
         'data': sn_df.reset_index().to_dict(orient='records')
     }
 
@@ -263,13 +263,13 @@ def perangkingan_edas(kriteria_data, bobot, kriteria_info, alternatif_list):
     print("\n=== [7] Total SP per Alternatif ===")
     print(pd.Series(sum_sp, index=alternatif_list))
     steps['step_7_total_sp'] = {
-        'description': 'Total SP per Alternatif',
+        'description': 'Total SP per Alternatif\nRumus: Total SP_i = Σ SP_ij',
         'data': pd.Series(sum_sp, index=alternatif_list).to_dict()
     }
     print("\n=== [8] Total SN per Alternatif ===")
     print(pd.Series(sum_sn, index=alternatif_list))
     steps['step_8_total_sn'] = {
-        'description': 'Total SN per Alternatif',
+        'description': 'Total SN per Alternatif\nRumus: Total SN_i = Σ SN_ij',
         'data': pd.Series(sum_sn, index=alternatif_list).to_dict()
     }
 
@@ -283,13 +283,13 @@ def perangkingan_edas(kriteria_data, bobot, kriteria_info, alternatif_list):
     print("\n=== [9] Normalized SP (NSP) ===")
     print(pd.Series(nsp, index=alternatif_list))
     steps['step_9_normalized_sp'] = {
-        'description': 'Normalized SP (NSP)',
+        'description': 'Normalized SP (NSP)\nRumus: NSP_i = SP_i / max(SP)',
         'data': pd.Series(nsp, index=alternatif_list).to_dict()
     }
     print("\n=== [10] Normalized SN (NSN) ===")
     print(pd.Series(nsn, index=alternatif_list))
     steps['step_10_normalized_sn'] = {
-        'description': 'Normalized SN (NSN)',
+        'description': 'Normalized SN (NSN)\nRumus: NSN_i = 1 - (SN_i / max(SN))',
         'data': pd.Series(nsn, index=alternatif_list).to_dict()
     }
 
@@ -299,7 +299,7 @@ def perangkingan_edas(kriteria_data, bobot, kriteria_info, alternatif_list):
     print("\n=== [11] Appraisal Score ===")
     print(pd.Series(appraisal_score, index=alternatif_list))
     steps['step_11_appraisal_score'] = {
-        'description': 'Appraisal Score',
+        'description': 'Appraisal Score\nRumus: AS_i = 0.5 * NSP_i + 0.5 * NSN_i',
         'data': pd.Series(appraisal_score, index=alternatif_list).to_dict()
     }
 
@@ -314,7 +314,7 @@ def perangkingan_edas(kriteria_data, bobot, kriteria_info, alternatif_list):
     print("\n=== [12] Hasil Perangkingan Akhir ===")
     print(results)
     steps['step_12_hasil_perangkingan'] = {
-        'description': 'Hasil Perangkingan Akhir',
+        'description': 'Hasil Perangkingan Akhir\nRumus: Urutkan berdasarkan Appraisal Score tertinggi',
         'data': results.reset_index(drop=True).to_dict(orient='records')
     }
 
