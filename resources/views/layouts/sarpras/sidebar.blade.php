@@ -23,13 +23,13 @@
                      <p>Dashboard</p>
                  </a>
              </li>
-             <li class="nav-item">
+             {{-- <li class="nav-item">
                  <a href="{{ route('sarpras.spk.step_by_step') }}"
                      class="nav-link {{ $active_menu == 'spk_step_by_step' ? 'active' : '' }}">
                      <i class="nav-icon fas fa-calculator"></i>
                      <p>SPK</p>
                  </a>
-             </li>
+             </li> --}}
              <li class="nav-header">Penugasan</li>
              <li class="nav-item">
                 <a href="#" class="nav-link">
