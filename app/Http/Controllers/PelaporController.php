@@ -8,11 +8,15 @@ use App\Models\LaporanDetail;
 use App\Models\LantaiModel;
 use App\Models\RuanganModel;
 use App\Models\FasilitasModel;
+use App\Models\RiwayatPerbaikan;
+use App\Models\TugasModel;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Hash;
 use Yajra\DataTables\Facades\DataTables;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Validator;
 
 class PelaporController extends Controller
@@ -28,6 +32,72 @@ class PelaporController extends Controller
         return view('pelapor.dashboard', compact('breadcrumb', 'active_menu'));
     }
 
+    public function showProfile()
+{
+    $user = auth()->user()->load('role');
+
+    $breadcrumb = (object) [
+        'title' => 'Profil Saya',
+        'list'  => ['Home', 'Profil']
+    ];
+
+    $active_menu = 'profile';
+
+    return view('pelapor.users.show', compact('user', 'breadcrumb', 'active_menu'));
+}
+
+public function edit()
+{
+    $user = auth()->user();
+
+    $breadcrumb = (object) [
+        'title' => 'Edit Profil Saya',
+        'list'  => ['Home', 'Profil', 'Edit']
+    ];
+
+    $active_menu = 'profile';
+
+    return view('pelapor.users.edit', compact('user', 'active_menu', 'breadcrumb'));
+}
+
+public function update(Request $request)
+{
+    $user = auth()->user();
+
+    $validated = $request->validate([
+        'name' => 'required|string|max:100',
+        'NIM' => 'nullable|string|max:20',
+        'NIP' => 'nullable|string|max:20',
+        'avatar' => 'nullable|image|mimes:jpeg,png,jpg,gif,svg|max:2048',
+        'password' => 'nullable|string|min:6',
+    ]);
+
+    try {
+        $data = [
+            'name' => $validated['name'],
+            'NIM' => $validated['NIM'] ?? null,
+            'NIP' => $validated['NIP'] ?? null,
+        ];
+
+        if ($request->filled('password')) {
+            $data['password'] = Hash::make($validated['password']);
+        }
+
+        if ($request->hasFile('avatar')) {
+            if ($user->avatar && Storage::exists('public/' . $user->avatar)) {
+                Storage::delete('public/' . $user->avatar);
+            }
+            $data['avatar'] = $request->file('avatar')->store('avatars', 'public');
+        }
+
+        $user->update($data);
+
+        return redirect()->route('pelapor.profile.show')->with('success', 'Profil berhasil diperbarui.');
+    } catch (\Exception $e) {
+        Log::error('Gagal update profil: '.$e->getMessage());
+        return back()->withErrors(['error' => 'Gagal memperbarui profil'])->withInput();
+    }
+}
     public function laporan()
     {
         $breadcrumb = (object) [
@@ -315,4 +385,130 @@ class PelaporController extends Controller
             ], 500);
         }
     }
+
+    public function feedback()
+    {
+        $breadcrumb = (object) [
+            'title' => 'Feedback',
+            'list'  => ['Home', 'Feedback']
+        ];
+
+        $page = (object) [
+            'title' => 'Daftar Feedback Laporan'
+        ];
+
+        $active_menu = 'feedback';
+
+        return view('pelapor.feedback', compact('breadcrumb', 'page', 'active_menu'));
+    }
+
+    public function feedbackList(Request $request)
+{
+    $tugas = TugasModel::with(['details.fasilitas', 'user', 'status', 'riwayat'])
+        ->where('tugas_jenis', 'perbaikan')
+        ->where('status_id', 4)
+        ->get();
+
+    return DataTables::of($tugas)
+        ->addIndexColumn()
+        ->editColumn('status.status_nama', function ($tugas) {
+            $status = $tugas->status->status_nama ?? 'Tidak Diketahui';
+            switch ($tugas->status_id) {
+                case 4: return '<span class="badge badge-success">' . $status . '</span>';
+                default: return '<span class="badge badge-primary">' . $status . '</span>';
+            }
+        })
+        ->addColumn('rating', function ($tugas) {
+            $rating = $tugas->riwayat->rating ?? null;
+            if (!$rating) return 'Belum ada ulasan';
+
+            $stars = '';
+            for ($i = 1; $i <= 5; $i++) {
+                $stars .= $i <= $rating
+                    ? '<i class="fas fa-star text-warning"></i>'
+                    : '<i class="far fa-star text-warning"></i>';
+            }
+            return $stars . "<span class='ml-1'>($rating)</span>";
+        })
+        ->addColumn('aksi', function ($tugas) {
+            $feedbackUrl = route('pelapor.feedback.create', ['tugas_id' => $tugas->tugas_id]);
+            $detailUrl = route('pelapor.feedback.show', ['tugas_id' => $tugas->tugas_id]);
+
+            $btnFeedback = '<button onclick="modalAction(\''.$feedbackUrl.'\')" class="btn btn-success btn-sm">Beri Ulasan</button> ';
+            $btn = '<button onclick="modalAction(\''.$detailUrl.'\')" class="btn btn-info btn-sm">Detail</button> ';
+
+            if (empty($tugas->riwayat->rating)) {
+                $btnFeedback = '<button onclick="modalAction(\''.$feedbackUrl.'\')" class="btn btn-success btn-sm">Beri Ulasan</button> ';
+            } else {
+                $btnFeedback = '<button class="btn btn-secondary btn-sm" disabled>Sudah Diulas</button> ';
+            }
+
+            return $btnFeedback . $btn;
+        })
+        ->rawColumns(['status.status_nama', 'rating', 'aksi'])
+        ->make(true);
+}
+
+
+    
+    public function feedbackShow($tugas_id)
+    {
+        $tugas = TugasModel::with(['details.fasilitas', 'status'])
+            ->where('tugas_id', $tugas_id)
+            ->firstOrFail();
+
+        return view('pelapor.feedback_show', compact('tugas'));
+    }
+
+    public function feedbackData($tugas_id)
+{
+    $riwayat = RiwayatPerbaikan::where('tugas_id', $tugas_id)->first();
+
+    if (!$riwayat) {
+        return response()->json(['success' => false, 'message' => 'Tidak ada feedback.']);
+    }
+
+    return response()->json([
+        'success' => true,
+        'data' => [
+            'rating' => $riwayat->rating,
+            'ulasan' => $riwayat->ulasan,
+            'created_at' => $riwayat->created_at->format('d-m-Y H:i')
+        ]
+    ]);
+}
+
+    public function feedbackCreate($tugas_id)
+{
+    $tugas = TugasModel::with(['details.fasilitas'])->findOrFail($tugas_id);
+    return view('pelapor.feedback_form', compact('tugas'));
+}
+
+public function feedbackStore(Request $request)
+{
+    $validated = $request->validate([
+        'tugas_id' => 'required|exists:m_tugas,tugas_id',
+        'rating' => 'required|integer|min:1|max:5',
+        'ulasan' => 'nullable|string|min:10|max:255',
+    ]);
+
+    try {
+        RiwayatPerbaikan::updateOrCreate(
+            ['tugas_id' => $validated['tugas_id']],
+            [
+                'rating' => $validated['rating'],
+                'ulasan' => $validated['ulasan'],
+            ]
+        );
+
+        return redirect()
+            ->route('pelapor.feedback')
+            ->with('success', 'Feedback berhasil disimpan.');
+    } catch (\Exception $e) {
+        return redirect()
+            ->back()
+            ->withInput()
+            ->with('error', 'Gagal menyimpan feedback. ' . $e->getMessage());
+    }
+}
 }
