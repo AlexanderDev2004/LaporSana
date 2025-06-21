@@ -41,7 +41,7 @@
                 </a>
                 <ul class="nav nav-treeview">
                     <li class="nav-item">
-                        <a href="{{ url('/sarpras/penugasan/pemeriksaan') }}" class="nav-link {{ $active_menu == 'lpemeriksaan' ? 'active' : '' }}">
+                        <a href="{{ url('/sarpras/penugasan/pemeriksaan') }}" class="nav-link {{ $active_menu == 'pemeriksaan' ? 'active' : '' }}">
                             <i class="far fa-circle nav-icon"></i>
                             <p>Pemeriksaan</p>
                         </a>
