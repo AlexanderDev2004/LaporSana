@@ -32,7 +32,7 @@
             @endif
 
             {{-- Tabel Tugas --}}
-            <table id="table_tugas" class="table table-bordered table-striped table-sm table-hover">
+            <table id="table-tugas" class="table table-bordered table-striped table-sm table-hover">
                 <thead>
                     <tr>
                         <th>No</th>
@@ -64,7 +64,7 @@
         var tableTugas;
 
         $(document).ready(function() {
-            tableTugas = $('#table_tugas').DataTable({
+            tableTugas = $('#table-tugas').DataTable({
                 processing: true,
                 serverSide: true,
                 ajax: {
@@ -97,17 +97,23 @@
                         render: function(data, type, row) {
                             let badgeClass = 'secondary';
                             switch (data.toLowerCase()) {
-                                case 'pending':
+                                 case 'menunggu verifikasi':
                                     badgeClass = 'warning';
                                     break;
-                                case 'dalam proses':
+                                case 'ditolak':
+                                    badgeClass = 'danger';
+                                    break;
+                                case 'diproses':
                                     badgeClass = 'primary';
+                                    break;
+                                case 'disetujui':
+                                    badgeClass = 'info';
                                     break;
                                 case 'selesai':
                                     badgeClass = 'success';
                                     break;
-                                case 'dibatalkan':
-                                    badgeClass = 'danger';
+                                case 'selesai diperiksa':
+                                    badgeClass = 'success';
                                     break;
                             }
                             return `<span class="badge badge-${badgeClass}">${data}</span>`;

@@ -9,7 +9,7 @@ class RekomperbaikanModel extends Model
 {
     use HasFactory;
     protected $table = 't_rekomperbaikan';
-    protected $primaryKey = 'fasilitas_id';
+    protected $primaryKey = 'id';
 
     protected $fillable = [
         'fasilitas_id',

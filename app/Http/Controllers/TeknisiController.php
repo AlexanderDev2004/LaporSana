@@ -106,7 +106,7 @@ class TeknisiController extends Controller
                 }
             })
             ->addColumn('aksi', function ($tugas) {
-                $btn = '<button onclick="modalAction(\'' . route('teknisi.show', $tugas->tugas_id) . '\')" class="btn btn-info btn-sm"><i class="fas fa-eye"></i></button>';
+                $btn = '<button onclick="modalAction(\'' . route('teknisi.showperbaikan', $tugas->tugas_id) . '\')" class="btn btn-info btn-sm"><i class="fas fa-eye"></i></button>';
                 return $btn;
             })
             ->rawColumns(['feedback', 'aksi'])
