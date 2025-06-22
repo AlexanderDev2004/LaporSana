@@ -384,9 +384,40 @@ class SarprasController extends Controller
         $lantai = LantaiModel::all();
 
         // Ambil data dari model Rekomperbaikan dan relasi fasilitasnya
-        $fasilitasLaporan = RekomperbaikanModel::with(['fasilitas.ruangan.lantai'])
-            ->orderBy('rank', 'asc')
-            ->get();
+        $fasilitasLaporan = DB::table('t_rekomperbaikan as spk')
+        ->join('m_fasilitas as f', 'f.fasilitas_id', '=', 'spk.fasilitas_id')
+        ->join('m_ruangan as r', 'r.ruangan_id', '=', 'f.ruangan_id')
+        ->join('m_lantai as lt', 'lt.lantai_id', '=', 'r.lantai_id')
+        // ambil laporan_id dari tugas pemeriksaan terakhir
+        ->join('m_tugas_detail as td', 'td.fasilitas_id', '=', 'f.fasilitas_id')
+        ->join('m_tugas as t', 't.tugas_id', '=', 'td.tugas_id')
+        ->where('t.tugas_jenis', 'Pemeriksaan')
+        ->where('t.status_id', 6) // pastikan sudah selesai
+        ->leftJoin('m_tugas as perbaikan', function ($join) {
+            $join->on('perbaikan.laporan_id', '=', 't.laporan_id')
+                ->where('perbaikan.tugas_jenis', 'Perbaikan');
+        })
+        ->whereNull('perbaikan.tugas_id') // belum ditugaskan perbaikan
+        ->select(
+            't.laporan_id',
+            'f.fasilitas_id',
+            'f.fasilitas_nama',
+            'r.ruangan_nama',
+            'lt.lantai_nama',
+            'spk.rank',
+            'spk.score_ranking'
+        )
+        ->groupBy(
+            't.laporan_id',
+            'f.fasilitas_id',
+            'f.fasilitas_nama',
+            'r.ruangan_nama',
+            'lt.lantai_nama',
+            'spk.rank',
+            'spk.score_ranking'
+        )
+        ->orderBy('spk.rank', 'asc')
+        ->get();
 
         return view('sarpras.perbaikan.create', compact('teknisi', 'lantai', 'fasilitasLaporan'));
     }
@@ -668,7 +699,7 @@ class SarprasController extends Controller
     public function list(Request $request)
     {
         $laporans = LaporanModel::with(['details.fasilitas.ruangan.lantai', 'status', 'user'])
-            ->whereIn('status_id', [3, 4, 6]) // Ambil laporan yang sedang diproses, selesai, atau disetujui
+            ->whereIn('status_id', [3, 5, 6]) // Ambil laporan yang sedang diproses, selesai, atau disetujui
             ->get();
 
         return DataTables::of($laporans)
@@ -700,7 +731,7 @@ class SarprasController extends Controller
                 // Tombol aksi hanya muncul jika statusnya "Menunggu Verifikasi" (ID 1)
                 if ($laporan->status_id != 2 && $laporan->status_id != 1) {
                     $btnSelesai = '<button type="button" class="btn btn-success btn-sm ml-1 btn-update-status" data-id="' . $laporan->laporan_id . '" data-status="4">Selesai</button>';
-                    $btnTolak = '<button type="button" class="btn btn-danger btn-sm ml-1 btn-update-status" data-id="' . $laporan->laporan_id . '" data-status="2">Tolak</button>';
+                    // $btnTolak = '<button type="button" class="btn btn-danger btn-sm ml-1 btn-update-status" data-id="' . $laporan->laporan_id . '" data-status="2">Tolak</button>';
                 }
                 return $btn . $btnSelesai . $btnTolak;
             })
@@ -759,7 +790,7 @@ class SarprasController extends Controller
     {
         // Filter hanya untuk status Selesai (4) dan Ditolak (2)
         $laporans = LaporanModel::with(['details.fasilitas.ruangan.lantai', 'user', 'status'])
-            ->whereIn('status_id', [2, 4]);
+            ->whereIn('status_id', [4]);
 
         return DataTables::of($laporans)
             ->addIndexColumn()
