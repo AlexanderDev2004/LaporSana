@@ -15,7 +15,11 @@ php artisan migrate
 ```
 ## Contributors
 
-| [![Alexander](https://github.com/AlexanderDev2004.png?size=80)](https://github.com/AlexanderDev2004) | [![NathanaelGracedo](https://github.com/NathanaelGracedo.png?size=80)](https://github.com/NathanaelGracedo) | [![Fatikah002](https://github.com/Fatikah002.png?size=80)](https://github.com/Fatikah002) | [![Danennndraaa](https://github.com/Danennndraaa.png?size=80)](https://github.com/Danennndraaa) | [![om-ica](https://github.com/om-ica.png?size=80)](https://github.com/om-ica) |
+<div align="center">
+
+| [![Alexander](https://github.com/AlexanderDev2004.png?size=100)](https://github.com/AlexanderDev2004) | [![NathanaelGracedo](https://github.com/NathanaelGracedo.png?size=100)](https://github.com/NathanaelGracedo) | [![Fatikah002](https://github.com/Fatikah002.png?size=100)](https://github.com/Fatikah002) | [![Danennndraaa](https://github.com/Danennndraaa.png?size=100)](https://github.com/Danennndraaa) | [![om-ica](https://github.com/om-ica.png?size=100)](https://github.com/om-ica) |
 |:---:|:---:|:---:|:---:|:---:|
-| [**Alexander**](https://github.com/AlexanderDev2004) | [**NathanaelGracedo**](https://github.com/NathanaelGracedo) | [**Fatikah002**](https://github.com/Fatikah002) | [**Danennndraaa**](https://github.com/Danennndraaa) | [**om-ica**](https://github.com/om-ica) |
+| [**Alexander**](https://github.com/AlexanderDev2004)<br><sub>Fullstack Developer</sub> | [**NathanaelGracedo**](https://github.com/NathanaelGracedo)<br><sub>Backend Developer</sub> | [**Fatikah002**](https://github.com/Fatikah002)<br><sub>Frontend Developer</sub> | [**Danennndraaa**](https://github.com/Danennndraaa)<br><sub>UI/UX Designer</sub> | [**om-ica**](https://github.com/om-ica)<br><sub>Project Manager</sub> |
+
+</div>
 
