@@ -71,8 +71,7 @@
                                         @case(1) <span class="badge badge-warning">Menunggu Verifikasi</span> @break
                                         @case(2) <span class="badge badge-danger">Ditolak</span> @break
                                         @case(3) <span class="badge badge-info">Diproses</span> @break
-                                        @case(4) <span class="badge badge-success">Selesai</span> @break
-                                         @case(6) <span class="badge badge-success">Selesai diperiksa</span> @break
+                                        @case(6) <span class="badge badge-success">Selesai Diperiksa</span> @break
                                         @default <span class="badge badge-secondary">Tidak Diketahui</span>
                                     @endswitch
                                 </td>
