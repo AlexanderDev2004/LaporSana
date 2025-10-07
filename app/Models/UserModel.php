@@ -4,17 +4,18 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
-use Illuminate\Database\Eloquent\Model;
-use Illuminate\Support\Facades\Hash;
 use Illuminate\Foundation\Auth\User as Authenticatable;
+use Illuminate\Support\Facades\Hash;
+use Tymon\JWTAuth\Contracts\JWTSubject;
 
-class UserModel extends Authenticatable
+class UserModel extends Authenticatable implements JWTSubject
 {
     use HasFactory;
 
     protected $table = 'm_user';
     protected $primaryKey = 'user_id';
     public $incrementing = true;
+
     protected $fillable = [
         'roles_id',
         'username',
@@ -25,12 +26,10 @@ class UserModel extends Authenticatable
         'avatar'
     ];
 
-    protected $hidden = [
-        'password'
-    ];
+    protected $hidden = ['password'];
 
     protected $casts = [
-        'password' => 'hashed', //casting pw agar dihash otomatis
+        'password' => 'hashed', // otomatis hash password
     ];
 
     public function role()
@@ -45,13 +44,11 @@ class UserModel extends Authenticatable
         );
     }
 
-    //ambil nama role
     public function getRoleName(): string
     {
         return $this->role->roles_nama;
     }
 
-    //cek apakah user memiliki role tertentu
     public function hasRole(string $role): bool
     {
         return $this->role->roles_kode === $role;
@@ -63,13 +60,19 @@ class UserModel extends Authenticatable
     }
 
 
-    public function getNamaAttribute()
+    public function getJWTIdentifier()
     {
-        return match ($this->role->roles_kode) {
-            'MHS' => $this->mahasiswa?->nama,
-            'DSN' => $this->dosen?->nama,
-            'ADM' => $this->admin?->nama,
-            default => null,
-        };
+        return $this->getKey();
+    }
+
+    public function getJWTCustomClaims()
+    {
+        return [];
+    }
+
+
+    public function username()
+    {
+        return 'username';
     }
 }
