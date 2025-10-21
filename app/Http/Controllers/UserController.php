@@ -127,8 +127,10 @@ class UserController extends Controller
         return view('admin.users.edit', compact('user', 'roles', 'active_menu', 'breadcrumb'));
     }
 
-    public function update(Request $request, UserModel $user)
+    public function update(Request $request, $id)
     {
+        $user = UserModel::findOrFail($id);
+
         $validator = Validator::make($request->all(), [
             'username' => 'required|unique:m_user,username,' . $user->user_id . ',user_id|min:3|max:50',
             'name' => 'required|min:3|max:100',
@@ -140,53 +142,30 @@ class UserController extends Controller
         ]);
 
         if ($validator->fails()) {
-            if ($request->ajax()) {
-                return response()->json([
-                    'status' => false,
-                    'message' => 'Validasi gagal',
-                    'msgField' => $validator->errors()
-                ]);
-            }
-
-            return redirect()->back()
-                ->withErrors($validator)
-                ->withInput();
+            return response()->json([
+                'status' => false,
+                'message' => 'Validasi gagal',
+                'msgField' => $validator->errors()
+            ], 422);
         }
 
         try {
-            // Get role information to check if it's a "Mahasiswa" role
             $role = RoleModel::find($request->roles_id);
             $roleName = $role ? strtolower($role->roles_nama) : '';
 
-            // Additional validation based on role
+            // Validasi tambahan berdasarkan role
             if (str_contains($roleName, 'mahasiswa') && empty($request->NIM)) {
-                $nimError = 'NIM wajib diisi untuk user dengan role Mahasiswa';
-
-                if ($request->ajax()) {
-                    return response()->json([
-                        'status' => false,
-                        'message' => $nimError,
-                        'msgField' => ['NIM' => [$nimError]]
-                    ]);
-                }
-
-                return redirect()->back()
-                    ->withErrors(['NIM' => $nimError])
-                    ->withInput();
+                return response()->json([
+                    'status' => false,
+                    'message' => 'NIM wajib diisi untuk user dengan role Mahasiswa',
+                    'msgField' => ['NIM' => ['NIM wajib diisi untuk Mahasiswa']]
+                ]);
             } elseif (!str_contains($roleName, 'mahasiswa') && !empty($roleName) && empty($request->NIP)) {
-                $nipError = 'NIP wajib diisi untuk role selain Mahasiswa';
-
-                if ($request->ajax()) {
-                    return response()->json([
-                        'status' => false,
-                        'message' => $nipError,
-                        'msgField' => ['NIP' => [$nipError]]
-                    ]);
-                }
-
-                return redirect()->back()
-                    ->withErrors(['NIP' => $nipError])
-                    ->withInput();
+                return response()->json([
+                    'status' => false,
+                    'message' => 'NIP wajib diisi untuk role selain Mahasiswa',
+                    'msgField' => ['NIP' => ['NIP wajib diisi untuk role selain Mahasiswa']]
+                ]);
             }
 
             $data = [
@@ -202,7 +181,6 @@ class UserController extends Controller
             }
 
             if ($request->hasFile('avatar')) {
-                // Hapus avatar lama jika ada
                 if ($user->avatar) {
                     Storage::delete('public/' . $user->avatar);
                 }
@@ -214,28 +192,17 @@ class UserController extends Controller
 
             $user->update($data);
 
-            if ($request->ajax()) {
-                return response()->json([
-                    'status' => true,
-                    'message' => 'User berhasil diperbarui'
-                ]);
-            }
-
-            return redirect()->route('admin.users.index')
-                ->with('success', 'User berhasil diperbarui.');
+            return response()->json([
+                'status' => true,
+                'message' => 'User berhasil diperbarui',
+                'data' => $user
+            ]);
         } catch (\Exception $e) {
             Log::error('Error updating user: ' . $e->getMessage());
-
-            if ($request->ajax()) {
-                return response()->json([
-                    'status' => false,
-                    'message' => 'Gagal memperbarui user: ' . $e->getMessage()
-                ]);
-            }
-
-            return redirect()->back()
-                ->with('error', 'Gagal memperbarui user: ' . $e->getMessage())
-                ->withInput();
+            return response()->json([
+                'status' => false,
+                'message' => 'Gagal memperbarui user: ' . $e->getMessage()
+            ], 500);
         }
     }
 
@@ -452,7 +419,7 @@ class UserController extends Controller
 
     public function export_pdf()
     {
-         $user = UserModel::select('roles_id', 'username', 'name', 'NIM', 'NIP')
+        $user = UserModel::select('roles_id', 'username', 'name', 'NIM', 'NIP')
             ->orderBy('roles_id')
             ->with('role')
             ->get();
