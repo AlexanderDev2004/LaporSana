@@ -60,8 +60,8 @@ class FasilitasController extends Controller
     public function create()
     {
         $breadcrumb = (object) [
-            'title' => 'Tambah Fasiltas',
-            'list' => ['Home', 'Fasiltas', 'Tambah'],
+            'title' => 'Tambah Fasilitas',
+            'list' => ['Home', 'Fasilitas', 'Tambah'],
         ];
 
         $active_menu = 'fasilitas';
