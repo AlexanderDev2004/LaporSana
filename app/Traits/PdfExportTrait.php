@@ -9,11 +9,11 @@ trait PdfExportTrait
     /**
      * Generate and stream a PDF from a view
      *
-     * @param string $view View name
-     * @param array $data Data to pass to the view
-     * @param string $filename Filename for the PDF
-     * @param string $orientation Paper orientation ('portrait' or 'landscape')
-     * @param string $paperSize Paper size (default 'a4')
+     * @param  string  $view  View name
+     * @param  array  $data  Data to pass to the view
+     * @param  string  $filename  Filename for the PDF
+     * @param  string  $orientation  Paper orientation ('portrait' or 'landscape')
+     * @param  string  $paperSize  Paper size (default 'a4')
      * @return \Illuminate\Http\Response
      */
     protected function generatePdf(

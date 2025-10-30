@@ -7,15 +7,14 @@ trait JsonResponseTrait
     /**
      * Return a success JSON response
      *
-     * @param string $message
-     * @param mixed $data
+     * @param  mixed  $data
      * @return \Illuminate\Http\JsonResponse
      */
     protected function jsonSuccess(string $message, $data = null)
     {
         $response = [
             'status' => true,
-            'message' => $message
+            'message' => $message,
         ];
 
         if ($data !== null) {
@@ -28,8 +27,6 @@ trait JsonResponseTrait
     /**
      * Return an error JSON response
      *
-     * @param string $message
-     * @param array $msgField
      * @return \Illuminate\Http\JsonResponse
      */
     protected function jsonError(string $message, array $msgField = [])
@@ -37,14 +34,14 @@ trait JsonResponseTrait
         return response()->json([
             'status' => false,
             'message' => $message,
-            'msgField' => $msgField
+            'msgField' => $msgField,
         ]);
     }
 
     /**
      * Return a validation error JSON response
      *
-     * @param \Illuminate\Contracts\Validation\Validator $validator
+     * @param  \Illuminate\Contracts\Validation\Validator  $validator
      * @return \Illuminate\Http\JsonResponse
      */
     protected function jsonValidationError($validator)
@@ -52,7 +49,7 @@ trait JsonResponseTrait
         return response()->json([
             'status' => false,
             'message' => 'Validasi gagal',
-            'msgField' => $validator->errors()
+            'msgField' => $validator->errors(),
         ]);
     }
 }

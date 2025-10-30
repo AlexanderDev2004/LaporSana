@@ -11,10 +11,9 @@ trait ExcelImportTrait
     /**
      * Handle Excel file import with validation
      *
-     * @param Request $request
-     * @param string $fileFieldName Field name in the request (e.g., 'file_roles')
-     * @param callable $dataMapper Callback to map Excel row to database fields
-     * @param string $modelClass Model class name for insert
+     * @param  string  $fileFieldName  Field name in the request (e.g., 'file_roles')
+     * @param  callable  $dataMapper  Callback to map Excel row to database fields
+     * @param  string  $modelClass  Model class name for insert
      * @return \Illuminate\Http\JsonResponse
      */
     protected function importExcel(
@@ -23,12 +22,12 @@ trait ExcelImportTrait
         callable $dataMapper,
         string $modelClass
     ) {
-        if (!$request->ajax() && !$request->wantsJson()) {
+        if (! $request->ajax() && ! $request->wantsJson()) {
             return redirect('/');
         }
 
         $rules = [
-            $fileFieldName => ['required', 'mimes:xlsx', 'max:1024']
+            $fileFieldName => ['required', 'mimes:xlsx', 'max:1024'],
         ];
 
         $validator = Validator::make($request->all(), $rules);
@@ -37,7 +36,7 @@ trait ExcelImportTrait
             return response()->json([
                 'status' => false,
                 'message' => 'Validasi Gagal',
-                'msgField' => $validator->errors()
+                'msgField' => $validator->errors(),
             ]);
         }
 
@@ -67,12 +66,12 @@ trait ExcelImportTrait
 
             return response()->json([
                 'status' => true,
-                'message' => 'Data berhasil diimport'
+                'message' => 'Data berhasil diimport',
             ]);
         } else {
             return response()->json([
                 'status' => false,
-                'message' => 'Tidak ada data yang diimport'
+                'message' => 'Tidak ada data yang diimport',
             ]);
         }
     }

@@ -2,8 +2,8 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\UserModel;
 use App\Models\RoleModel;
+use App\Models\UserModel;
 use App\Traits\ExcelExportTrait;
 use App\Traits\ExcelImportTrait;
 use App\Traits\JsonResponseTrait;
@@ -12,18 +12,18 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
-use Yajra\DataTables\Facades\DataTables;
 use Illuminate\Support\Facades\Validator;
+use Yajra\DataTables\Facades\DataTables;
 
 class UserController extends Controller
 {
-    use JsonResponseTrait, ExcelExportTrait, ExcelImportTrait, PdfExportTrait;
+    use ExcelExportTrait, ExcelImportTrait, JsonResponseTrait, PdfExportTrait;
 
     public function index()
     {
         $breadcrumb = (object) [
             'title' => 'Manajemen User',
-            'list'  => ['Home', 'User']
+            'list' => ['Home', 'User'],
         ];
 
         $active_menu = 'users';
@@ -59,7 +59,7 @@ class UserController extends Controller
                     'NIM wajib diisi untuk user dengan role Mahasiswa',
                     ['NIM' => ['NIM wajib diisi untuk Mahasiswa']]
                 );
-            } elseif (!str_contains($roleName, 'mahasiswa') && !empty($roleName) && empty($request->NIP)) {
+            } elseif (! str_contains($roleName, 'mahasiswa') && ! empty($roleName) && empty($request->NIP)) {
                 return $this->jsonError(
                     'NIP wajib diisi untuk user selain Mahasiswa',
                     ['NIP' => ['NIP wajib diisi untuk role selain Mahasiswa']]
@@ -78,7 +78,7 @@ class UserController extends Controller
             // Handle file upload jika ada
             if ($request->hasFile('avatar')) {
                 $file = $request->file('avatar');
-                $filename = time() . '_' . $file->getClientOriginalName();
+                $filename = time().'_'.$file->getClientOriginalName();
                 $path = $file->storeAs('avatars', $filename, 'public');
                 $data['avatar'] = $path;
             }
@@ -87,17 +87,18 @@ class UserController extends Controller
 
             return $this->jsonSuccess('Data user berhasil ditambahkan');
         } catch (\Exception $e) {
-            Log::error('Error saat menyimpan user: ' . $e->getMessage());
-            return $this->jsonError('Terjadi kesalahan saat menyimpan: ' . $e->getMessage());
+            Log::error('Error saat menyimpan user: '.$e->getMessage());
+
+            return $this->jsonError('Terjadi kesalahan saat menyimpan: '.$e->getMessage());
         }
     }
 
     public function create()
     {
         $roles = RoleModel::all();
+
         return view('Admin.users.create', compact('roles'));
     }
-
 
     public function edit(UserModel $user, Request $request)
     {
@@ -111,7 +112,7 @@ class UserController extends Controller
         // Otherwise, return the full page for direct navigation
         $breadcrumb = (object) [
             'title' => 'Edit User',
-            'list'  => ['Home', 'User', 'Edit']
+            'list' => ['Home', 'User', 'Edit'],
         ];
         $active_menu = 'users';
 
@@ -121,7 +122,7 @@ class UserController extends Controller
     public function update(Request $request, UserModel $user)
     {
         $validator = Validator::make($request->all(), [
-            'username' => 'required|unique:m_user,username,' . $user->user_id . ',user_id|min:3|max:50',
+            'username' => 'required|unique:m_user,username,'.$user->user_id.',user_id|min:3|max:50',
             'name' => 'required|min:3|max:100',
             'roles_id' => 'required|exists:m_roles,roles_id',
             'NIM' => 'nullable|string|max:20',
@@ -156,7 +157,7 @@ class UserController extends Controller
                 return redirect()->back()
                     ->withErrors(['NIM' => $nimError])
                     ->withInput();
-            } elseif (!str_contains($roleName, 'mahasiswa') && !empty($roleName) && empty($request->NIP)) {
+            } elseif (! str_contains($roleName, 'mahasiswa') && ! empty($roleName) && empty($request->NIP)) {
                 $nipError = 'NIP wajib diisi untuk role selain Mahasiswa';
 
                 if ($request->ajax()) {
@@ -183,10 +184,10 @@ class UserController extends Controller
             if ($request->hasFile('avatar')) {
                 // Hapus avatar lama jika ada
                 if ($user->avatar) {
-                    Storage::delete('public/' . $user->avatar);
+                    Storage::delete('public/'.$user->avatar);
                 }
                 $file = $request->file('avatar');
-                $filename = time() . '_' . $file->getClientOriginalName();
+                $filename = time().'_'.$file->getClientOriginalName();
                 $path = $file->storeAs('avatars', $filename, 'public');
                 $data['avatar'] = $path;
             }
@@ -200,18 +201,17 @@ class UserController extends Controller
             return redirect()->route('admin.users.index')
                 ->with('success', 'User berhasil diperbarui.');
         } catch (\Exception $e) {
-            Log::error('Error updating user: ' . $e->getMessage());
+            Log::error('Error updating user: '.$e->getMessage());
 
             if ($request->ajax()) {
-                return $this->jsonError('Gagal memperbarui user: ' . $e->getMessage());
+                return $this->jsonError('Gagal memperbarui user: '.$e->getMessage());
             }
 
             return redirect()->back()
-                ->with('error', 'Gagal memperbarui user: ' . $e->getMessage())
+                ->with('error', 'Gagal memperbarui user: '.$e->getMessage())
                 ->withInput();
         }
     }
-
 
     public function destroy($id)
     {
@@ -238,14 +238,16 @@ class UserController extends Controller
             })
             ->addColumn('avatar_img', function ($user) {
                 if ($user->avatar) {
-                    return '<img src="' . asset('storage/' . $user->avatar) . '" class="img-circle" width="50" height="50">';
+                    return '<img src="'.asset('storage/'.$user->avatar).'" class="img-circle" width="50" height="50">';
                 }
-                return '<img src="' . asset('LaporSana/dist/img/user2-160x160.jpg') . '" class="img-circle" width="50" height="50">';
+
+                return '<img src="'.asset('LaporSana/dist/img/user2-160x160.jpg').'" class="img-circle" width="50" height="50">';
             })
             ->addColumn('aksi', function ($user) {
-                $btn = '<button onclick="modalAction(\'' . route('admin.users.show', $user->user_id) . '\')" class="btn btn-info btn-sm"><i class="fas fa-eye"></i></button> ';
-                $btn .= '<button onclick="modalAction(\'' . route('admin.users.edit', $user->user_id) . '\')" class="btn btn-warning btn-sm"><i class="fas fa-edit"></i></button> ';
-                $btn .= '<button onclick="modalAction(\'' . route('admin.users.confirm', $user->user_id) . '\')" class="btn btn-danger btn-sm"><i class="fas fa-trash"></i></button>';
+                $btn = '<button onclick="modalAction(\''.route('admin.users.show', $user->user_id).'\')" class="btn btn-info btn-sm"><i class="fas fa-eye"></i></button> ';
+                $btn .= '<button onclick="modalAction(\''.route('admin.users.edit', $user->user_id).'\')" class="btn btn-warning btn-sm"><i class="fas fa-edit"></i></button> ';
+                $btn .= '<button onclick="modalAction(\''.route('admin.users.confirm', $user->user_id).'\')" class="btn btn-danger btn-sm"><i class="fas fa-trash"></i></button>';
+
                 return $btn;
             })
             ->rawColumns(['avatar_img', 'aksi'])
@@ -255,9 +257,9 @@ class UserController extends Controller
     public function confirm($id)
     {
         $user = UserModel::with('role')->find($id);
+
         return view('Admin.users.confirm', compact('user'));
     }
-
 
     public function delete($id)
     {
@@ -273,9 +275,10 @@ class UserController extends Controller
 
             return $this->jsonSuccess('User berhasil dihapus!');
         } catch (\Exception $e) {
-            return $this->jsonError('Gagal menghapus user: ' . $e->getMessage());
+            return $this->jsonError('Gagal menghapus user: '.$e->getMessage());
         }
     }
+
     public function show(Request $request, $id)
     {
         $user = UserModel::with('role')->find($id);
@@ -288,12 +291,13 @@ class UserController extends Controller
         // Otherwise, return the full page for direct navigation
         $breadcrumb = (object) [
             'title' => 'Detail User',
-            'list'  => ['Home', 'User', 'Detail']
+            'list' => ['Home', 'User', 'Detail'],
         ];
         $active_menu = 'users';
 
         return view('admin.users.show', compact('user', 'active_menu', 'breadcrumb'));
     }
+
     public function import()
     {
         return view('admin.users.import');
@@ -331,7 +335,7 @@ class UserController extends Controller
             'C' => 'Username',
             'D' => 'Nama',
             'E' => 'NIM',
-            'F' => 'NIP'
+            'F' => 'NIP',
         ];
 
         $data = [];
@@ -343,13 +347,13 @@ class UserController extends Controller
                 'C' => $item->username,
                 'D' => $item->name,
                 'E' => $item->NIM,
-                'F' => $item->NIP
+                'F' => $item->NIP,
             ];
             $no++;
         }
 
         $spreadsheet = $this->createSpreadsheet($headers, $data, 'Data User');
-        $filename = 'Data User ' . date('Y-m-d H:i:s') . '.xlsx';
+        $filename = 'Data User '.date('Y-m-d H:i:s').'.xlsx';
         $this->exportSpreadsheet($spreadsheet, $filename);
     } // end function export_excel
 
@@ -363,7 +367,7 @@ class UserController extends Controller
         return $this->generatePdf(
             'admin.users.export_pdf',
             ['user' => $user],
-            'Data User ' . date('Y-m-d H:i:s') . '.pdf',
+            'Data User '.date('Y-m-d H:i:s').'.pdf',
             'portrait'
         );
     }
